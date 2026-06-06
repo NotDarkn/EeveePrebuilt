@@ -1,10 +1,12 @@
+# EeveeReincarnatedIPAs
+**Updated and maintained by [jaydenjcpy](https://github.com/jaydenjcpy) & [faroukbmiled](https://github.com/faroukbmiled)** - Current Version `9.1.48` <br />
+**Last Update:** `6/6/26`
+
+I created this repository mainly so I could create myself prebuilt binaries of [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated) without needing to wait for another repository to do it for me (_or perhaps losing out on some changes_). Additionally, the other prebuilt binary repository, [EeveeIPA](https://github.com/estrogencat/EeveeIPA), just does **NOT** work when trying to sideload using tools such as Sideloadly, so building it myself was the next best option.
+
+---
+
 ![Banner](Images/banner.png?)
-
-# EeveeSpotifyReincarnated
-
-**Updated and maintained by [jaydenjcpy](https://github.com/jaydenjcpy) & [faroukbmiled](https://github.com/faroukbmiled)  - Current Version 9.1.48**
-
-**Last updated 5/16/26**
 
 This tweak makes Spotify think you have a Premium subscription, granting free listening, just like Spotilife, and provides some additional features like custom lyrics.
 
@@ -13,7 +15,7 @@ This tweak makes Spotify think you have a Premium subscription, granting free li
 
 ## Custom Lyrics Support
 
-**Spotify 9.1.50 and above** - Full custom lyrics functionality is available with the following providers:
+**Spotify 9.1.48+** - Full custom lyrics functionality is available with the following providers:
 
 - **Musixmatch**
 - **PetitLyrics**
