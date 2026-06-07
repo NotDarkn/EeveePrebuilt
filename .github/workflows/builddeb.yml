@@ -1,0 +1,101 @@
+name: Build rootless .deb + Draft Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Git tag to create/use for the draft release (e.g. v6.6.3.1)"
+        required: true
+        default: "v6.6.3.1"
+      release_name:
+        description: "Release title (optional)"
+        required: false
+        default: ""
+      prerelease:
+        description: "Mark as prerelease"
+        required: true
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+
+env:
+  THEOS: ${{ github.workspace }}/theos
+  SWIFTPROTOBUF_VERSION: "1.29.0"
+
+jobs:
+  build-debs:
+    name: Build arm64 .deb
+    runs-on: macos-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "16.2.0"
+
+      - name: Checkout Theos
+        uses: actions/checkout@v4
+        with:
+          repository: theos/theos
+          path: ${{ github.workspace }}/theos
+          submodules: recursive
+
+      - name: Install build tools
+        run: |
+          brew install make dpkg ldid
+          echo "$(brew --prefix make)/libexec/gnubin" >> "$GITHUB_PATH"
+
+      - name: Build EeveeSwiftProtobuf.framework (required once)
+        run: |
+          make build-eeveeswiftprotobuf
+
+      - name: Install EeveeSwiftProtobuf into Theos
+        run: |
+          # Find the built framework (adjust if your build script outputs somewhere specific)
+          FW=$(find "$GITHUB_WORKSPACE" -name "EeveeSwiftProtobuf.framework" -type d | head -n 1)
+          [ -n "$FW" ] || { echo "EeveeSwiftProtobuf.framework not found" >&2; exit 1; }
+
+          mkdir -p "$THEOS/vendor/lib"
+          rm -rf "$THEOS/vendor/lib/EeveeSwiftProtobuf.framework"
+          cp -R "$FW" "$THEOS/vendor/lib/EeveeSwiftProtobuf.framework"
+
+
+      - name: Build arm64 .deb
+        env:
+          REPO_SLUG: ${{ github.repository }}
+        run: |
+          make clean || true
+          make package FINALPACKAGE=1 ARCHS="arm64"
+          ls -la packages || true
+
+      - name: Save arm64 artifact
+        run: |
+          mkdir -p Outputs/DEBS
+          # pick newest deb produced by Theos
+          ARM64_DEB="$(ls -t packages/*.deb | head -n 1)"
+          cp -f "$ARM64_DEB" "Outputs/DEBS/$(basename "$ARM64_DEB" .deb)_arm64.deb"
+          echo "ARM64_DEB=Outputs/DEBS/$(basename "$ARM64_DEB" .deb)_arm64.deb" >> "$GITHUB_ENV"
+
+      - name: Upload deb artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: EeveeSpotify-DEBS
+          path: Outputs/DEBS/*.deb
+          if-no-files-found: error
+
+      - name: Draft GitHub Release and attach .debs
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ inputs.tag }}
+          name: ${{ inputs.release_name != '' && inputs.release_name || inputs.tag }}
+          draft: true
+          prerelease: ${{ inputs.prerelease == 'true' }}
+          files: |
+            ${{ env.ARM64_DEB }}
