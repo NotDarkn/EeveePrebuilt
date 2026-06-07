@@ -1,4 +1,4 @@
-# EeveeReincarnatedIPAs
+# EeveeReincarnatedIPA
 **Maintainers**: [**jaydenjcpy**](https://github.com/jaydenjcpy) & [**faroukbmiled**](https://github.com/faroukbmiled) - **Uploader:** [**NotDarkn**](https://github.com/notdarkn) <br />
 **Last Update:** `6/7/26` - **Current Version** `9.1.48`
 
