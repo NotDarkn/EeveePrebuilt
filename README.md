@@ -1,5 +1,5 @@
 # EeveeReincarnatedIPAs
-**Updated & maintained by**: [**jaydenjcpy**](https://github.com/jaydenjcpy) & [**faroukbmiled**](https://github.com/faroukbmiled) - **Uploaded by:** [**NotDarkn**](https://github.com/notdarkn) <br />
+**Maintainers**: [**jaydenjcpy**](https://github.com/jaydenjcpy) & [**faroukbmiled**](https://github.com/faroukbmiled) - **Uploader:** [**NotDarkn**](https://github.com/notdarkn) <br />
 **Last Update:** `6/6/26` - **Current Version** `9.1.48`
 
 I created this repository mainly so I could create myself prebuilt binaries of [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated) without needing to wait for another repository to do it for me (_or perhaps losing out on some changes_). Additionally, the other prebuilt binary repository, [EeveeIPA](https://github.com/estrogencat/EeveeIPA), just does **NOT** work when trying to sideload using tools such as Sideloadly, so building it myself was the next best option.
