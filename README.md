@@ -21,6 +21,11 @@ The latest prebuilt EeveeReincarnatedIPA binaries can be found [here](https://gi
 
 ---
 
+<details>
+<summary>
+  <b>Old EeveeSpotify README</b>
+</summary>
+
 ![Banner](Images/banner.png?)
 This tweak makes Spotify think you have a Premium subscription, granting free listening, just like Spotilife, and provides some additional features like custom lyrics.
 
@@ -99,6 +104,6 @@ Thanks for all of the community's support, also, thanks to all the devs who work
 
 [whoeevee](https://github.com/whoeevee) - EeveeSpotify & EeveeSpotifyReborn, where all this started
 
-
+</details>
 
 
