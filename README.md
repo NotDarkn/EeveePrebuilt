@@ -4,6 +4,9 @@
 
 I created this repository mainly so I could create myself prebuilt binaries of [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated) without needing to wait for another repository to do it for me (_or perhaps losing out on some changes_). Additionally, the other prebuilt binary repository, [EeveeIPA](https://github.com/estrogencat/EeveeIPA), just did **NOT** work when I tried to sideload using tools such as Sideloadly, so building it myself was the next best option.
 
+## Download
+The latest prebuilt EeveeReincarnatedIPA binaries can be found [here](https://github.com/NotDarkn/EeveeReincarnatedIPAs/releases/latest).
+
 ## How I Build
 1. Obtain the latest Spotify IPA from the [Decrypted iOS IPA App Store](https://armconverter.com/decryptedappstore/us).
 2. Upload the IPA to a temporary file hosting website for GitHub Actions to obtain from. (_in this case, I use [catbox.moe](https://catbox.moe/)_)
@@ -12,9 +15,6 @@ I created this repository mainly so I could create myself prebuilt binaries of [
 
 <sup>1. These prebuilt binaries are tested using an **iPhone 13 mini** running **iOS `26.5`** with a **Free Developer Account**.<sup>2</sup></sup><br />
 <sup>2. I am unable to test patched binaries which in return means I **cannot** verify if they successfully install or launch.
-
-## Download
-The latest prebuilt EeveeReincarnatedIPA binaries can be found [here](https://github.com/NotDarkn/EeveeReincarnatedIPAs/releases/latest).
 
 ---
 
