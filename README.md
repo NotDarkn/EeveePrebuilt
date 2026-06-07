@@ -4,7 +4,7 @@
 
 I created this repository mainly so I could create myself prebuilt binaries of [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated) without needing to wait for another repository to do it for me (_or perhaps losing out on some changes_).
 
-<sup>This repository is heavily inspired from the [@estrogencat](https://github.com/estrogencat)'s [EeveeIPA](https://github.com/estrogencat/EeveeIPA) repository. Their prebuilts weren't able to let me sideload with Sideloadly<sup>1</sup>, so I made this. <br /><sup>1. They've since fixed it as told in their [README.md](https://github.com/estrogencat/EeveeIPA#eeveespotifyreincarnated).</sup></sup>
+<sup>This repository is heavily inspired from the [@estrogencat](https://github.com/estrogencat)'s [EeveeIPA](https://github.com/estrogencat/EeveeIPA) repository. Their prebuilts weren't able to let me sideload with Sideloadly<sup>1</sup>, so I made this. <br /><sup>1. She've since fixed it as told in her [README.md](https://github.com/estrogencat/EeveeIPA#eeveespotifyreincarnated).</sup></sup>
 
 ## Download
 The latest prebuilt EeveeReincarnatedIPA binaries can be found [here](https://github.com/NotDarkn/EeveeReincarnatedIPA/releases/latest).
