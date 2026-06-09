@@ -16,7 +16,7 @@ The latest prebuilt EeveeReincarnatedIPA binaries can be found [here](https://gi
 4. After it finishes, download the artifacts, test<sup>2</sup> them, and upload them into a GitHub release.
 
 <sup>1. If EeveeSpotifyReincarnated updates but Spotify hasn't, then I **reuse** the Spotify IPA I uploaded before to build IPAs again.</sup><br />
-<sup>2. These prebuilt binaries are tested using an **iPhone 13 mini** running **iOS `26.5`** with a **Free Developer Account**.<sup>3</sup></sup><br />
+<sup>2. These prebuilt binaries are tested using an **iPhone 13 mini** running **iOS `27.0`** with a **Free Developer Account** through **Sideloadly**.<sup>3</sup></sup><br />
 <sup>3. I am unable to test patched binaries which in return means I **cannot** verify if they successfully install or launch.
 
 ## Credits
