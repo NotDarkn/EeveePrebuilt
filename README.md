@@ -1,4 +1,5 @@
-# EeveeReincarnatedIPA
+![Banner](https://github.com/NotDarkn/EeveeReincarnatedIPA/blob/Master/Images/EeveeReincarnatedIPA%20Banner.png?raw=true)
+---
 **Maintainers**: [**jaydenjcpy**](https://github.com/jaydenjcpy) & [**faroukbmiled**](https://github.com/faroukbmiled) - **Uploader:** [**NotDarkn**](https://github.com/notdarkn) <br />
 **Last Update:** `6/8/26` (MM/DD/YY) - **Current Version** `9.1.48`
 
