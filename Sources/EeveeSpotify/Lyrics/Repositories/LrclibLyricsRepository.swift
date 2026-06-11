@@ -51,7 +51,8 @@ class LrclibLyricsRepository: LyricsRepository {
             throw error
         }
 
-        return data!
+        guard let data else { throw LyricsError.decodingError }
+        return data
     }
     
     private func getSong(trackName: String, artistName: String) throws -> LrclibSong {

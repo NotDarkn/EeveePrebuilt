@@ -2,14 +2,12 @@ import Orion
 import SwiftUI
 import MediaPlayer
 
-//
-
 struct BaseLyricsGroup: HookGroup { }
 
 struct LegacyLyricsGroup: HookGroup { }
 struct ModernLyricsGroup: HookGroup { }
-struct V91LyricsGroup: HookGroup { }  // For Spotify 9.1.x - excludes incompatible hooks
-struct LyricsErrorHandlingGroup: HookGroup { }  // ErrorViewController hooks - not compatible with 9.1.x
+struct V91LyricsGroup: HookGroup { }            // 9.1.x-safe subset
+struct LyricsErrorHandlingGroup: HookGroup { }  // not activated on 9.1.x
 
 var lyricsState = LyricsLoadingState()
 
@@ -23,46 +21,36 @@ private let petitLyricsRepository = PetitLyricsRepository()
 private func loadCustomLyricsForTrackId(_ trackId: String) throws -> Lyrics {
     
     let source = UserDefaults.lyricsSource
-    
-    // Always clear captured metadata to ensure we fetch fresh info
+
     var currentTitle: String? = nil
     var currentArtist: String? = nil
     var hasMetadata = false
-    
-    // If metadata is needed (Genius/LRCLIB/Petit), fetch using token
+
     let needsMetadata = source == .genius || source == .lrclib || source == .petit
-    
-    // Check if we already have the metadata cached for this exact trackId
+
     if capturedTrackId == trackId, let title = capturedTrackTitle, let artist = capturedArtistName {
         currentTitle = title
         currentArtist = artist
         hasMetadata = true
     }
-    
-    // Fetch if missing
+
     if !hasMetadata {
-        
-        // Try getting metadata from the current player state (most reliable)
-        if let player = statefulPlayer, 
+        if let player = statefulPlayer,
            let track = player.currentTrack() {
             let currentId = track.URI().spt_trackIdentifier()
-            
+
             if currentId == trackId {
                 currentTitle = track.trackTitle()
                 currentArtist = track.artistName()
                 hasMetadata = true
-                
-                // Cache it
                 capturedTrackId = trackId
                 capturedTrackTitle = currentTitle
                 capturedArtistName = currentArtist
-            } else {
             }
-        } else {
         }
 
         if !hasMetadata {
-            // Try MPNowPlayingInfoCenter (always available, version-independent)
+            // fallback: MPNowPlayingInfoCenter (version-independent)
             if let info = MPNowPlayingInfoCenter.default().nowPlayingInfo,
                let title = info[MPMediaItemPropertyTitle] as? String,
                let artist = info[MPMediaItemPropertyArtist] as? String,
@@ -82,8 +70,6 @@ private func loadCustomLyricsForTrackId(_ trackId: String) throws -> Lyrics {
                     currentTitle = info.title
                     currentArtist = info.artist
                     hasMetadata = true
-                    
-                    // Cache it
                     capturedTrackId = trackId
                     capturedTrackTitle = currentTitle
                     capturedArtistName = currentArtist
@@ -91,12 +77,11 @@ private func loadCustomLyricsForTrackId(_ trackId: String) throws -> Lyrics {
             }
         }
     }
-    
+
     if needsMetadata && !hasMetadata {
         throw LyricsError.noSuchSong
     }
-    
-    // Create search query with available data
+
     let searchQuery = LyricsSearchQuery(
         title: currentTitle ?? "",
         primaryArtist: currentArtist ?? "",
@@ -146,8 +131,6 @@ private func loadCustomLyricsForTrackId(_ trackId: String) throws -> Lyrics {
     return lyrics
 }
 
-//
-
 private func loadCustomLyricsForCurrentTrack() throws -> Lyrics {
     
     guard
@@ -158,11 +141,8 @@ private func loadCustomLyricsForCurrentTrack() throws -> Lyrics {
         }
     
     let trackTitle = track.trackTitle()
-    let artistName = EeveeSpotify.hookTarget == .lastAvailableiOS14
-        ? track.artistName()
-        : track.artistName()
-    
-    
+    let artistName = track.artistName()
+
     let searchQuery = LyricsSearchQuery(
         title: trackTitle,
         primaryArtist: artistName,
@@ -257,8 +237,8 @@ private func loadCustomLyricsForCurrentTrack() throws -> Lyrics {
 
 func getLyricsDataForCurrentTrack(_ originalPath: String, originalLyrics: Lyrics? = nil) throws -> Data {
     
-    // Extract track ID from URL path since player objects are nil in 9.1.6
-    // Format: /color-lyrics/v2/track/{trackId} or /lyrics/.../{trackId}
+    // track id from URL path; player objects are nil on 9.1.6
+    // path: /color-lyrics/v2/track/{trackId}
     let trackIdentifier: String
     if let range = originalPath.range(of: #"/track/([a-zA-Z0-9]+)"#, options: .regularExpression) {
         let match = originalPath[range]
@@ -266,26 +246,17 @@ func getLyricsDataForCurrentTrack(_ originalPath: String, originalLyrics: Lyrics
     } else {
         throw LyricsError.noCurrentTrack
     }
-    
-    // Verify track ID was extracted
+
     if trackIdentifier.isEmpty {
         throw LyricsError.noCurrentTrack
     }
-    
-    // Try to capture metadata from view hierarchy at lyrics request time
-    // Always try to capture fresh metadata when track changes
-    // Clear old metadata if track ID changed
+
     if capturedTrackId != trackIdentifier {
         capturedTrackTitle = nil
         capturedArtistName = nil
         capturedTrackId = nil
     }
-    
-    
-    // We strictly use API fetching now (handled in loadCustomLyricsForTrackId)
-    // No more UI scraping or system info hacking
-    
-    // Use track ID version for 9.1.6 where we don't have track objects
+
     var lyrics = try loadCustomLyricsForTrackId(trackIdentifier)
     
     let lyricsColorsSettings = UserDefaults.lyricsColors
@@ -294,8 +265,7 @@ func getLyricsDataForCurrentTrack(_ originalPath: String, originalLyrics: Lyrics
         lyrics.colors = originalLyrics.colors
     }
     else {
-        // For 9.1.6, we don't have track object to extract color from
-        // Use static color if enabled, otherwise use background color or gray
+        // no track object on 9.1.6: static color, else background color, else gray
         var color: Color
         
         if lyricsColorsSettings.useStaticColor {

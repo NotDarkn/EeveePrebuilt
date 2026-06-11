@@ -49,13 +49,13 @@ class GeniusLyricsRepository: LyricsRepository {
             throw error
         }
 
-        guard let rootResponse = try? jsonDecoder.decode(GeniusRootResponse.self, from: data!) else {
+        guard let data,
+              let rootResponse = try? jsonDecoder.decode(GeniusRootResponse.self, from: data) else {
             throw LyricsError.decodingError
         }
         return rootResponse.response
     }
     
-    //
     
     private func searchSong(_ query: String) throws -> [GeniusHit] {
         let data = try perform("/search/song", query: ["q": query])
@@ -80,7 +80,6 @@ class GeniusLyricsRepository: LyricsRepository {
         return songResponse.song
     }
     
-    //
     
     private func mostRelevantHitResult(
         hits: [GeniusHit],
