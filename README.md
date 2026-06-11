@@ -22,12 +22,21 @@ The latest prebuilt EeveeReincarnatedIPA binaries can be found [here](https://gi
 
 ## Credits
 
-[Ryuk](https://github.com/faroukbmiled) - True Shuffle, App Icon, Support for Spotify v9.1.46 and above 
+- EeveeSpotifyReincarnated
+  - [Jayden](https://github.com/jaydenjcpy) - EeveeSpotifyReincarnated
+  - [Ryuk](https://github.com/faroukbmiled) - True Shuffle, App Icon, Spotify v9.1.46+ Support
+  - [Mod-4](https://github.com/M0d-4) - Custom Lyrics, iPadUI fix
+  - [estrogencat](https://github.com/estrogencat) - Icon Fixes 
 
-[Mod-4](https://github.com/M0d-4) - Custom Lyrics, iPadUI fix 
+- EeveeSpotify
+  - [whoeevee](https://github.com/whoeevee) - EeveeSpotify & EeveeSpotifyReborn, where all this started
+  - [Skye](https://github.com/Meeep1) - EeveeSpotifyRevivedPublic (_the back bone of EeveeSpotifyReincarnated_)
 
-[estrogencat](https://github.com/estrogencat) - Icon Fixes 
 
-[Skye](https://github.com/Meeep1) - EeveeSpotifyRevivedPublic, the base of this project 
 
-[whoeevee](https://github.com/whoeevee) - EeveeSpotify & EeveeSpotifyReborn, where all this started
+
+
+
+
+
+
