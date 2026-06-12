@@ -25,6 +25,10 @@ class MusixmatchLyricsRepository: LyricsRepository {
 
     private let lyricsCache = NSCache<NSString, CachedLyrics>()
 
+    func clearCache() {
+        lyricsCache.removeAllObjects()
+    }
+
     private func getCacheKey(for query: LyricsSearchQuery) -> String {
         return "\(query.hashValue)_\(selectedLanguage)"
     }

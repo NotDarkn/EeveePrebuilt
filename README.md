@@ -70,7 +70,7 @@ Thanks for all of the community's support, also, thanks to all the devs who work
 
 [Ryuk](https://github.com/faroukbmiled) - True Shuffle, App Icon, Support for Spotify v9.1.46 and above 
 
-[Mod-4](https://github.com/M0d-4) - Custom Lyrics, iPadUI fix 
+[Mod4](https://github.com/M0d-4) - Custom Lyrics, iPadUI fix 
 
 [estrogencat](https://github.com/estrogencat) - Icon Fixes 
 

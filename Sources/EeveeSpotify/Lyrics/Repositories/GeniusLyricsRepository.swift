@@ -84,27 +84,35 @@ class GeniusLyricsRepository: LyricsRepository {
     private func mostRelevantHitResult(
         hits: [GeniusHit],
         strippedTitle: String,
+        primaryArtist: String,
         romanized: Bool,
         hasFoundRomanizedLyrics: inout Bool
     ) -> GeniusHitResult {
         let results = hits.map { $0.result }
-        
-        let matchingByTitle = results.filter(
-            { $0.title.containsInsensitive(strippedTitle) }
-        )
-        
-        if matchingByTitle.isEmpty {
-            return results.first!
+
+        let matchingByTitle = results.filter {
+            $0.title.containsInsensitive(strippedTitle)
         }
-        
-        if romanized, let romanizedSong = matchingByTitle.first(
+
+        let strippedArtist = primaryArtist.strippedTrackTitle
+        let matchingByBoth = matchingByTitle.filter {
+            $0.artistNames.containsInsensitive(strippedArtist)
+                || $0.artistNames.containsInsensitive(primaryArtist)
+        }
+
+        // Best match: title+artist → title only → first result
+        let pool = !matchingByBoth.isEmpty ? matchingByBoth
+                 : !matchingByTitle.isEmpty ? matchingByTitle
+                 : results
+
+        if romanized, let romanizedSong = pool.first(
             where: { $0.artistNames == "Genius Romanizations" }
         ) {
             hasFoundRomanizedLyrics = true
             return romanizedSong
         }
-        
-        return matchingByTitle.first!
+
+        return pool.first!
     }
     
     private func mapLyricsLines(_ rawLines: [String]) -> [String] {
@@ -135,6 +143,7 @@ class GeniusLyricsRepository: LyricsRepository {
         let song = mostRelevantHitResult(
             hits: hits,
             strippedTitle: strippedTitle,
+            primaryArtist: query.primaryArtist,
             romanized: options.romanization,
             hasFoundRomanizedLyrics: &hasFoundRomanizedLyrics
         )
