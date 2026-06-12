@@ -12,7 +12,7 @@ The latest prebuilt EeveeReincarnatedIPA binaries can be found [here](https://gi
 
 ## How I Build
 1. Obtain the latest Spotify IPA from either [Decrypted iOS IPA App Store](https://armconverter.com/decryptedappstore/us) or [decrypt.day](https://decrypt.day).
-2. Upload the IPA to a temporary file hosting website for GitHub Actions to obtain from. (_in this case, I use [catbox.moe](https://catbox.moe/)_)
+2. Upload the IPA to a temporary file hosting website for GitHub Actions to obtain from. (_i use [catbox.moe](https://catbox.moe/)_)
 3. Go into "[Actions](https://github.com/NotDarkn/EeveeReincarnatedIPA/actions)" → "Build IPA (NO PATCH)" & "BUILD IPA (PATCHED)" → "Run Workflow" → Insert the URL<sup>1</sup> from step 2 and run the workflow.
 4. After it finishes, download the artifacts, test<sup>2</sup> them, and upload them into a GitHub release.
 
