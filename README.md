@@ -1,7 +1,7 @@
 ![Banner](https://github.com/NotDarkn/EeveeReincarnatedIPA/blob/Master/Images/banner2.png)
 ---
 **Maintainers**: [**jaydenjcpy**](https://github.com/jaydenjcpy) & [**faroukbmiled**](https://github.com/faroukbmiled) - **Uploader:** [**NotDarkn**](https://github.com/notdarkn) <br />
-**Last Update:** `6/11/26` (MM/DD/YY) - **Spotify Version:** `9.1.50.1913`
+**Last Update:** `6/12/26` (MM/DD/YY) - **Spotify Version:** `9.1.50.1913`
 
 I created this repository mainly so I could create myself prebuilt binaries of [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated) without needing to wait for another repository to do it for me (_or perhaps losing out on some changes_).
 
