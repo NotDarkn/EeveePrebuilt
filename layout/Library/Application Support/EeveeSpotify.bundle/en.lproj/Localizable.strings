@@ -32,6 +32,9 @@ If you have an active Premium subscription, you can turn on Do Not Patch Premium
 overwrite_configuration = "Overwrite Configuration";
 overwrite_configuration_description = "Replace remote configuration with the dumped Premium one. This configuration defines most UI/UX parameters and may be helpful, although it could cause issues.";
 
+true_shuffle = "True Shuffle";
+true_shuffle_dec = "Blocks Spotify's free-tier Smart Shuffle from mixing recommended tracks into your queue. Shuffle stays inside the playlist. ";
+
 // Lyrics
 
 do_not_replace_lyrics = "Do Not Replace Lyrics";

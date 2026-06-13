@@ -7,10 +7,25 @@ class LrclibLyricsRepository: LyricsRepository {
     private init(apiUrl: String) {
         self.apiUrl = apiUrl
         
-        let configuration = URLSessionConfiguration.default
+        let configuration = URLSessionConfiguration.ephemeral
         configuration.httpAdditionalHeaders = [
             "User-Agent": "EeveeSpotify v\(EeveeSpotify.version) https://github.com/whoeevee/EeveeSpotify"
         ]
+        configuration.timeoutIntervalForRequest = 5
+        configuration.timeoutIntervalForResource = 5
+        configuration.allowsExpensiveNetworkAccess = true
+        configuration.allowsConstrainedNetworkAccess = true
+        configuration.waitsForConnectivity = false
+        configuration.connectionProxyDictionary = [
+            "HTTPEnable": 0,
+            "HTTPSEnable": 0,
+            "SOCKSEnable": 0
+        ]
+        let originalProtocols = configuration.protocolClasses ?? []
+        writeDebugLog("[LRCLIB] Registered URLProtocols: \(originalProtocols.map { String(describing: $0) })")
+        configuration.protocolClasses = originalProtocols.filter {
+            String(describing: $0).hasPrefix("__NS") || String(describing: $0).hasPrefix("_NS")
+        }
         
         session = URLSession(configuration: configuration)
     }
@@ -48,10 +63,15 @@ class LrclibLyricsRepository: LyricsRepository {
         semaphore.wait()
 
         if let error = error {
+            writeDebugLog("[LRCLIB] Request error for \(stringUrl): \(error)")
             throw error
         }
 
-        guard let data else { throw LyricsError.decodingError }
+        guard let data else {
+            writeDebugLog("[LRCLIB] No data returned for \(stringUrl)")
+            throw LyricsError.decodingError
+        }
+        writeDebugLog("[LRCLIB] \(stringUrl) -> \(data.count) bytes")
         return data
     }
     
@@ -60,7 +80,13 @@ class LrclibLyricsRepository: LyricsRepository {
             "track_name": trackName,
             "artist_name": artistName
         ])
-        return try JSONDecoder().decode(LrclibSong.self, from: data)
+        do {
+            return try JSONDecoder().decode(LrclibSong.self, from: data)
+        } catch {
+            let body = String(data: data, encoding: .utf8) ?? "<non-utf8>"
+            writeDebugLog("[LRCLIB] Decode error for \(trackName)/\(artistName): \(error). Body: \(body.prefix(300))")
+            throw error
+        }
     }
     
     private func mapSyncedLyricsLines(_ lines: [String]) -> [LyricsLineDto] {
@@ -114,7 +140,7 @@ class LrclibLyricsRepository: LyricsRepository {
             )
         }
 
-        if let syncedLyrics = song.syncedLyrics {
+        if let syncedLyrics = song.syncedLyrics, !syncedLyrics.isEmpty {
             let lines = Array(syncedLyrics.components(separatedBy: "\n").dropLast())
             return LyricsDto(
                 lines: mapSyncedLyricsLines(lines),
@@ -123,8 +149,12 @@ class LrclibLyricsRepository: LyricsRepository {
             )
         }
         
-        guard let plainLyrics = song.plainLyrics else {
-            throw LyricsError.decodingError
+        guard let plainLyrics = song.plainLyrics, !plainLyrics.isEmpty else {
+            return LyricsDto(
+                lines: [],
+                timeSynced: false,
+                romanization: .original
+            )
         }
         
         let lines = Array(plainLyrics.components(separatedBy: "\n").dropLast())
