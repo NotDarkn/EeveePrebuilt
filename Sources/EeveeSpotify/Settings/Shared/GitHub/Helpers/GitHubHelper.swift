@@ -35,7 +35,7 @@ struct GitHubHelper {
     func getEeveeContributorSections() async throws -> [EeveeContributorSection] {
         let (data, _) = try await URLSession.shared.data(
             from: URL(
-                string: "https://raw.githubusercontent.com/\(EeveeSpotify.repoSlug)/refs/heads/Master/contributors.json"
+                string: "https://raw.githubusercontent.com/\(EeveeSpotify.repoSlug)/refs/heads/\(GeneratedConfig.branchName)/contributors.json"
             )!
         )
         return try decoder.decode([EeveeContributorSection].self, from: data)

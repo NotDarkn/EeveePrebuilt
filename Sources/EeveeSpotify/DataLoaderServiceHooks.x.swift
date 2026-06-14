@@ -75,7 +75,7 @@ class SPTDataLoaderServiceHook: ClassHook<NSObject>, SpotifySessionDelegate {
                     semaphore.signal()
                 }
 
-                _ = semaphore.wait(timeout: .now() + .milliseconds(12000))
+                _ = semaphore.wait(timeout: .now() + .milliseconds(18000))
                 orig.URLSession(session, dataTask: task, didReceiveData: customLyricsData ?? buffer)
                 orig.URLSession(session, task: task, didCompleteWithError: nil)
                 return
