@@ -52,7 +52,11 @@ class HttpClientURLSessionHook: ClassHook<NSObject>, SpotifySessionDelegate {
                 orig.URLSession(session, dataTask: task, didReceiveData: cached)
                 orig.URLSession(session, task: task, didCompleteWithError: nil)
             } else {
+                // Some Spotify builds complete "modified" tasks with 0 body bytes.
+                // We previously forwarded completion only, which can crash callers that
+                // assume at least one didReceiveData before completion.
                 writeDebugLog("[HCUS] Missing buffered body for \(url.absoluteString) (taskId=\(task.taskIdentifier))")
+                orig.URLSession(session, dataTask: task, didReceiveData: Data())
                 orig.URLSession(session, task: task, didCompleteWithError: error)
             }
             return

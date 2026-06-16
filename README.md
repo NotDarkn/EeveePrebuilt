@@ -7,7 +7,7 @@ this branch is meant to just build the IPAs :)
 # EeveeSpotifyReincarnated
 
 **Maintainers:** [jaydenjcpy](https://github.com/jaydenjcpy) & [faroukbmiled](https://github.com/faroukbmiled) & [Mod4](https://github.com/M0d-4) <br />
-**Last Update:** `6/12/26` **Spotify Version:** `9.1.50`
+**Last Update:** `6/15/26` **Spotify Version:** `9.1.56`
 
 This tweak makes Spotify think you have a Premium subscription, granting free listening, just like Spotilife, and provides some additional features like custom lyrics.
 
@@ -16,7 +16,7 @@ This tweak makes Spotify think you have a Premium subscription, granting free li
 
 ## Custom Lyrics Support
 
-**Spotify 9.1.50 and above** - Full custom lyrics functionality is available with the following providers:
+**Spotify 9.1.56 and above** - Full custom lyrics functionality is available with the following providers:
 
 - **Musixmatch**
 - **PetitLyrics**
@@ -100,15 +100,25 @@ To open Spotify links in sideloaded app, use [OpenSpotifySafariExtension](https:
 ## Credits
 Thanks for all of the community's support, also, thanks to all the devs who worked along with me to revive this project Go check the other dev's out:
 
-[Ryuk](https://github.com/faroukbmiled) - True Shuffle, App Icon, Support for Spotify v9.1.46 and above 
+[Ryuk](https://github.com/faroukbmiled) 
 
-[Mod4](https://github.com/M0d-4) - Custom Lyrics, iPadUI fix 
+[Mod4](https://github.com/M0d-4)
 
-[estrogencat](https://github.com/estrogencat) - Icon Fixes 
+[estrogencat](https://github.com/estrogencat)
 
-[Skye](https://github.com/Meeep1) - EeveeSpotifyRevivedPublic, the base of this project 
+[Skye](https://github.com/Meeep1) 
 
-[whoeevee](https://github.com/whoeevee) - EeveeSpotify & EeveeSpotifyReborn, where all this started
+[whoeevee](https://github.com/whoeevee) 
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=jaydenjcpy%2FEeveeSpotifyReincarnated&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=jaydenjcpy/EeveeSpotifyReincarnated&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=jaydenjcpy/EeveeSpotifyReincarnated&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=jaydenjcpy/EeveeSpotifyReincarnated&type=date&legend=top-left" />
+ </picture>
+</a>
 
 
 
