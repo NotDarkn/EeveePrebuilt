@@ -6,55 +6,64 @@ struct ContributorRow: View {
     var body: some View {
         if contributor.usernames.count > 1 {
             // Multiple main contributors: inline [pfp] name & [pfp] name
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 8) {
                     ForEach(Array(contributor.usernames.enumerated()), id: \.offset) { index, username in
                         if index > 0 {
                             Text("&")
-                                .font(.headline)
+                                .font(.title3).bold()
                                 .foregroundColor(.white)
                         }
-                        HStack(spacing: 4) {
+                        HStack(spacing: 6) {
+                            // Bigger pfp for multi-contributor
                             ImageView(urlString: "https://github.com/\(username).png")
-                                .frame(width: 20, height: 20)
+                                .frame(width: 36, height: 36)
                                 .clipShape(Circle())
                             Text(nameFor(index: index, username: username))
-                                .font(.headline)
+                                .font(.title3).bold()
+                                .foregroundColor(.white)
                         }
                     }
                 }
                 Text(contributor.roles.joined(separator: ", "))
-                    .font(.subheadline)
+                    .font(.callout)
                     .foregroundColor(.gray)
             }
-            .padding(.vertical, 4)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 16)
         } else {
             // Single contributor: pfp on left, name + roles on right
-            HStack(alignment: .top, spacing: 12) {
+            HStack(alignment: .center, spacing: 14) {
+                // Bigger pfp for single contributor
                 ImageView(urlString: "https://github.com/\(contributor.usernames[0]).png")
-                    .frame(width: 40, height: 40)
+                    .frame(width: 52, height: 52)
                     .clipShape(Circle())
 
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(contributor.displayName ?? contributor.usernames[0])
-                        .font(.headline)
+                        .font(.title3).bold()
+                        .foregroundColor(.white)
 
                     if let richRoles = contributor.richRoles {
                         ForEach(richRoles, id: \.name) { role in
                             HStack(spacing: 6) {
                                 Text(role.name)
-                                    .font(.subheadline)
+                                    .font(.callout)
                                     .foregroundColor(.gray)
 
+                                // Co-contributor: dot separator + bigger pfp + white name matching contributor style
                                 if let coUsernames = role.coUsernames, !coUsernames.isEmpty {
                                     ForEach(Array(coUsernames.enumerated()), id: \.offset) { index, username in
-                                        HStack(spacing: 4) {
+                                        HStack(spacing: 6) {
+                                            Text("·")
+                                                .font(.callout)
+                                                .foregroundColor(.gray)
                                             ImageView(urlString: "https://github.com/\(username).png")
-                                                .frame(width: 16, height: 16)
+                                                .frame(width: 22, height: 22)
                                                 .clipShape(Circle())
                                             Text(role.coDisplayNames?[safe: index] ?? username)
-                                                .font(.caption)
-                                                .foregroundColor(.secondary)
+                                                .font(.callout).bold()
+                                                .foregroundColor(.white)
                                         }
                                     }
                                 }
@@ -65,18 +74,19 @@ struct ContributorRow: View {
                             ForEach(Array(contributor.roles.enumerated()), id: \.offset) { index, role in
                                 if index > 0 {
                                     Text(", ")
-                                        .font(.subheadline)
+                                        .font(.callout)
                                         .foregroundColor(.gray)
                                 }
                                 Text(role)
-                                    .font(.subheadline)
+                                    .font(.callout)
                                     .foregroundColor(.gray)
                             }
                         }
                     }
                 }
             }
-            .padding(.vertical, 4)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 16)
         }
     }
 
@@ -165,7 +175,7 @@ struct EeveeContributorsSheetView: View {
                     let contributors = section.shuffled ? section.contributors.shuffled() : section.contributors
                     ForEach(contributors, id: \.usernames) { contributor in
                         ContributorRow(contributor: contributor)
-                            .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                             .modifier(FullWidthSeparatorModifier())
                     }
                 }
