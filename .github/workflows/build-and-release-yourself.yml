@@ -96,25 +96,44 @@ jobs:
                -f "${INJECT[@]}" -c 9 -m 15.0 -du
           echo "OUT_IPA=$OUT" >> $GITHUB_ENV
 
-      - name: LC-inject zxPluginsInject (ipapatch)
+      - name: Fetch OpeninSafariSpotify extension (.appex)
         run: |
-          ipapatch --input "$OUT_IPA" --inplace --noconfirm \
-                   --dylib packages/zxPluginsInject.dylib
+          # "OpeninSafariSpotify" is commonly distributed as OpenSpotifySafariExtension.appex
+          EXT_DIR="$RUNNER_TEMP/OpenSpotifySafariExtension"
+          
+          rm -rf "$EXT_DIR"
+          git clone --depth 1 https://github.com/BillyCurtis/OpenSpotifySafariExtension.git "$EXT_DIR"
+          EXT_SRC="$EXT_DIR/OpenSpotifySafariExtension.appex"
+          [ -e "$EXT_SRC" ] || { echo "OpenSpotifySafariExtension.appex not found in repo" >&2; exit 1; }
+          echo "OPENSPOTIFY_APPEX=$EXT_SRC" >> $GITHUB_ENV
 
-      - name: Strip Watch app (if any survived)
+      - name: Inject OpeninSafariSpotify into base IPA & strip Watch app
         run: |
           cd "$(dirname "$OUT_IPA")"
           rm -rf Payload
+          
           unzip -q "$(basename "$OUT_IPA")"
+          mkdir -p "Payload/Spotify.app/PlugIns"
+          rm -rf "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
+          cp -R "$OPENSPOTIFY_APPEX" "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
+          
           if [ -d "Payload/Spotify.app/com.apple.WatchPlaceholder" ]; then
             rm -rf Payload/Spotify.app/com.apple.WatchPlaceholder
           fi
           if [ -d "Payload/Spotify.app/Watch" ]; then
             rm -rf Payload/Spotify.app/Watch
           fi
-          rm -f "$(basename "$OUT_IPA")"
+          
           zip -qry "$(basename "$OUT_IPA")" Payload
           rm -rf Payload
+
+      - name: Create Patched Duplicate & LC-inject zxPluginsInject
+        run: |
+          PATCHED_OUT="${OUT_IPA%.ipa}-patched.ipa"
+          cp "$OUT_IPA" "$PATCHED_OUT"
+          ipapatch --input "$PATCHED_OUT" --inplace --noconfirm \
+                   --dylib extra_dylibs/zxPluginsInject.dylib
+          echo "PATCHED_IPA=$PATCHED_OUT" >> $GITHUB_ENV
 
       - name: Stage alternate app icons
         run: |
@@ -125,5 +144,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: EeveeSpotify-IPA
-          path: ${{ env.OUT_IPA }}
+          path: |
+            ${{ env.OUT_IPA }}
+            ${{ env.PATCHED_OUT }}
           if-no-files-found: error

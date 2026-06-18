@@ -33,6 +33,11 @@
                 "displayName": "asdfzxcvbn",
                 "roles": ["Former Collaborator"]
             }
+            {
+                "usernames": ["estrogencat"],
+                "displayName": "estrogencat",
+                "roles": ["Icon fixes"]
+            }
         ]
     },
     {
@@ -90,8 +95,8 @@
                 "roles": ["Korean"]
             },
             {
-                "usernames": ["Richard-NDC"],
-                "displayName": "Richard-NDC",
+                "usernames": ["Richard-NDC", "leekhoivn"],
+                "displayName": "Richard-NDC & leekhoivn",
                 "roles": ["Vietnamese"]
             },
             {
