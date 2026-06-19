@@ -76,7 +76,7 @@ jobs:
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v4
         with:
-          name: com.eevee.spotify_xx_iphoneos-arm64
+          name: com.eevee.spotify_${{ github.event.inputs.id }}_iphoneos-arm64
           path: ${{ env.DEB_PATH }}
           if-no-files-found: error
 
@@ -99,6 +99,8 @@ jobs:
       - name: Install IPA tools
         run: |
           brew install dpkg wget
+          python3 -m pip install --upgrade --break-system-packages \
+              git+https://github.com/asdfzxcvbn/pyzule-rw.git
           ARCH=$(uname -m); [ "$ARCH" = "x86_64" ] && SUFFIX=macos-amd64 || SUFFIX=macos-arm64
           sudo curl -fsSL "https://github.com/asdfzxcvbn/ipapatch/releases/latest/download/ipapatch.${SUFFIX}" \
               -o /usr/local/bin/ipapatch
@@ -107,7 +109,7 @@ jobs:
       - name: Download .deb artifact
         uses: actions/download-artifact@v4
         with:
-          name: com.eevee.spotify_xx_iphoneos-arm64
+          name: com.eevee.spotify_${{ github.event.inputs.id }}_iphoneos-arm64
           path: deb
 
       - name: Validate vanilla IPA
@@ -245,7 +247,7 @@ jobs:
       - name: Download .deb artifact
         uses: actions/download-artifact@v4
         with:
-          name: com.eevee.spotify_xx_iphoneos-arm64
+          name: com.eevee.spotify_${{ github.event.inputs.id }}_iphoneos-arm64
           path: release_files/deb
 
       - name: Download unpatched IPA
