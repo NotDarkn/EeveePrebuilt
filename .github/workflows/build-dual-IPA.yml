@@ -26,7 +26,7 @@ jobs:
   build-deb:
     runs-on: macos-latest
     outputs:
-      commit_id: ${{ steps.EEVEE_REINCARNATED_COMMIT_ID.outputs.COMMIT_ID }}
+      commit_id: ${{ steps.SETUP_COMMIT_ID.outputs.COMMIT_ID }}
     steps:
 
       - name: Checkout EeveeReincarnatedIPA
@@ -39,7 +39,7 @@ jobs:
         # this grabs the latest commit ID from jaydenjcpy's EeveeSpotifyReincarnated repo 
         # then it's cut down to the first 7 characters for the shortened commit ID that is used for naming files
       - name: Setup Commit ID
-        id: EEVEE_REINCARNATED_COMMIT_ID
+        id: SETUP_COMMIT_ID
         run: |
           COMMIT_FULL=$(git ls-remote https://github.com/jaydenjcpy/EeveeSpotifyReincarnated.git ${{ inputs.branch }} | cut -f1)
           COMMIT=${COMMIT_FULL:0:7}
@@ -109,7 +109,7 @@ jobs:
       
       - name: Find .deb artifact
         env:
-          COMMIT_ID: ${{ steps.EEVEE_REINCARNATED_COMMIT_ID.outputs.COMMIT_ID }}
+          COMMIT_ID: ${{ steps.SETUP_COMMIT_ID.outputs.COMMIT_ID }}
         run: |
           DEB_PATH=$(find packages -name "com.eevee.spotify_*.deb" | head -1)
           [ -n "$DEB_PATH" ] || { echo "deb not produced" >&2; exit 1; }
@@ -121,7 +121,7 @@ jobs:
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v7
         with:
-          name: com.eevee.spotify_${{ steps.EEVEE_REINCARNATED_COMMIT_ID.outputs.COMMIT_ID }}_iphoneos-arm64
+          name: com.eevee.spotify_${{ steps.SETUP_COMMIT_ID.outputs.COMMIT_ID }}_iphoneos-arm64
           path: ${{ env.DEB_PATH }}
           if-no-files-found: error
 
@@ -135,9 +135,9 @@ jobs:
           - Patched
     env:
       COMMIT_ID: ${{ needs.build-deb.outputs.commit_id }}
-      SPOT_VERSION: ${{ github.event.inputs.spotify_version }}
+      SPOT_VERSION: ${{ inputs.spotify_version }}
     steps:
-      - name: Checkout
+      - name: Checkout EeveeReincarnatedIPA
         uses: actions/checkout@v7
         with:
           ref: ${{ inputs.branch }}
@@ -349,8 +349,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: "${{ github.event.inputs.spotify_version }}-${{ env.COMMIT_ID }}"
-          name: "${{ github.event.inputs.spotify_version }} // ${{ env.COMMIT_ID }}"
+          tag_name: "${{ inputs.spotify_version }}-${{ env.COMMIT_ID }}"
+          name: "${{ inputs.spotify_version }} // ${{ env.COMMIT_ID }}"
           body: |
             # EeveeSpotifyReincarnated [`${{ env.COMMIT_ID }}`](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated/commit/${{ env.COMMIT_ID }})
             This version pulls the latest changes made up to the commit `${{ env.COMMIT_ID }}` in the [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated) repo. 
