@@ -149,6 +149,7 @@ jobs:
         if: ${{ inputs.ipa_url != '' }}
         env:
           COMMIT_ID: ${{ github.event.inputs.commit_id }}
+          SPOT_VERSION: ${{ github.event.inputs.spotify_version }}
         run: |
           mkdir -p Outputs/IPAS
           DEB_EXTRACT="$RUNNER_TEMP/deb-extract"
@@ -159,9 +160,6 @@ jobs:
           DYLIB_SRC=$(find "$DEB_EXTRACT" -name 'EeveeSpotify.dylib' | head -1)
           BUNDLE_SRC=$(find "$DEB_EXTRACT" -type d -name 'EeveeSpotify.bundle' | head -1)
           FRAMEWORK_SRC=$(find "$DEB_EXTRACT" -type d -name 'EeveeSwiftProtobuf.framework' | head -1)
-
-          SPOT_VERSION=$(unzip -p ${{ github.workspace }}/spotify.ipa 'Payload/Spotify.app/Info.plist' \
-              | plutil -extract CFBundleShortVersionString raw - 2>/dev/null || echo "unknown")
           OUT="Outputs/IPAS/EeveeReincarnatedIPA-${{ matrix.variant }}-${COMMIT_ID}-${SPOT_VERSION}.ipa"
 
           INJECT=("$DYLIB_SRC")
@@ -258,6 +256,11 @@ jobs:
       contents: write
     
     steps:
+      - name: Checkout (for tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Download .deb artifact
         uses: actions/download-artifact@v4
         with:
