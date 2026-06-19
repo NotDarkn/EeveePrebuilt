@@ -27,14 +27,23 @@ fi
 
 make FINALPACKAGE=1
 
-DYLIB_OUT="$MOD_DIR/.theos/obj/zxPluginsInject.dylib"
-[ -f "$DYLIB_OUT" ] || { echo "zxPluginsInject.dylib not produced" >&2; exit 1; }
+if [ -f "$MOD_DIR/.theos/obj/zxPluginsInject.dylib" ]; then
+    DYLIB_OUT="$MOD_DIR/.theos/obj/zxPluginsInject.dylib"
+elif [ -f "$MOD_DIR/.theos/obj/debug/zxPluginsInject.dylib" ]; then
+    DYLIB_OUT="$MOD_DIR/.theos/obj/debug/zxPluginsInject.dylib"
+else
+    echo "zxPluginsInject.dylib not produced" >&2
+    exit 1
+fi
 
+mkdir -p "$REPO_DIR/extra_dylibs"
 mkdir -p "$REPO_DIR/packages"
+
+cp "$DYLIB_OUT" "$REPO_DIR/extra_dylibs/zxPluginsInject.dylib"
 cp "$DYLIB_OUT" "$REPO_DIR/packages/zxPluginsInject.dylib"
 
-install_name_tool -id "@rpath/zxPluginsInject.dylib" \
-    "$REPO_DIR/packages/zxPluginsInject.dylib" 2>/dev/null || true
+install_name_tool -id "@rpath/zxPluginsInject.dylib" "$REPO_DIR/extra_dylibs/zxPluginsInject.dylib" 2>/dev/null || true
+install_name_tool -id "@rpath/zxPluginsInject.dylib" "$REPO_DIR/packages/zxPluginsInject.dylib" 2>/dev/null || true
 
-echo "Saved: $REPO_DIR/packages/zxPluginsInject.dylib"
+echo "Saved and verified in packages/ and extra_dylibs/"
 ls -lh "$REPO_DIR/packages/zxPluginsInject.dylib"
