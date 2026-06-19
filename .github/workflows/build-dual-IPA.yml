@@ -82,8 +82,8 @@ jobs:
     strategy:
       matrix:
         variant:
-          - unpatched
-          - patched
+          - Unpatched
+          - Patched
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -94,14 +94,14 @@ jobs:
 
       - name: (PATCHED) Setup Theos
         uses: actions/checkout@v4
-        if: matrix.variant == 'patched'
+        if: matrix.variant == 'Patched'
         with:
           repository: theos/theos
           path: ${{ github.workspace }}/theos
           submodules: recursive
 
       - name: (UNPATCHED) Install IPA tools
-        if: matrix.variant == 'unpatched'
+        if: matrix.variant == 'Unpatched'
         run: |
           brew install dpkg wget
           python3 -m pip install --upgrade --break-system-packages \
@@ -109,7 +109,7 @@ jobs:
           ARCH=$(uname -m); [ "$ARCH" = "x86_64" ] && SUFFIX=macos-amd64 || SUFFIX=macos-arm64
 
       - name: (PATCHED) Install IPA tools
-        if: matrix.variant == 'patched'
+        if: matrix.variant == 'Patched'
         run: |
           brew install dpkg ldid wget
           python3 -m pip install --upgrade --break-system-packages \
@@ -174,25 +174,25 @@ jobs:
           echo "OUT_IPA=$OUT" >> $GITHUB_ENV
           
       - name: (PATCHED) Build zxPluginsInject.dylib
-        if: matrix.variant == 'patched'
+        if: matrix.variant == 'Patched'
         run: |
           chmod +x Tools/build-zxpi.sh
           Tools/build-zxpi.sh
 
       - name: (PATCHED) LC-inject zxPluginsInject
-        if: matrix.variant == 'patched'
+        if: matrix.variant == 'Patched'
         run: |
           ipapatch --input "$OUT_IPA" --inplace --noconfirm \
                    --dylib packages/zxPluginsInject.dylib
 
       - name: (UNPATCHED) Strip incompatible bundles
-        if: matrix.variant == 'unpatched'
+        if: matrix.variant == 'Unpatched'
         run: |
           chmod +x Tools/strip-ipa.sh
           Tools/strip-ipa.sh "$OUT_IPA"
 
       - name: (UNPATCHED) Add OpenSpotifySafariExtension.appex
-        if: matrix.variant == 'unpatched'
+        if: matrix.variant == 'Unpatched'
         run: |
           cd "$(dirname "$OUT_IPA")"
           rm -rf Payload
@@ -206,7 +206,7 @@ jobs:
           rm -rf Payload
 
       - name: (PATCHED) Add OpeninSafariSpotifyExtension.appex
-        if: matrix.variant == 'patched'
+        if: matrix.variant == 'Patched'
         run: |
           cd "$(dirname "$OUT_IPA")"
           rm -rf Payload
@@ -270,13 +270,13 @@ jobs:
       - name: Download unpatched IPA
         uses: actions/download-artifact@v4
         with:
-          name: EeveeReincarnatedIPA-unpatched
+          name: EeveeReincarnatedIPA-Unpatched
           path: release_files/unpatched
 
       - name: Download patched IPA
         uses: actions/download-artifact@v4
         with:
-          name: EeveeReincarnatedIPA-patched
+          name: EeveeReincarnatedIPA-Patched
           path: release_files/patched
 
       - name: Get previous tag (for description)
