@@ -50,6 +50,7 @@ jobs:
 
       - name: Install deb build tools
         run: |
+          brew trust aws/tap azure/bicep
           brew install make dpkg ldid
           echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
 
@@ -131,6 +132,7 @@ jobs:
       - name: (UNPATCHED) Install IPA tools
         if: matrix.variant == 'Unpatched'
         run: |
+          brew trust aws/tap azure/bicep
           brew install dpkg
           python3 -m pip install --upgrade --break-system-packages \
               git+https://github.com/asdfzxcvbn/pyzule-rw.git
@@ -139,6 +141,7 @@ jobs:
       - name: (PATCHED) Install IPA tools
         if: matrix.variant == 'Patched'
         run: |
+          brew trust aws/tap azure/bicep
           brew install dpkg ldid
           python3 -m pip install --upgrade --break-system-packages \
               git+https://github.com/asdfzxcvbn/pyzule-rw.git
