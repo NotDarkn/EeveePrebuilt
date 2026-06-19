@@ -36,12 +36,12 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
+        # this grabs the latest commit ID from jaydenjcpy's EeveeSpotifyReincarnated repo 
+        # then it's cut down to the first 7 characters for the shortened commit ID that is used for naming files
       - name: Setup Commit ID
         id: EEVEE_REINCARNATED_COMMIT_ID
         run: |
-          # this, while kind of stupid, grabs the latest commit ID from jaydenjcpy's EeveeSpotifyReincarnated repo 
-          # then it's cut down to the first 7 characters for the shortened commit ID that is used for naming files
-          COMMIT_FULL=$(git ls-remote https://github.com/jaydenjcpy/EeveeSpotifyReincarnated.git ${{ inputs.branch }} | awk '{print $1}')
+          COMMIT_FULL=$(git ls-remote https://github.com/jaydenjcpy/EeveeSpotifyReincarnated.git ${{ inputs.branch }} | cut -f1)
           COMMIT=${COMMIT_FULL:0:7}
           echo "COMMIT_ID=$COMMIT" >> $GITHUB_OUTPUT
 
