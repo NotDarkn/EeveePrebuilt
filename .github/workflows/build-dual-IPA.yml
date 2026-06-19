@@ -55,6 +55,11 @@ jobs:
           brew install make dpkg ldid
           echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
 
+      - name: Grab EeveeSwiftProtobuf.framework latest's commit ID
+        run: |
+          COMMIT=$(git log -1 --format="%h" -- Tools/SwiftProtobufBuild/build-eeveeswiftprotobuf.sh)
+          echo "COMMIT_ID=$COMMIT" >> $GITHUB_ENV
+
       - name: Grab EeveeSwiftProtobuf.framework from cache
         id: protobuf-cache
         uses: actions/cache@v5
@@ -64,7 +69,7 @@ jobs:
           # the rest of the path is just where EeveeSwiftProtobuf.framework is.
           path: ${{ env.THEOS }}/lib/iphone/rootless/EeveeSwiftProtobuf.framework
           # this should end up being like "eeveeswiftprotobuf-1.29.0"
-          key: eeveeswiftprotobuf-${{ env.SWIFTPROTOBUF_VERSION }}-cache
+          key: eeveeswiftprotobuf-${{ env.COMMIT_ID }}-cache
 
         # hopefully, this should only run if the above step (cache) doesn't exist
       - name: Build EeveeSwiftProtobuf.framework from source
