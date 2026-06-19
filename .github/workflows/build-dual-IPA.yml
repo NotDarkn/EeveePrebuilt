@@ -80,8 +80,7 @@ jobs:
         id: theos-cache
         uses: actions/cache@v5
         with:
-          path: |
-            ${{ env.THEOS }}/vendor/orion/.theos_build
+          path: ${{ env.THEOS }}/vendor/orion/.theos_build
           key: theos_build-cache
 
         # this should save another like 10 to 15s as it'll already have Swift Support Tools built
@@ -89,8 +88,7 @@ jobs:
         id: swift-cache
         uses: actions/cache@v5
         with:
-          path: |
-            ${{ env.THEOS }}/vendor/swift-support/.build
+          path: ${{ env.THEOS }}/vendor/swift-support/.theos_build
           key: swift_tools-cache
 
       - name: Build .deb (rootless)
