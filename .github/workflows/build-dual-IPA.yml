@@ -51,14 +51,14 @@ jobs:
           xcode-version: '16.2.0'
 
       - name: Cache Theos
-        id: theos-cache
+        id: deb-theos-cache
         uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/theos
           key: theos-cache
 
       - name: Setup Theos
-        if: steps.theos-cache.outputs.cache-hit != 'true'
+        if: steps.deb-theos-cache.outputs.cache-hit != 'true'
         uses: actions/checkout@v7
         with:
           repository: theos/theos
@@ -154,7 +154,7 @@ jobs:
 
       - name: (PATCHED) Cache Theos
         if: matrix.variant == 'Patched'
-        id: theos-cache
+        id: ipa-theos-cache
         uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/theos
@@ -162,7 +162,7 @@ jobs:
 
       - name: (PATCHED) Setup Theos
         uses: actions/checkout@v7
-        if: matrix.variant == 'Patched' && steps.theos-cache.outputs.cache-hit != 'true'
+        if: matrix.variant == 'Patched' && steps.ipa-theos-cache.outputs.cache-hit != 'true'
         with:
           repository: theos/theos
           path: ${{ github.workspace }}/theos
