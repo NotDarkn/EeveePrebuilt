@@ -57,8 +57,8 @@ jobs:
 
       - name: Grab EeveeSwiftProtobuf.framework latest's commit ID
         run: |
-          COMMIT=$(git log -1 --format="%h" -- Tools/SwiftProtobufBuild/build-eeveeswiftprotobuf.sh)
-          echo "COMMIT_ID=$COMMIT" >> $GITHUB_ENV
+          PROTOBUF_COMMIT=$(git log -1 --format="%h" -- Tools/SwiftProtobufBuild/build-eeveeswiftprotobuf.sh)
+          echo "PROTOBUF_COMMIT_ID=$PROTOBUF_COMMIT" >> $GITHUB_ENV
 
       - name: Grab EeveeSwiftProtobuf.framework from cache
         id: protobuf-cache
@@ -69,7 +69,7 @@ jobs:
           # the rest of the path is just where EeveeSwiftProtobuf.framework is.
           path: ${{ env.THEOS }}/lib/iphone/rootless/EeveeSwiftProtobuf.framework
           # this should end up being like "eeveeswiftprotobuf-1.29.0"
-          key: eeveeswiftprotobuf-${{ env.COMMIT_ID }}-cache
+          key: eeveeswiftprotobuf-${{ env.PROTOBUF_COMMIT_ID }}-cache
 
         # hopefully, this should only run if the above step (cache) doesn't exist
       - name: Build EeveeSwiftProtobuf.framework from source
@@ -130,7 +130,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ inputs.branch }}
-          fetch-depth: 1
+          fetch-depth: 0
           submodules: recursive
 
       - name: (PATCHED) Setup Theos
@@ -216,13 +216,19 @@ jobs:
                -f "${INJECT[@]}" -c 9 -m 15.0 -du
           echo "OUT_IPA=$OUT" >> $GITHUB_ENV
 
+      - name: (PATCHED) Grab zxPluginsInject.dylib latest commit ID
+        if: matrix.variant == 'Patched'
+        run: |
+          zxPluginsInject_COMMIT=$(git log -1 --format="%h" -- Tools/build-zxpi.sh)
+          echo "zxPluginsInject_COMMIT_ID=$zxPluginsInject_COMMIT" >> $GITHUB_ENV
+
       - name: (PATCHED) Grab zxPluginsInject.dylib from cache
         if: matrix.variant == 'Patched'
         id: zxPluginsInject-cache
         uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/packages/zxPluginsInject.dylib
-          key: zxPluginsInject-cache-2
+          key: zxPluginsInject-${{ env.zxPluginsInject_COMMIT_ID }}-cache
           
       - name: (PATCHED) Build zxPluginsInject.dylib from source
         if: matrix.variant == 'Patched' && steps.zxPluginsInject-cache.outputs.cache-hit != 'true'
