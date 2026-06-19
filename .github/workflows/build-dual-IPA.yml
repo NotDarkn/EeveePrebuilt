@@ -96,6 +96,14 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
+      - name: (PATCHED) Setup Theos
+        uses: actions/checkout@v4
+        if: matrix.variant == 'patched'
+        with:
+          repository: theos/theos
+          path: ${{ github.workspace }}/theos
+          submodules: recursive
+
       - name: Install IPA tools
         run: |
           brew install dpkg wget
