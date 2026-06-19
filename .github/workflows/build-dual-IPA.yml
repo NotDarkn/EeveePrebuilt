@@ -120,7 +120,7 @@ jobs:
           name: com.eevee.spotify_${{ github.event.inputs.id }}_iphoneos-arm64
           path: deb
 
-      - name: Validate vanilla IPA
+      - name: Download decrypted .ipa
         if: ${{ inputs.ipa_url != '' }}
         run: |
           wget "${{ inputs.ipa_url }}" --no-verbose -O ${{ github.workspace }}/spotify.ipa
