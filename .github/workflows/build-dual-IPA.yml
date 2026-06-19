@@ -75,14 +75,6 @@ jobs:
           chmod +x Tools/SwiftProtobufBuild/build-eeveeswiftprotobuf.sh
           Tools/SwiftProtobufBuild/build-eeveeswiftprotobuf.sh
 
-        # if this works, it should save roughly 3 to 4 minutes for future workflow runs
-      - name: Grab Orion Preprocessor from cache
-        id: theos-cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ env.THEOS }}/vendor/orion/.theos_build
-          key: theos_build-cache
-
         # this should save another like 10 to 15s as it'll already have Swift Support Tools built
       - name: Grab Swift Support Tools from cache
         id: swift-cache
@@ -90,6 +82,14 @@ jobs:
         with:
           path: ${{ env.THEOS }}/vendor/swift-support/.theos_build
           key: swift_tools-cache
+        
+        # if this works, it should save roughly 3 to 4 minutes for future workflow runs
+      - name: Grab Orion Preprocessor from cache
+        id: theos-cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.THEOS }}/vendor/orion/.theos_build
+          key: theos_build-cache
 
       - name: Build .deb (rootless)
         run: THEOS_PACKAGE_SCHEME=rootless make package FINALPACKAGE=1
