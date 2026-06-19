@@ -53,7 +53,7 @@ jobs:
           brew install make dpkg ldid
           echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
 
-      - name: Grab Cached EeveeSwiftProtobuf.framework (if it exists)
+      - name: Grab EeveeSwiftProtobuf.framework from cache
         id: protobuf-cache
         uses: actions/cache@v5
         with:
@@ -74,10 +74,13 @@ jobs:
           Tools/SwiftProtobufBuild/build-eeveeswiftprotobuf.sh
 
       - name: Build .deb (rootless)
+        run: |
+          THEOS_PACKAGE_SCHEME=rootless make package FINALPACKAGE=1
+      
+      - name: Find .deb artifact
         env:
           COMMIT_ID: ${{ github.event.inputs.commit_id }}
         run: |
-          THEOS_PACKAGE_SCHEME=rootless make package FINALPACKAGE=1
           DEB_PATH=$(find packages -name "com.eevee.spotify_*.deb" | head -1)
           [ -n "$DEB_PATH" ] || { echo "deb not produced" >&2; exit 1; }
           DEB_RENAME="packages/com.eevee.spotify_${COMMIT_ID}_iphoneos-arm64.deb"
