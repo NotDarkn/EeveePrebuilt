@@ -50,6 +50,13 @@ jobs:
         with:
           xcode-version: '16.2.0'
 
+      - name: Cache Theos
+        id: theos-cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ github.workspace }}/theos
+          key: theos-cache
+
       - name: Setup Theos
         uses: actions/checkout@v7
         with:
@@ -144,8 +151,13 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-      - name: Setup Workflow Masking
-        uses: levibostian/action-hide-sensitive-inputs@v1
+      - name: (PATCHED) Cache Theos
+        if: matrix.variant == 'Patched'
+        id: theos-cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ github.workspace }}/theos
+          key: theos-cache
 
       - name: (PATCHED) Setup Theos
         uses: actions/checkout@v7
@@ -175,6 +187,9 @@ jobs:
           sudo curl -fsSL "https://github.com/asdfzxcvbn/ipapatch/releases/latest/download/ipapatch.${SUFFIX}" \
               -o /usr/local/bin/ipapatch
           sudo chmod +x /usr/local/bin/ipapatch
+
+      - name: Mask decrypted .ipa URL
+        run: echo "::add-mask::${{ inputs.ipa_url }}"
         
       - name: Download .deb artifact
         uses: actions/download-artifact@v8
