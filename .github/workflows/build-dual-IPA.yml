@@ -289,7 +289,7 @@ jobs:
           echo "PREV_TAG=$PREV_TAG" >> $GITHUB_ENV
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: "${{ github.event.inputs.spotify_version }}-${{ github.event.inputs.commit_id }}"
           name: "${{ github.event.inputs.spotify_version }} // ${{ github.event.inputs.commit_id }}"
