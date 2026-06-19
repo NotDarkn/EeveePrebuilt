@@ -112,6 +112,8 @@ jobs:
         run: THEOS_PACKAGE_SCHEME=rootless make package FINALPACKAGE=1
       
       - name: Find .deb artifact
+        env:
+          COMMIT_ID: ${{ steps.EEVEE_REINCARNATED_COMMIT_ID.outputs.COMMIT_ID }}
         run: |
           DEB_PATH=$(find packages -name "com.eevee.spotify_*.deb" | head -1)
           [ -n "$DEB_PATH" ] || { echo "deb not produced" >&2; exit 1; }
