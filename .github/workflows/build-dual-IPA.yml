@@ -74,7 +74,7 @@ jobs:
           Tools/SwiftProtobufBuild/build-eeveeswiftprotobuf.sh
 
         # if this works, it should save roughly 3 to 4 minutes for future workflow runs
-      - name: Cache Orion Preprocessor
+      - name: Grab Orion Preprocessor from cache
         id: theos-cache
         uses: actions/cache@v5
         with:
@@ -200,9 +200,16 @@ jobs:
           cyan -i ${{ github.workspace }}/spotify.ipa -o "$OUT" \
                -f "${INJECT[@]}" -c 9 -m 15.0 -du
           echo "OUT_IPA=$OUT" >> $GITHUB_ENV
+
+      - name: (PATCHED) Grab zxPluginsInject.dylib from cache
+        id: zxPluginsInject-cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ github.workspace }}/packages/zxPluginsInject.dylib
+          key: zxPluginsInject-cache
           
-      - name: (PATCHED) Build zxPluginsInject.dylib
-        if: matrix.variant == 'Patched'
+      - name: (PATCHED) Build zxPluginsInject.dylib from source
+        if: matrix.variant == 'Patched' && steps.zxPluginsInject-cache.outputs.cache-hit != 'true'
         run: |
           chmod +x Tools/build-zxpi.sh
           Tools/build-zxpi.sh
