@@ -92,8 +92,7 @@ jobs:
           key: swift_tools-cache
 
       - name: Build .deb (rootless)
-        run: |
-          THEOS_PACKAGE_SCHEME=rootless make package FINALPACKAGE=1
+        run: THEOS_PACKAGE_SCHEME=rootless make package FINALPACKAGE=1
       
       - name: Find .deb artifact
         env:
