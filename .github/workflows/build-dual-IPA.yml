@@ -90,7 +90,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: |
-            .build
+            ${{ env.THEOS }}/vendor/swift-support/.build
           key: swift_tools-cache
 
       - name: Build .deb (rootless)
