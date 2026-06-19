@@ -14,7 +14,7 @@ The latest prebuilt EeveeReincarnatedIPA binaries can be found [here](https://gi
 1. Obtain the latest Spotify IPA from either [Decrypted iOS IPA App Store](https://armconverter.com/decryptedappstore/us) or [decrypt.day](https://decrypt.day).
 2. Upload the IPA to a temporary file hosting website for GitHub Actions to obtain from. (_i use [catbox.moe](https://catbox.moe/)_)
 3. Go into "[Actions](https://github.com/NotDarkn/EeveeReincarnatedIPA/actions)" → "Build IPA (xx)" → "Run Workflow" → Insert the URL<sup>1</sup> from step 2 and run the workflow.
-4. After it finishes, download the artifacts, test<sup>2</sup> them, and upload them into a GitHub release.
+4. After it finishes, test<sup>2</sup> the IPAs, and undraft the GitHub release.
 
 <sup>1. If EeveeSpotifyReincarnated updates but Spotify hasn't, then I **reuse** the Spotify IPA I uploaded before to build IPAs again.</sup><br />
 <sup>2. These prebuilt binaries are tested using an **iPhone 13 mini** running **iOS `27.0`** with a **Free Developer Account** through **Sideloadly**.<sup>3</sup></sup><br />
