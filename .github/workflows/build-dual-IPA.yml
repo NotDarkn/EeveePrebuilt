@@ -169,7 +169,6 @@ jobs:
           path: deb
 
       - name: Download decrypted .ipa
-        if: ${{ inputs.ipa_url != '' }}
         run: |
           wget "${{ inputs.ipa_url }}" --no-verbose -O ${{ github.workspace }}/spotify.ipa
           file_type=$(file --mime-type -b ${{ github.workspace }}/spotify.ipa)
@@ -179,7 +178,6 @@ jobs:
           fi
 
       - name: Fetch OpenSpotifySafariExtension.appex
-        if: ${{ inputs.ipa_url != '' }}
         run: |
           EXT_DIR="$RUNNER_TEMP/OpenSpotifySafariExtension"
           rm -rf "$EXT_DIR"
@@ -189,7 +187,6 @@ jobs:
           echo "OPENSPOTIFY_APPEX=$EXT_SRC" >> $GITHUB_ENV
 
       - name: Inject deb + framework into IPA (cyan)
-        if: ${{ inputs.ipa_url != '' }}
         env:
           COMMIT_ID: ${{ github.event.inputs.commit_id }}
           SPOT_VERSION: ${{ github.event.inputs.spotify_version }}
@@ -293,13 +290,11 @@ jobs:
           rm -rf Payload
           
       - name: Stage alternate app icons
-        if: ${{ inputs.ipa_url != '' }}
         run: |
           chmod +x Tools/alt-icons.sh
           Tools/alt-icons.sh "$OUT_IPA"
 
       - name: Upload IPA artifact
-        if: ${{ inputs.ipa_url != '' }}
         uses: actions/upload-artifact@v7
         with:
           name: EeveeReincarnatedIPA-${{ matrix.variant }}
