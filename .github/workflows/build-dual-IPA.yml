@@ -58,6 +58,7 @@ jobs:
           key: theos-cache
 
       - name: Setup Theos
+        if: steps.theos-cache.outputs.cache-hit != 'true'
         uses: actions/checkout@v7
         with:
           repository: theos/theos
@@ -105,11 +106,11 @@ jobs:
         
         # if this works, it should save roughly 3 to 4 minutes for future workflow runs
       - name: Grab Orion Preprocessor from cache
-        id: theos-cache
+        id: orion-cache
         uses: actions/cache@v5
         with:
           path: ${{ env.THEOS }}/vendor/orion/.theos_build
-          key: theos_build-cache
+          key: orion_build-cache
 
       - name: Build .deb (rootless)
         run: THEOS_PACKAGE_SCHEME=rootless make package FINALPACKAGE=1
