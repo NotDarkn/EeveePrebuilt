@@ -37,7 +37,8 @@ jobs:
           fetch-depth: 1
           submodules: recursive
 
-      - uses: maxim-lobanov/setup-xcode@v1
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '16.2.0'
 
