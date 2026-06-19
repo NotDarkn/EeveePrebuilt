@@ -144,6 +144,9 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
+      - name: Setup Workflow Masking
+        uses: levibostian/action-hide-sensitive-inputs@v1
+
       - name: (PATCHED) Setup Theos
         uses: actions/checkout@v7
         if: matrix.variant == 'Patched'
@@ -180,8 +183,7 @@ jobs:
           path: deb
       
       - name: Download decrypted .ipa
-        uses: levibostian/action-hide-sensitive-inputs@v1
-        with: |
+        run: |
           wget "${{ inputs.ipa_url }}" --quiet -O ${{ github.workspace }}/spotify.ipa
           file_type=$(file --mime-type -b ${{ github.workspace }}/spotify.ipa)
           if [[ "$file_type" != "application/x-ios-app" && "$file_type" != "application/zip" ]]; then
