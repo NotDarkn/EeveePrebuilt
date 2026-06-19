@@ -50,6 +50,7 @@ jobs:
         with:
           xcode-version: '16.2.0'
 
+        # saves roughly 5 to 8 seconds when caching theos :)
       - name: Cache Theos
         id: deb-theos-cache
         uses: actions/cache@v5
