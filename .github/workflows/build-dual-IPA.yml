@@ -28,19 +28,6 @@ jobs:
     outputs:
       commit_id: ${{ steps.EEVEE_REINCARNATED_COMMIT_ID.outputs.COMMIT_ID }}
     steps:
-      - name: Checkout EeveeSpotifyReincarnated
-        uses: actions/checkout@v7
-        with:
-          repository: jaydenjcpy/EeveeSpotifyReincarnated
-          ref: ${{ inputs.branch }}
-          fetch-depth: 1
-          submodules: recursive
-
-      - name: Grab latest commit ID for file names
-        id: EEVEE_REINCARNATED_COMMIT_ID
-        run: |
-          COMMIT=$(git log -1 --format="%h")
-          echo "COMMIT_ID=$COMMIT" >> $GITHUB_OUTPUT
 
       - name: Checkout EeveeReincarnatedIPA
         uses: actions/checkout@v7
@@ -48,6 +35,15 @@ jobs:
           ref: ${{ inputs.branch }}
           fetch-depth: 0
           submodules: recursive
+
+      - name: Setup Commit ID
+        id: EEVEE_REINCARNATED_COMMIT_ID
+        run: |
+          # this, while kind of stupid, grabs the latest commit ID from jaydenjcpy's EeveeSpotifyReincarnated repo 
+          # then it's cut down to the first 7 characters for the shortened commit ID that is used for naming files
+          COMMIT_FULL=$(git ls-remote https://github.com/jaydenjcpy/EeveeSpotifyReincarnated.git ${{ inputs.branch }} | awk '{print $1}')
+          COMMIT=${COMMIT_FULL:0:7}
+          echo "COMMIT_ID=$COMMIT" >> $GITHUB_OUTPUT
 
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
@@ -67,7 +63,7 @@ jobs:
           brew install make dpkg ldid
           echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
 
-      - name: Grab EeveeSwiftProtobuf.framework latest's commit ID
+      - name: Grab EeveeSwiftProtobuf.framework latest commit ID
         run: |
           PROTOBUF_COMMIT=$(git log -1 --format="%h" -- Tools/SwiftProtobufBuild/build-eeveeswiftprotobuf.sh)
           echo "PROTOBUF_COMMIT_ID=$PROTOBUF_COMMIT" >> $GITHUB_ENV
@@ -137,6 +133,9 @@ jobs:
         variant:
           - Unpatched
           - Patched
+    env:
+      COMMIT_ID: ${{ needs.build-deb.outputs.commit_id }}
+      SPOT_VERSION: ${{ github.event.inputs.spotify_version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -177,7 +176,7 @@ jobs:
       - name: Download .deb artifact
         uses: actions/download-artifact@v8
         with:
-          name: com.eevee.spotify_${{ github.event.inputs.commit_id }}_iphoneos-arm64
+          name: com.eevee.spotify_${{ env.COMMIT_ID }}_iphoneos-arm64
           path: deb
 
       - name: Download decrypted .ipa
@@ -199,9 +198,6 @@ jobs:
           echo "OPENSPOTIFY_APPEX=$EXT_SRC" >> $GITHUB_ENV
 
       - name: Inject deb + framework into IPA (cyan)
-        env:
-          COMMIT_ID: ${{ github.event.inputs.commit_id }}
-          SPOT_VERSION: ${{ github.event.inputs.spotify_version }}
         run: |
           mkdir -p Outputs/IPAS
           DEB_EXTRACT="$RUNNER_TEMP/deb-extract"
@@ -314,11 +310,12 @@ jobs:
           if-no-files-found: error    
 
   github-release:
-    needs: build-ipa
+    needs: [build-ipa, build-deb]
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    
+    env:
+      COMMIT_ID: ${{ needs.build-deb.outputs.commit_id }}
     steps:
       - name: Checkout (for tags)
         uses: actions/checkout@v7
@@ -328,7 +325,7 @@ jobs:
       - name: Download .deb artifact
         uses: actions/download-artifact@v8
         with:
-          name: com.eevee.spotify_${{ github.event.inputs.commit_id }}_iphoneos-arm64
+          name: com.eevee.spotify_${{ env.COMMIT_ID }}_iphoneos-arm64
           path: release_files/deb
 
       - name: Download unpatched IPA
@@ -352,11 +349,11 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: "${{ github.event.inputs.spotify_version }}-${{ github.event.inputs.commit_id }}"
-          name: "${{ github.event.inputs.spotify_version }} // ${{ github.event.inputs.commit_id }}"
+          tag_name: "${{ github.event.inputs.spotify_version }}-${{ env.COMMIT_ID }}"
+          name: "${{ github.event.inputs.spotify_version }} // ${{ env.COMMIT_ID }}"
           body: |
-            # EeveeSpotifyReincarnated [`${{ github.event.inputs.commit_id }}`](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated/commit/${{ github.event.inputs.commit_id }})
-            This version pulls the latest changes made up to the commit `${{ github.event.inputs.commit_id }}` in the [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated) repo. 
+            # EeveeSpotifyReincarnated [`${{ env.COMMIT_ID }}`](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated/commit/${{ env.COMMIT_ID }})
+            This version pulls the latest changes made up to the commit `${{ env.COMMIT_ID }}` in the [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated) repo. 
 
             ## Changelogs (vs. [${{ env.PREV_TAG }}](https://github.com/NotDarkn/EeveeReincarnatedIPAs/releases/tag/${{ env.PREV_TAG }}))
 
