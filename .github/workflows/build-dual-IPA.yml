@@ -190,7 +190,7 @@ jobs:
           sudo chmod +x /usr/local/bin/ipapatch
 
       - name: Mask decrypted .ipa URL
-        run: echo "::add-mask::${{ inputs.ipa_url }}"
+        uses: levibostian/action-hide-sensitive-inputs@v1 
         
       - name: Download .deb artifact
         uses: actions/download-artifact@v8
