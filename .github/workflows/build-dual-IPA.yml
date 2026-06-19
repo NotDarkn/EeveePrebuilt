@@ -183,7 +183,7 @@ jobs:
         env:
           DOWNLOAD_URL: ${{ inputs.ipa_url }}
         run: |
-          wget "${{ env.DOWNLOAD_URL }}" --no-verbose -O ${{ github.workspace }}/spotify.ipa
+          wget "$DOWNLOAD_URL" --no-verbose -O ${{ github.workspace }}/spotify.ipa
           file_type=$(file --mime-type -b ${{ github.workspace }}/spotify.ipa)
           if [[ "$file_type" != "application/x-ios-app" && "$file_type" != "application/zip" ]]; then
             echo "::error::Not a valid IPA: $file_type"
