@@ -202,6 +202,7 @@ jobs:
           echo "OUT_IPA=$OUT" >> $GITHUB_ENV
 
       - name: (PATCHED) Grab zxPluginsInject.dylib from cache
+        if: matrix.variant == 'Patched'
         id: zxPluginsInject-cache
         uses: actions/cache@v5
         with:
