@@ -162,7 +162,7 @@ jobs:
 
       - name: (PATCHED) Setup Theos
         uses: actions/checkout@v7
-        if: matrix.variant == 'Patched'
+        if: matrix.variant == 'Patched' && steps.theos-cache.outputs.cache-hit != 'true'
         with:
           repository: theos/theos
           path: ${{ github.workspace }}/theos
