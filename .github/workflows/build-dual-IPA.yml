@@ -131,7 +131,7 @@ jobs:
       - name: (UNPATCHED) Install IPA tools
         if: matrix.variant == 'Unpatched'
         run: |
-          brew install dpkg wget
+          brew install dpkg
           python3 -m pip install --upgrade --break-system-packages \
               git+https://github.com/asdfzxcvbn/pyzule-rw.git
           ARCH=$(uname -m); [ "$ARCH" = "x86_64" ] && SUFFIX=macos-amd64 || SUFFIX=macos-arm64
