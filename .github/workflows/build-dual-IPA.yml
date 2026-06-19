@@ -12,6 +12,18 @@ on:
         description: "URL to a decrypted Spotify IPA"
         required: true
         type: string
+      id:
+        description: "Commit ID (e.g. b35ce90)"
+        required: true
+        type: string
+      tag:
+        description: "Release tag"
+        required: true
+        type: string
+      release_name:
+        description: "Release name"
+        required: true
+        type: string
 
 env:
   THEOS: ${{ github.workspace }}/theos
@@ -39,18 +51,10 @@ jobs:
           path: ${{ github.workspace }}/theos
           submodules: recursive
 
-      - name: Install build tools
+      - name: Install deb build tools
         run: |
-          brew install make dpkg ldid wget
+          brew install make dpkg ldid
           echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
-          python3 -m pip install --upgrade --break-system-packages \
-              git+https://github.com/asdfzxcvbn/pyzule-rw.git
-          # releases/latest/download redirect avoids api.github.com rate limit (anon 60/hr -> 403)
-          ARCH=$(uname -m); [ "$ARCH" = "x86_64" ] && SUFFIX=macos-amd64 || SUFFIX=macos-arm64
-          sudo curl -fsSL "https://github.com/asdfzxcvbn/ipapatch/releases/latest/download/ipapatch.${SUFFIX}" \
-              -o /usr/local/bin/ipapatch
-          sudo chmod +x /usr/local/bin/ipapatch
-          ipapatch --help >/dev/null
 
       - name: Build EeveeSwiftProtobuf.framework from source
         env:
@@ -92,25 +96,13 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-      - name: Setup Theos
-        uses: actions/checkout@v4
-        with:
-          repository: theos/theos
-          path: ${{ github.workspace }}/theos
-          submodules: recursive
-
-      - name: Install build tools
+      - name: Install IPA tools
         run: |
-          brew install make dpkg ldid wget
-          echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
-          python3 -m pip install --upgrade --break-system-packages \
-              git+https://github.com/asdfzxcvbn/pyzule-rw.git
-          # releases/latest/download redirect avoids api.github.com rate limit (anon 60/hr -> 403)
+          brew install dpkg wget
           ARCH=$(uname -m); [ "$ARCH" = "x86_64" ] && SUFFIX=macos-amd64 || SUFFIX=macos-arm64
           sudo curl -fsSL "https://github.com/asdfzxcvbn/ipapatch/releases/latest/download/ipapatch.${SUFFIX}" \
               -o /usr/local/bin/ipapatch
           sudo chmod +x /usr/local/bin/ipapatch
-          ipapatch --help >/dev/null
 
       - name: Download .deb artifact
         uses: actions/download-artifact@v4
@@ -242,3 +234,63 @@ jobs:
           name: EeveeSpotify-${{ matrix.variant }}-IPA
           path: ${{ env.OUT_IPA }}
           if-no-files-found: error    
+
+  github-release:
+    needs: build-ipa
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Download .deb artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: com.eevee.spotify_xx_iphoneos-arm64
+          path: release_files/deb
+
+      - name: Download unpatched IPA
+        uses: actions/download-artifact@v4
+        with:
+          name: EeveeSpotify-unpatched-IPA
+          path: release_files/unpatched
+
+      - name: Download patched IPA
+        uses: actions/download-artifact@v4
+        with:
+          name: EeveeSpotify-patched-IPA
+          path: release_files/patched
+
+      - name: Get previous tag (for description)
+        run: |
+          git fetch --tags
+          PREV_TAG=$(git tag --sort=-creatordate | head -n 1)
+          echo "PREV_TAG=$PREV_TAG" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag }}
+          name: ${{ github.event.inputs.release_name }}
+          body: |
+            # EeveeSpotifyReincarnated [`${{ github.event.inputs.id }}`](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated/commit/${{ github.event.inputs.id }})
+            This version pulls the latest changes made up to the commit `${{ github.event.inputs.id }}` in the [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated) repo. 
+
+            ## Changelogs (vs. [${{ env.PREV_TAG }}](https://github.com/NotDarkn/EeveeReincarnatedIPAs/releases/tag/${{ env.PREV_TAG }}))
+
+            ## Unpatched vs. Patched
+            Unpatched → Use if you're using a **Free Developer Account** to sideload. (e.g. [Sideloadly](https://sideloadly.io) / [PlumeImpactor](https://github.com/claration/Impactor))
+
+            Patched → Use if you're using **TrollStore** or a **Paid Developer Certificate** to sideload.
+
+            ## Credits
+            @whoeevee - [EeveeSpotify](https://github.com/whoeevee/EeveeSpotifyReborn)
+            @jaydenjcpy - [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated)
+            @estrogencat - [EeveeIPA](https://github.com/estrogencat/EeveeIPA)
+
+            > [!NOTE]
+            > the `.deb` files are just the tweak files if you want to inject EeveeSpotifyReincarnated into your own **decrypted** Spotify app.
+          draft: true
+          prerelease: false
+          files: |
+            release_files/**/*.ipa
+            release_files/**/*.deb
