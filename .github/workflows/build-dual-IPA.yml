@@ -61,13 +61,15 @@ jobs:
 
       - name: Build .deb (rootless)
         env:
-          REPO_SLUG: ${{ github.repository }}
+          COMMIT_ID: ${{ github.event.inputs.commit_id }}
         run: |
           THEOS_PACKAGE_SCHEME=rootless make package FINALPACKAGE=1
           DEB_PATH=$(find packages -name "com.eevee.spotify_*.deb" | head -1)
           [ -n "$DEB_PATH" ] || { echo "deb not produced" >&2; exit 1; }
-          echo "DEB_PATH=$DEB_PATH"   >> $GITHUB_ENV
-          echo "DEB_NAME=$(basename "$DEB_PATH")" >> $GITHUB_ENV
+          DEB_RENAME="packages/com.eevee.spotify_${COMMIT_ID}_iphoneos-arm64.deb"
+          mv "$DEB_PATH" "$DEB_RENAME"
+          echo "DEB_PATH=$DEB_RENAME" >> $GITHUB_ENV
+          echo "DEB_NAME=$(basename "$DEB_RENAME")" >> $GITHUB_ENV
 
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v4
