@@ -12,10 +12,6 @@ on:
         description: "URL to a decrypted Spotify IPA"
         required: true
         type: string
-      commit_id:
-        description: "Commit ID (e.g. b35ce90)"
-        required: true
-        type: string
       spotify_version:
         description: "Spotify version (e.g. 9.1.56)"
         default: "9.1.56"
@@ -29,8 +25,24 @@ env:
 jobs:
   build-deb:
     runs-on: macos-latest
+    outputs:
+      commit_id: ${{ steps.EEVEE_REINCARNATED_COMMIT_ID.outputs.COMMIT_ID }}
     steps:
-      - name: Checkout
+      - name: Checkout EeveeSpotifyReincarnated
+        uses: actions/checkout@v7
+        with:
+          repository: jaydenjcpy/EeveeSpotifyReincarnated
+          ref: ${{ inputs.branch }}
+          fetch-depth: 1
+          submodules: recursive
+
+      - name: Grab latest commit ID for file names
+        id: EEVEE_REINCARNATED_COMMIT_ID
+        run: |
+          COMMIT=$(git log -1 --format="%h")
+          echo "COMMIT_ID=$COMMIT" >> $GITHUB_OUTPUT
+
+      - name: Checkout EeveeReincarnatedIPA
         uses: actions/checkout@v7
         with:
           ref: ${{ inputs.branch }}
@@ -100,8 +112,6 @@ jobs:
         run: THEOS_PACKAGE_SCHEME=rootless make package FINALPACKAGE=1
       
       - name: Find .deb artifact
-        env:
-          COMMIT_ID: ${{ github.event.inputs.commit_id }}
         run: |
           DEB_PATH=$(find packages -name "com.eevee.spotify_*.deb" | head -1)
           [ -n "$DEB_PATH" ] || { echo "deb not produced" >&2; exit 1; }
