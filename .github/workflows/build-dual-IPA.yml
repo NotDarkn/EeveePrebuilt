@@ -12,16 +12,12 @@ on:
         description: "URL to a decrypted Spotify IPA"
         required: true
         type: string
-      id:
+      commit_id:
         description: "Commit ID (e.g. b35ce90)"
         required: true
         type: string
-      tag:
-        description: "Release tag"
-        required: true
-        type: string
-      release_name:
-        description: "Release name"
+      spotify_version:
+        description: "Spotify version (e.g. 9.1.56)"
         required: true
         type: string
 
@@ -76,7 +72,7 @@ jobs:
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v4
         with:
-          name: com.eevee.spotify_${{ github.event.inputs.id }}_iphoneos-arm64
+          name: com.eevee.spotify_${{ github.event.inputs.commit_id }}_iphoneos-arm64
           path: ${{ env.DEB_PATH }}
           if-no-files-found: error
 
@@ -117,7 +113,7 @@ jobs:
       - name: Download .deb artifact
         uses: actions/download-artifact@v4
         with:
-          name: com.eevee.spotify_${{ github.event.inputs.id }}_iphoneos-arm64
+          name: com.eevee.spotify_${{ github.event.inputs.commit_id }}_iphoneos-arm64
           path: deb
 
       - name: Download decrypted .ipa
@@ -255,7 +251,7 @@ jobs:
       - name: Download .deb artifact
         uses: actions/download-artifact@v4
         with:
-          name: com.eevee.spotify_${{ github.event.inputs.id }}_iphoneos-arm64
+          name: com.eevee.spotify_${{ github.event.inputs.commit_id }}_iphoneos-arm64
           path: release_files/deb
 
       - name: Download unpatched IPA
@@ -279,11 +275,11 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.inputs.tag }}
-          name: ${{ github.event.inputs.release_name }}
+          tag_name: "${{ github.event.inputs.spotify_version }}-${{ github.event.inputs.commit_id }}"
+          name: "${{ github.event.inputs.spotify_version }} // ${{ github.event.inputs.commit_id }}"
           body: |
-            # EeveeSpotifyReincarnated [`${{ github.event.inputs.id }}`](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated/commit/${{ github.event.inputs.id }})
-            This version pulls the latest changes made up to the commit `${{ github.event.inputs.id }}` in the [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated) repo. 
+            # EeveeSpotifyReincarnated [`${{ github.event.inputs.commit_id }}`](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated/commit/${{ github.event.inputs.commit_id }})
+            This version pulls the latest changes made up to the commit `${{ github.event.inputs.commit_id }}` in the [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated) repo. 
 
             ## Changelogs (vs. [${{ env.PREV_TAG }}](https://github.com/NotDarkn/EeveeReincarnatedIPAs/releases/tag/${{ env.PREV_TAG }}))
 
