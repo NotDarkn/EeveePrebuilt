@@ -147,6 +147,8 @@ jobs:
 
       - name: Inject deb + framework into IPA (cyan)
         if: ${{ inputs.ipa_url != '' }}
+        env:
+          COMMIT_ID: ${{ github.event.inputs.commit_id }}
         run: |
           mkdir -p Outputs/IPAS
           DEB_EXTRACT="$RUNNER_TEMP/deb-extract"
@@ -160,7 +162,7 @@ jobs:
 
           SPOT_VERSION=$(unzip -p ${{ github.workspace }}/spotify.ipa 'Payload/Spotify.app/Info.plist' \
               | plutil -extract CFBundleShortVersionString raw - 2>/dev/null || echo "unknown")
-          OUT="Outputs/IPAS/EeveeReincarnatedIPA-${{ matrix.variant }}-${github.event.inputs.commit_id}-${SPOT_VERSION}.ipa"
+          OUT="Outputs/IPAS/EeveeReincarnatedIPA-${{ matrix.variant }}-${COMMIT_ID}-${SPOT_VERSION}.ipa"
 
           INJECT=("$DYLIB_SRC")
           [ -n "$FRAMEWORK_SRC" ] && INJECT+=("$FRAMEWORK_SRC")
