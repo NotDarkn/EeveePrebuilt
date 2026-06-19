@@ -172,9 +172,6 @@ jobs:
           sudo curl -fsSL "https://github.com/asdfzxcvbn/ipapatch/releases/latest/download/ipapatch.${SUFFIX}" \
               -o /usr/local/bin/ipapatch
           sudo chmod +x /usr/local/bin/ipapatch
-
-      - name: Mask decrypted .ipa URL
-        run: echo "::add-mask::${{ inputs.ipa_url }}"
         
       - name: Download .deb artifact
         uses: actions/download-artifact@v8
@@ -183,7 +180,8 @@ jobs:
           path: deb
       
       - name: Download decrypted .ipa
-        run: |
+        uses: levibostian/action-hide-sensitive-inputs@v1
+        with: |
           wget "${{ inputs.ipa_url }}" --quiet -O ${{ github.workspace }}/spotify.ipa
           file_type=$(file --mime-type -b ${{ github.workspace }}/spotify.ipa)
           if [[ "$file_type" != "application/x-ios-app" && "$file_type" != "application/zip" ]]; then
