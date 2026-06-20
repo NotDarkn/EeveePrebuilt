@@ -75,6 +75,7 @@ jobs:
           key: deb-${{ env.COMMIT_ENV }}-cache
 
       - name: Install deb build tools
+        if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
         run: |
           brew trust aws/tap azure/bicep
           brew install make dpkg ldid
@@ -122,6 +123,7 @@ jobs:
           key: orion_build-cache
 
       - name: Build .deb (rootless)
+        if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
         run: THEOS_PACKAGE_SCHEME=rootless make package FINALPACKAGE=1
       
       - name: Find .deb artifact
@@ -284,10 +286,14 @@ jobs:
       - name: Add OpenSpotifySafariExtension.appex
         run: |
           zip -d "$OUT_IPA" "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex/*" >/dev/null 2>&1 || true
-          cd "$(dirname "$OPENSPOTIFY_APPEX")"
-          zip -qry "$OUT_IPA" "$(basename "$OPENSPOTIFY_APPEX")" -i "$(basename "$OPENSPOTIFY_APPEX")/*"
-
-      - name: Strip Watch app
+          
+          STAGE="$RUNNER_TEMP/appex_stage"
+          mkdir -p "$STAGE/Payload/Spotify.app/PlugIns"
+          cp -R "$OPENSPOTIFY_APPEX" "$STAGE/Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
+          
+          cd "$STAGE" && zip -qry "$OUT_IPA" "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
+          
+      - name: Strip Watch app (if any survived)
         run: |
           zip -d "$OUT_IPA" \
             "Payload/Spotify.app/Watch/*" \
