@@ -380,3 +380,10 @@ jobs:
           files: |
             release_files/**/*.ipa
             release_files/**/*.deb
+
+      - name: Cleanup Artifacts
+        uses: geekyeggo/delete-artifact@v6
+        with:
+          name: |
+              EeveeReincarnatedIPA-*
+              com.eevee.spotify_*
