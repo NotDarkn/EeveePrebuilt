@@ -13,9 +13,11 @@ PB=/usr/libexec/PlistBuddy
 
 build() {
     [ -d "$SRC_DIR" ] || { echo "[alt-icons] no $SRC_DIR"; return 0; }
+    
     shopt -s nullglob
     local sources=("$SRC_DIR"/*.png "$SRC_DIR"/*.jpg "$SRC_DIR"/*.jpeg)
     shopt -u nullglob
+    
     [ "${#sources[@]}" -gt 0 ] || { echo "[alt-icons] no sources"; return 0; }
 
     for src in "${sources[@]}"; do
@@ -29,7 +31,7 @@ build() {
     done
 }
 
-icon_names() {
+get_icon_names() {
     shopt -s nullglob
     local pngs=("$ICON_DIR"/*@2x.png)
     shopt -u nullglob
@@ -39,36 +41,40 @@ icon_names() {
     done
 }
 
+update_plist() {
+    local plist="$1" names="$2" base="$3"
+    
+    "$PB" -c "Print :${base}" "$plist" >/dev/null 2>&1 || return 0
+
+    "$PB" -c "Delete :${base}:CFBundleAlternateIcons" "$plist" 2>/dev/null || true
+    "$PB" -c "Add :${base}:CFBundleAlternateIcons dict" "$plist"
+    
+    while IFS= read -r n; do
+        [ -z "$n" ] && continue
+        "$PB" -c "Add :${base}:CFBundleAlternateIcons:${n} dict" "$plist"
+        "$PB" -c "Add :${base}:CFBundleAlternateIcons:${n}:CFBundleIconFiles array" "$plist"
+        "$PB" -c "Add :${base}:CFBundleAlternateIcons:${n}:CFBundleIconFiles:0 string ${n}" "$plist"
+        "$PB" -c "Add :${base}:CFBundleAlternateIcons:${n}:UIPrerenderedIcon bool false" "$plist"
+    done <<<"$names"
+}
+
 patch_app() {
     local app="$1" plist="$1/Info.plist"
     [ -f "$plist" ] || { echo "[alt-icons] no Info.plist in $app" >&2; return 1; }
 
-    local names; names="$(icon_names)"
+    local names; names="$(get_icon_names)"
     [ -n "$names" ] || { echo "[alt-icons] nothing to register"; return 0; }
 
     cp -f "$ICON_DIR"/*.png "$app/"
-
-    register() {
-        local base="$1"
-        "$PB" -c "Delete :${base}:CFBundleAlternateIcons" "$plist" 2>/dev/null || true
-        "$PB" -c "Add :${base}:CFBundleAlternateIcons dict" "$plist"
-        while IFS= read -r n; do
-            "$PB" -c "Add :${base}:CFBundleAlternateIcons:${n} dict" "$plist"
-            "$PB" -c "Add :${base}:CFBundleAlternateIcons:${n}:CFBundleIconFiles array" "$plist"
-            "$PB" -c "Add :${base}:CFBundleAlternateIcons:${n}:CFBundleIconFiles:0 string ${n}" "$plist"
-            "$PB" -c "Add :${base}:CFBundleAlternateIcons:${n}:UIPrerenderedIcon bool false" "$plist"
-        done <<<"$names"
-    }
-
-    "$PB" -c "Print :CFBundleIcons"      "$plist" >/dev/null 2>&1 && register "CFBundleIcons"
-    "$PB" -c "Print :CFBundleIcons~ipad" "$plist" >/dev/null 2>&1 && register "CFBundleIcons~ipad"
+    
+    update_plist "$plist" "$names" "CFBundleIcons"
+    update_plist "$plist" "$names" "CFBundleIcons~ipad"
 
     echo "[alt-icons] applied $(wc -l <<<"$names" | tr -d ' ') icon(s) to $(basename "$app")"
 }
 
 patch_ipa() {
-    local ipa
-    ipa="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+    local ipa; ipa="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
     
     local tmp app_plist
     tmp="$(mktemp -d -t alt-icons.XXXXXX)"
@@ -80,33 +86,19 @@ patch_ipa() {
 
     ( cd "$tmp" && unzip -q "$ipa" "$app_plist" )
     
-    local plist="$tmp/$app_plist"
-    local app_dir="$tmp/$(dirname "$app_plist")"
-
-    local names; names="$(icon_names)"
+    local plist="$tmp/$app_plist" app_dir="$tmp/$(dirname "$app_plist")"
+    local names; names="$(get_icon_names)"
     [ -n "$names" ] || { echo "[alt-icons] nothing to register"; return 0; }
 
     cp -f "$ICON_DIR"/*.png "$app_dir/"
 
-    register() {
-        local base="$1"
-        "$PB" -c "Delete :${base}:CFBundleAlternateIcons" "$plist" 2>/dev/null || true
-        "$PB" -c "Add :${base}:CFBundleAlternateIcons dict" "$plist"
-        while IFS= read -r n; do
-            "$PB" -c "Add :${base}:CFBundleAlternateIcons:${n} dict" "$plist"
-            "$PB" -c "Add :${base}:CFBundleAlternateIcons:${n}:CFBundleIconFiles array" "$plist"
-            "$PB" -c "Add :${base}:CFBundleAlternateIcons:${n}:CFBundleIconFiles:0 string ${n}" "$plist"
-            "$PB" -c "Add :${base}:CFBundleAlternateIcons:${n}:UIPrerenderedIcon bool false" "$plist"
-        done <<<"$names"
-    }
+    update_plist "$plist" "$names" "CFBundleIcons"
+    update_plist "$plist" "$names" "CFBundleIcons~ipad"
 
-    "$PB" -c "Print :CFBundleIcons"      "$plist" >/dev/null 2>&1 && register "CFBundleIcons"
-    "$PB" -c "Print :CFBundleIcons~ipad" "$plist" >/dev/null 2>&1 && register "CFBundleIcons~ipad"
-
+    # Simplified array appending
     local files_to_update=("$app_plist")
     for png in "$app_dir"/*.png; do
-        local rel="${png#$tmp/}"
-        files_to_update+=("$rel")
+        files_to_update+=("${png#$tmp/}")
     done
 
     ( cd "$tmp" && zip -q "$ipa" "${files_to_update[@]}" )
@@ -118,7 +110,7 @@ build
 target="${1:-}"
 [ -z "$target" ] && exit 0
 
-if   [ -d "$target" ];                       then patch_app "$target"
+if   [ -d "$target" ]; then patch_app "$target"
 elif [ -f "$target" ] && [[ "$target" == *.ipa || "$target" == *.zip ]]; then patch_ipa "$target"
 else echo "[alt-icons] bad target: $target" >&2; exit 1
 fi
