@@ -285,13 +285,11 @@ jobs:
       
       - name: Strip Watch app (if any survived)
         run: |
-          if [ -d "Payload/Spotify.app/com.apple.WatchPlaceholder" ]; then
-            rm -rf Payload/Spotify.app/com.apple.WatchPlaceholder
-          fi
-          if [ -d "Payload/Spotify.app/Watch" ]; then
-            rm -rf Payload/Spotify.app/Watch
-          fi
+          cd "$(dirname "$OUT_IPA")"
 
+          rm -rf Payload/Spotify.app/com.apple.WatchPlaceholder
+          rm -rf Payload/Spotify.app/Watch
+          
           rm -f "$(basename "$OUT_IPA")"
           zip -qry "$(basename "$OUT_IPA")" Payload
           rm -rf Payload
