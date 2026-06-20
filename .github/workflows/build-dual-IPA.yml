@@ -273,30 +273,32 @@ jobs:
           chmod +x Tools/strip-ipa.sh
           Tools/strip-ipa.sh "$OUT_IPA"
 
-      - name: Strip Watch app (if any survived)
-        run: |
-          IPA_NAME="$(basename "$OUT_IPA")"
-          cd "$(dirname "$OUT_IPA")"
-
-          zip -d "$IPA_NAME" \
-            "Payload/Spotify.app/Watch/*" \
-            "Payload/Spotify.app/com.apple.WatchPlaceholder/*" \
-            "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex/*" \
-            >/dev/null 2>&1 || true
-        
       - name: Add OpenSpotifySafariExtension.appex
         run: |
           IPA_NAME="$(basename "$OUT_IPA")"
           cd "$(dirname "$OUT_IPA")"
-
+          
+          zip -d "$IPA_NAME" "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex/*" >/dev/null 2>&1 || true
+          
           STAGE="$RUNNER_TEMP/appex_stage"
           mkdir -p "$STAGE/Payload/Spotify.app/PlugIns"
           cp -R "$OPENSPOTIFY_APPEX" "$STAGE/Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
-
+          
           cd "$STAGE"
+          
           zip -qry "$OLDPWD/$IPA_NAME" "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
-          cd "$OLDPWD"
-          rm -rf "$STAGE"
+          
+      - name: Strip Watch app (if any survived)
+        run: |
+          IPA_NAME="$(basename "$OUT_IPA")"
+          cd "$(dirname "$OUT_IPA")"
+          
+          zip -d "$IPA_NAME" \
+            "Payload/Spotify.app/Watch/*" \
+            "Payload/Spotify.app/com.apple.WatchPlaceholder/*" \
+            "Payload/Spotify.app/WatchKit*" \
+            "Payload/WatchKitSupport/*" \
+            >/dev/null 2>&1 || true
           
       - name: Stage alternate app icons
         run: |
