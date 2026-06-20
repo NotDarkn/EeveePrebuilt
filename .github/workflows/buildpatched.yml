@@ -77,6 +77,8 @@ jobs:
           if-no-files-found: error
 
       # ─── IPA build (only when ipa_url is provided) ───────────────────
+      
+      - uses: levibostian/action-hide-sensitive-inputs@v1
 
       - name: Validate vanilla IPA
         if: ${{ inputs.ipa_url != '' }}
