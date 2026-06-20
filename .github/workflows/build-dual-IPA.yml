@@ -127,6 +127,7 @@ jobs:
         run: THEOS_PACKAGE_SCHEME=rootless make package FINALPACKAGE=1
       
       - name: Find .deb artifact
+        if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
         run: |
           DEB_PATH=$(find packages -name "com.eevee.spotify_*.deb" | head -1)
           [ -n "$DEB_PATH" ] || { echo "deb not produced" >&2; exit 1; }
@@ -283,23 +284,19 @@ jobs:
 
         # a friend on mine Discord offered to improve these two steps
         # and they said "help" i interpreted it as "i'll help" and not "claude'll help", but hey it worked ig
-      - name: Add OpenSpotifySafariExtension.appex
+      - name: Add OpenSpotifySafariExtension.appex & Strip Watch apps (if any remained)
         run: |
-          zip -d "$OUT_IPA" "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex/*" >/dev/null 2>&1 || true
+          zip -d "$OUT_IPA" \
+            "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex/*" \
+            "Payload/Spotify.app/Watch/*" \
+            "Payload/Spotify.app/com.apple.WatchPlaceholder/*" \
+            "Payload/Spotify.app/WatchKit*" \
+            "Payload/WatchKitSupport/*" || true
           
           STAGE="$RUNNER_TEMP/appex_stage"
           mkdir -p "$STAGE/Payload/Spotify.app/PlugIns"
           cp -R "$OPENSPOTIFY_APPEX" "$STAGE/Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
-          
-          cd "$STAGE" && zip -qry "$OUT_IPA" "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
-          
-      - name: Strip Watch app (if any survived)
-        run: |
-          zip -d "$OUT_IPA" \
-            "Payload/Spotify.app/Watch/*" \
-            "Payload/Spotify.app/com.apple.WatchPlaceholder/*" \
-            "Payload/Spotify.app/WatchKit*" \
-            "Payload/WatchKitSupport/*" >/dev/null 2>&1 || true
+          cd "$STAGE" && zip -qry "$OUT_IPA" Payload
           
       - name: Stage alternate app icons
         run: |
