@@ -283,19 +283,25 @@ jobs:
 
         # a friend on mine Discord offered to improve these two steps
         # and they said "help" i interpreted it as "i'll help" and not "claude'll help", but hey it worked ig
-      - name: Add OpenSpotifySafariExtension.appex & Strip Watch apps (if any remained)
+      - name: Add OpenSpotifySafariExtension.appex & Strip leftover Watch apps
         run: |
-          zip -d "$OUT_IPA" \
+          IPA_NAME="$(basename "$OUT_IPA")"
+          cd "$(dirname "$OUT_IPA")"
+          
+          zip -d "$IPA_NAME" \
             "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex/*" \
             "Payload/Spotify.app/Watch/*" \
             "Payload/Spotify.app/com.apple.WatchPlaceholder/*" \
             "Payload/Spotify.app/WatchKit*" \
-            "Payload/WatchKitSupport/*" || true
+            "Payload/WatchKitSupport/*" \
+            >/dev/null 2>&1 || true
           
           STAGE="$RUNNER_TEMP/appex_stage"
           mkdir -p "$STAGE/Payload/Spotify.app/PlugIns"
           cp -R "$OPENSPOTIFY_APPEX" "$STAGE/Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
-          cd "$STAGE" && zip -qry "$OUT_IPA" Payload
+          
+          cd "$STAGE"
+          zip -qry "$OLDPWD/$IPA_NAME" "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
           
       - name: Stage alternate app icons
         run: |
