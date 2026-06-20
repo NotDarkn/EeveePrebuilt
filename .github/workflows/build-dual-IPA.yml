@@ -273,22 +273,7 @@ jobs:
           chmod +x Tools/strip-ipa.sh
           Tools/strip-ipa.sh "$OUT_IPA"
 
-      - name: (UNPATCHED) Add OpenSpotifySafariExtension.appex
-        if: matrix.variant == 'Unpatched'
-        run: |
-          cd "$(dirname "$OUT_IPA")"
-          rm -rf Payload
-          unzip -q "$(basename "$OUT_IPA")"
-
-          mkdir -p "Payload/Spotify.app/PlugIns"
-          cp -R "$OPENSPOTIFY_APPEX" "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
-
-          rm -f "$(basename "$OUT_IPA")"
-          zip -qry "$(basename "$OUT_IPA")" Payload
-          rm -rf Payload
-
-      - name: (PATCHED) Add OpeninSafariSpotifyExtension.appex
-        if: matrix.variant == 'Patched'
+      - name: Add OpenSpotifySafariExtension.appex
         run: |
           cd "$(dirname "$OUT_IPA")"
           rm -rf Payload
@@ -297,22 +282,16 @@ jobs:
           mkdir -p "Payload/Spotify.app/PlugIns"
           rm -rf "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
           cp -R "$OPENSPOTIFY_APPEX" "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
-
-          # Repack only the Payload folder back into the IPA
-          zip -qry "$(basename "$OUT_IPA")" Payload
-          rm -rf Payload
       
       - name: Strip Watch app (if any survived)
         run: |
-          cd "$(dirname "$OUT_IPA")"
-          rm -rf Payload
-          unzip -q "$(basename "$OUT_IPA")"
           if [ -d "Payload/Spotify.app/com.apple.WatchPlaceholder" ]; then
             rm -rf Payload/Spotify.app/com.apple.WatchPlaceholder
           fi
           if [ -d "Payload/Spotify.app/Watch" ]; then
             rm -rf Payload/Spotify.app/Watch
           fi
+
           rm -f "$(basename "$OUT_IPA")"
           zip -qry "$(basename "$OUT_IPA")" Payload
           rm -rf Payload
