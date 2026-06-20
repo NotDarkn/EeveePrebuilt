@@ -67,7 +67,10 @@ patch_app() {
 }
 
 patch_ipa() {
-    local ipa="$1" tmp app_plist
+    local ipa
+    ipa="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+    
+    local tmp app_plist
     tmp="$(mktemp -d -t alt-icons.XXXXXX)"
     trap 'rm -rf "$tmp"' RETURN
 
@@ -75,16 +78,14 @@ patch_ipa() {
     app_plist=$(zipinfo -1 "$ipa" | grep -E '^Payload/[^/]+\.app/Info\.plist$' | head -1)
     [ -n "$app_plist" ] || { echo "[alt-icons] no Info.plist in $ipa" >&2; return 1; }
 
-    # Extract ONLY the Info.plist (takes milliseconds)
     ( cd "$tmp" && unzip -q "$ipa" "$app_plist" )
     
     local plist="$tmp/$app_plist"
-    local app_dir="$tmp/$(dirname "$app_plist")" # This is the staging .app dir
+    local app_dir="$tmp/$(dirname "$app_plist")"
 
     local names; names="$(icon_names)"
     [ -n "$names" ] || { echo "[alt-icons] nothing to register"; return 0; }
 
-    # Copy icons to staging dir
     cp -f "$ICON_DIR"/*.png "$app_dir/"
 
     register() {
@@ -102,14 +103,12 @@ patch_ipa() {
     "$PB" -c "Print :CFBundleIcons"      "$plist" >/dev/null 2>&1 && register "CFBundleIcons"
     "$PB" -c "Print :CFBundleIcons~ipad" "$plist" >/dev/null 2>&1 && register "CFBundleIcons~ipad"
 
-    # Build list of files to update in the zip
     local files_to_update=("$app_plist")
     for png in "$app_dir"/*.png; do
         local rel="${png#$tmp/}"
         files_to_update+=("$rel")
     done
 
-    # Update the zip in-place. This overwrites Info.plist and adds the PNGs.
     ( cd "$tmp" && zip -q "$ipa" "${files_to_update[@]}" )
 
     echo "[alt-icons] applied $(wc -l <<<"$names" | tr -d ' ') icon(s) to $(basename "$ipa")"
