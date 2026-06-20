@@ -44,6 +44,7 @@ jobs:
           COMMIT_FULL=$(git ls-remote https://github.com/jaydenjcpy/EeveeSpotifyReincarnated.git ${{ inputs.branch }} | cut -f1)
           COMMIT=${COMMIT_FULL:0:7}
           echo "COMMIT_ID=$COMMIT" >> $GITHUB_OUTPUT
+          echo "COMMIT_ENV=$COMMIT" >> $GITHUB_ENV
 
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
@@ -65,6 +66,13 @@ jobs:
           repository: theos/theos
           path: ${{ github.workspace }}/theos
           submodules: recursive
+
+      - name: Cache EeveeSpotify deb
+        id: deb-eevee-cache
+        uses: actions/cache@v5
+        with:
+          path: "packages/com.eevee.spotify_${COMMIT_ENV}_iphoneos-arm64.deb"
+          key: deb-$COMMIT_ENV-cache
 
       - name: Install deb build tools
         run: |
@@ -117,12 +125,10 @@ jobs:
         run: THEOS_PACKAGE_SCHEME=rootless make package FINALPACKAGE=1
       
       - name: Find .deb artifact
-        env:
-          COMMIT_ID: ${{ steps.SETUP_COMMIT_ID.outputs.COMMIT_ID }}
         run: |
           DEB_PATH=$(find packages -name "com.eevee.spotify_*.deb" | head -1)
           [ -n "$DEB_PATH" ] || { echo "deb not produced" >&2; exit 1; }
-          DEB_RENAME="packages/com.eevee.spotify_${COMMIT_ID}_iphoneos-arm64.deb"
+          DEB_RENAME="packages/com.eevee.spotify_${COMMIT_ENV}_iphoneos-arm64.deb"
           mv "$DEB_PATH" "$DEB_RENAME"
           echo "DEB_PATH=$DEB_RENAME" >> $GITHUB_ENV
           echo "DEB_NAME=$(basename "$DEB_RENAME")" >> $GITHUB_ENV
@@ -130,7 +136,7 @@ jobs:
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v7
         with:
-          name: com.eevee.spotify_${{ steps.SETUP_COMMIT_ID.outputs.COMMIT_ID }}_iphoneos-arm64
+          name: com.eevee.spotify_${COMMIT_ENV}_iphoneos-arm64
           path: ${{ env.DEB_PATH }}
           if-no-files-found: error
 
@@ -277,30 +283,17 @@ jobs:
         # and they said "help" i interpreted it as "i'll help" and not "claude'll help", but hey it worked ig
       - name: Add OpenSpotifySafariExtension.appex
         run: |
-          IPA_NAME="$(basename "$OUT_IPA")"
-          cd "$(dirname "$OUT_IPA")"
-          
-          zip -d "$IPA_NAME" "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex/*" >/dev/null 2>&1 || true
-          
-          STAGE="$RUNNER_TEMP/appex_stage"
-          mkdir -p "$STAGE/Payload/Spotify.app/PlugIns"
-          cp -R "$OPENSPOTIFY_APPEX" "$STAGE/Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
-          
-          cd "$STAGE"
-          
-          zip -qry "$OLDPWD/$IPA_NAME" "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
-          
-      - name: Strip Watch app (if any survived)
+          zip -d "$OUT_IPA" "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex/*" >/dev/null 2>&1 || true
+          cd "$(dirname "$OPENSPOTIFY_APPEX")"
+          zip -qry "$OUT_IPA" "$(basename "$OPENSPOTIFY_APPEX")" -i "$(basename "$OPENSPOTIFY_APPEX")/*"
+
+      - name: Strip Watch app
         run: |
-          IPA_NAME="$(basename "$OUT_IPA")"
-          cd "$(dirname "$OUT_IPA")"
-          
-          zip -d "$IPA_NAME" \
+          zip -d "$OUT_IPA" \
             "Payload/Spotify.app/Watch/*" \
             "Payload/Spotify.app/com.apple.WatchPlaceholder/*" \
             "Payload/Spotify.app/WatchKit*" \
-            "Payload/WatchKitSupport/*" \
-            >/dev/null 2>&1 || true
+            "Payload/WatchKitSupport/*" >/dev/null 2>&1 || true
           
       - name: Stage alternate app icons
         run: |
