@@ -278,8 +278,8 @@ jobs:
       - name: (UNPATCHED) Strip incompatible bundles
         if: matrix.variant == 'Unpatched'
         run: |
-          chmod +x Tools/strip-ipa.sh
-          Tools/strip-ipa.sh "$OUT_IPA"
+          chmod +x Tools/strip-ipa-modified.sh
+          Tools/strip-ipa-modified.sh "$OUT_IPA"
 
         # a friend on mine Discord offered to improve these two steps significantly
         # and when i heard "help" i interpreted it as "i'll help" and not "claude'll help", but hey it worked ig
@@ -305,8 +305,8 @@ jobs:
           
       - name: Stage alternate app icons
         run: |
-          chmod +x Tools/alt-icons-modified.sh
-          Tools/alt-icons-modified.sh "$OUT_IPA"
+          chmod +x Tools/alt-icons.sh
+          Tools/alt-icons.sh "$OUT_IPA"
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v7
