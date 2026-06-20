@@ -71,8 +71,8 @@ jobs:
         id: deb-eevee-cache
         uses: actions/cache@v5
         with:
-          path: "packages/com.eevee.spotify_${COMMIT_ENV}_iphoneos-arm64.deb"
-          key: deb-$COMMIT_ENV-cache
+          path: "packages/com.eevee.spotify_${{ env.COMMIT_ENV }}_iphoneos-arm64.deb"
+          key: deb-${{ env.COMMIT_ENV }}-cache
 
       - name: Install deb build tools
         run: |
@@ -136,7 +136,7 @@ jobs:
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v7
         with:
-          name: com.eevee.spotify_${COMMIT_ENV}_iphoneos-arm64
+          name: com.eevee.spotify_${{ env.COMMIT_ENV }}_iphoneos-arm64
           path: ${{ env.DEB_PATH }}
           if-no-files-found: error
 
