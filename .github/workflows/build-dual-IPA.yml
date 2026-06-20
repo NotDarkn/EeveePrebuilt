@@ -273,6 +273,8 @@ jobs:
           chmod +x Tools/strip-ipa.sh
           Tools/strip-ipa.sh "$OUT_IPA"
 
+        # a friend on mine Discord offered to improve with these two steps
+        # and they said "help" i interpreted it as "i'll help" and not "claude'll help", but hey it worked ig
       - name: Add OpenSpotifySafariExtension.appex
         run: |
           IPA_NAME="$(basename "$OUT_IPA")"
