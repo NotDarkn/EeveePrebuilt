@@ -95,7 +95,6 @@ patch_ipa() {
     update_plist "$plist" "$names" "CFBundleIcons"
     update_plist "$plist" "$names" "CFBundleIcons~ipad"
 
-    # Simplified array appending
     local files_to_update=("$app_plist")
     for png in "$app_dir"/*.png; do
         files_to_update+=("${png#$tmp/}")
