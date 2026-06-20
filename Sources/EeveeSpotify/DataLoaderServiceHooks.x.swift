@@ -20,7 +20,12 @@ class SPTDataLoaderServiceHook: ClassHook<NSObject>, SpotifySessionDelegate {
            let headers = request.allHTTPHeaderFields,
            let auth = headers["Authorization"] ?? headers["authorization"],
            auth.hasPrefix("Bearer ") {
-            spotifyAccessToken = String(auth.dropFirst(7))
+            let token = String(auth.dropFirst(7))
+            spotifyAccessToken = token
+            // TEMP DEBUG: log token shape + source URL, never the token itself.
+            let dotCount = token.filter { $0 == "." }.count
+            let shape = "len=\(token.count) dots=\(dotCount) prefix=\(token.prefix(6))"
+            writeDebugLog("[TokenCapture] \(shape) from \(task.currentRequest?.url?.absoluteString ?? "<no url>")")
         }
 
         guard let url = task.currentRequest?.url else {
@@ -68,9 +73,32 @@ class SPTDataLoaderServiceHook: ClassHook<NSObject>, SpotifySessionDelegate {
         }
 
         do {
-            // Lyrics — async fetch with 5s budget, falls back to Spotify's own response on failure.
+            // Lyrics — async fetch with 18s budget, falls back to Spotify's own response on failure.
+            //
+            // iOS 27 / Spotify 9.1.60 fix: Spotify's URLSession delegate handler for
+            // didReceiveData now accesses @MainActor-isolated state. When we call orig.*
+            // from the SPTDataLoaderService delegate queue (a background serial queue),
+            // Swift's strict concurrency runtime trips _swift_task_checkIsolatedSwift and
+            // kills the process with EXC_BREAKPOINT / SIGTRAP.
+            //
+            // Fix: dispatch the two orig.URLSession calls onto the main queue.
+            // This matches the execution context Spotify's renderer expects and eliminates
+            // the @MainActor isolation violation entirely.
             if url.isLyrics {
                 let originalLyrics = try? Lyrics(serializedBytes: buffer)
+
+                // Fast path: if lyrics are already cached for this track, skip the
+                // async dispatch + semaphore entirely and deliver inline. This makes
+                // the full lyrics panel open instantly on first and subsequent views.
+                if let trackId = extractTrackId(from: url.path),
+                   let cached = cachedLyricsData(for: trackId) {
+                    DispatchQueue.main.async { [self] in
+                        orig.URLSession(session, dataTask: task, didReceiveData: cached)
+                        orig.URLSession(session, task: task, didCompleteWithError: nil)
+                    }
+                    return
+                }
+
                 let semaphore = DispatchSemaphore(value: 0)
                 var customLyricsData: Data?
 
@@ -80,8 +108,11 @@ class SPTDataLoaderServiceHook: ClassHook<NSObject>, SpotifySessionDelegate {
                 }
 
                 _ = semaphore.wait(timeout: .now() + .milliseconds(18000))
-                orig.URLSession(session, dataTask: task, didReceiveData: customLyricsData ?? buffer)
-                orig.URLSession(session, task: task, didCompleteWithError: nil)
+                let lyricsPayload = customLyricsData ?? buffer
+                DispatchQueue.main.async { [self] in
+                    orig.URLSession(session, dataTask: task, didReceiveData: lyricsPayload)
+                    orig.URLSession(session, task: task, didCompleteWithError: nil)
+                }
                 return
             }
 
@@ -122,21 +153,42 @@ class SPTDataLoaderServiceHook: ClassHook<NSObject>, SpotifySessionDelegate {
 
         // Lyrics 4xx/5xx — replace with our custom fetch result so the
         // consumer doesn't show "no lyrics available".
+        //
+        // IMPORTANT: getLyricsDataForCurrentTrack is a blocking network call.
+        // Calling it synchronously here deadlocks because this delegate queue is
+        // also needed to deliver subsequent delegate callbacks (didReceiveData,
+        // didCompleteWithError). The fix is to fetch on a background queue while
+        // holding the URLSession completion handler open — URLSession won't
+        // proceed until we call handler(.allow/.cancel), so we have time to fetch
+        // and then deliver everything ourselves.
         guard let url = task.currentRequest?.url, url.isLyrics, response.statusCode != 200 else {
             orig.URLSession(session, dataTask: task, didReceiveResponse: response, completionHandler: handler)
             return
         }
 
-        do {
-            let data = try getLyricsDataForCurrentTrack(url.path)
-            guard let ok = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "2.0", headerFields: [:]) else {
-                orig.URLSession(session, dataTask: task, didReceiveResponse: response, completionHandler: handler)
+        DispatchQueue.global(qos: .userInitiated).async { [self] in
+            // Fast path: serve from cache without a new fetch.
+            let data: Data?
+            if let trackId = extractTrackId(from: url.path),
+               let cached = cachedLyricsData(for: trackId) {
+                data = cached
+            } else {
+                data = try? getLyricsDataForCurrentTrack(url.path)
+            }
+
+            guard let lyricsData = data,
+                  let ok = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "2.0", headerFields: [:]) else {
+                // Fetch failed — let Spotify handle the original non-200 response.
+                handler(.allow)
+                orig.URLSession(session, dataTask: task, didReceiveResponse: response, completionHandler: { _ in })
                 return
             }
-            orig.URLSession(session, dataTask: task, didReceiveResponse: ok, completionHandler: handler)
-            orig.URLSession(session, dataTask: task, didReceiveData: data)
-        } catch {
-            orig.URLSession(session, task: task, didCompleteWithError: error)
+
+            DispatchQueue.main.async { [self] in
+                orig.URLSession(session, dataTask: task, didReceiveResponse: ok, completionHandler: handler)
+                orig.URLSession(session, dataTask: task, didReceiveData: lyricsData)
+                orig.URLSession(session, task: task, didCompleteWithError: nil)
+            }
         }
     }
 

@@ -15,6 +15,7 @@ struct EeveeAppIconPickerView: View {
     @State private var icons: [AppIconEntry] = []
     @State private var selectedKey: String = primaryIconKey
     @State private var errorMessage: String?
+    @State private var prettifyNames: Bool = UserDefaults.iconNamePrettify
 
     var body: some View {
         List {
@@ -27,7 +28,26 @@ struct EeveeAppIconPickerView: View {
                         .buttonStyle(PlainButtonStyle())
                 }
             }
-            
+
+            Section {
+                Toggle(isOn: Binding(
+                    get: { prettifyNames },
+                    set: { newValue in
+                        prettifyNames = newValue
+                        UserDefaults.iconNamePrettify = newValue
+                        load()
+                    }
+                )) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Prettify Icon Names")
+                            .font(.system(size: 16, weight: .semibold))
+                        Text("Converts underscores, hyphens, and camelCase into spaces")
+                            .font(.system(size: 13))
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+
             SpacerView()
         }
         .listStyle(InsetGroupedListStyle())
@@ -97,7 +117,16 @@ struct EeveeAppIconPickerView: View {
         for key in alternates.keys.sorted(by: { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }) {
             let info = alternates[key] as? [String: Any]
             let files = info?["CFBundleIconFiles"] as? [String] ?? [key]
-            entries.append(AppIconEntry(id: key, title: key, alternateName: key, iconFiles: files))
+            // Use the plist key as the display title but convert underscores,
+            // hyphens, camelCase boundaries, and parentheses to readable spaces.
+            let displayTitle = Self.prettifyIconKey(key, prettify: prettifyNames)
+            // Use the first CFBundleIconFiles entry as the alternateName passed to
+            // setAlternateIconName. iOS resolves icons by the plist key — but on
+            // sideloaded/jailbroken builds, keys with spaces or parentheses can fail.
+            // Using the actual icon filename stem is a reliable fallback; if files is
+            // empty we fall back to the raw key.
+            let alternateName = files.first ?? key
+            entries.append(AppIconEntry(id: key, title: displayTitle, alternateName: alternateName, iconFiles: files))
         }
         icons = entries
         selectedKey = currentSelectedKey()
@@ -133,6 +162,63 @@ struct EeveeAppIconPickerView: View {
                 errorMessage = error.localizedDescription
             }
         }
+    }
+
+    /// Converts a raw plist key into a readable display title.
+    /// When `prettify` is false, returns the key unchanged.
+    /// When true:
+    /// - Replaces underscores and hyphens with spaces.
+    /// - Inserts a space before `(` when not already preceded by a space.
+    /// - Inserts spaces at camelCase/PascalCase word boundaries.
+    /// - Inserts a space between a letter and a digit (and vice versa) when
+    ///   no space is already present — e.g. "EeveeV2" → "Eevee V2".
+    /// - Collapses multiple spaces and trims.
+    static func prettifyIconKey(_ key: String, prettify: Bool = true) -> String {
+        guard prettify else { return key }
+
+        var result = key
+        // Replace underscores and hyphens with spaces.
+        result = result.replacingOccurrences(of: "_", with: " ")
+        result = result.replacingOccurrences(of: "-", with: " ")
+        // Ensure a space before `(`.
+        result = result.replacingOccurrences(of: "(", with: " (")
+
+        // Walk character by character inserting spaces at boundaries.
+        var spaced = ""
+        let chars = Array(result)
+        for i in chars.indices {
+            let c = chars[i]
+            if i > 0 {
+                let prev = chars[i - 1]
+                let prevIsSpace = prev == " "
+
+                // camelCase / PascalCase: lowercase/digit → uppercase
+                if c.isUppercase && !prevIsSpace {
+                    if prev.isLowercase || prev.isNumber {
+                        spaced.append(" ")
+                    } else if c.isUppercase, prev.isUppercase,
+                              i + 1 < chars.count, chars[i + 1].isLowercase {
+                        // Acronym boundary: "NPVScroll" → "NPV Scroll"
+                        spaced.append(" ")
+                    }
+                }
+
+                // Letter → digit boundary: "Eevee2" → "Eevee 2"
+                if c.isNumber && prev.isLetter && !prevIsSpace {
+                    spaced.append(" ")
+                }
+
+                // Digit → letter boundary: "2Eevee" → "2 Eevee"
+                if c.isLetter && prev.isNumber && !prevIsSpace {
+                    spaced.append(" ")
+                }
+            }
+            spaced.append(c)
+        }
+
+        // Collapse multiple spaces and trim.
+        let components = spaced.components(separatedBy: " ").filter { !$0.isEmpty }
+        return components.joined(separator: " ")
     }
 
     private static func image(for icon: AppIconEntry) -> UIImage? {

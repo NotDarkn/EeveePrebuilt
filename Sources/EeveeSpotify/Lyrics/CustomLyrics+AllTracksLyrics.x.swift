@@ -18,13 +18,24 @@ class SPTPlayerTrackHook: ClassHook<NSObject> {
     
     func URI() -> NSURL? {
         let uri = orig.URI()
-        
+
         guard shouldOverrideLocalTrackURI,
               let absoluteString = uri?.absoluteString,
               absoluteString.isLocalTrackIdentifier else {
+
+            // Trigger a background lyrics prefetch as soon as the track URI is
+            // observed — well before Spotify fires its /color-lyrics/v2 request.
+            if let uriString = uri?.absoluteString,
+               uriString.hasPrefix("spotify:track:") {
+                let trackId = uriString.replacingOccurrences(of: "spotify:track:", with: "")
+                if !trackId.isEmpty {
+                    prefetchLyricsIfNeeded(trackId: trackId)
+                }
+            }
+
             return uri
         }
-        
+
         return NSURL(string: "spotify:track:")!
     }
 }

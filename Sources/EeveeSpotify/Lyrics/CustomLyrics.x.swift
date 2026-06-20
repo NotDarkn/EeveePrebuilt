@@ -110,6 +110,8 @@ private func loadCustomLyricsForTrackId(_ trackId: String) throws -> Lyrics {
         repository = MusixmatchLyricsRepository.shared
     case .petit:
         repository = petitLyricsRepository
+    case .spicylyrics:
+        repository = SpicyLyricsRepository.shared
     case .notReplaced:
         throw LyricsError.invalidSource
     }
@@ -216,6 +218,8 @@ private func loadCustomLyricsForCurrentTrack() throws -> Lyrics {
         repository = MusixmatchLyricsRepository.shared
     case .petit:
         repository = petitLyricsRepository
+    case .spicylyrics:
+        repository = SpicyLyricsRepository.shared
     case .notReplaced:
         throw LyricsError.invalidSource
     }
@@ -287,6 +291,99 @@ private func loadCustomLyricsForCurrentTrack() throws -> Lyrics {
     return lyrics
 }
 
+/// Extracts the Spotify track ID from a `/color-lyrics/v2/track/{trackId}` URL path.
+/// Returns nil if the path doesn't match the expected format.
+func extractTrackId(from path: String) -> String? {
+    guard let range = path.range(of: #"/track/([a-zA-Z0-9]+)"#, options: .regularExpression) else {
+        return nil
+    }
+    let trackId = String(path[range].split(separator: "/").last ?? "")
+    return trackId.isEmpty ? nil : trackId
+}
+
+// MARK: - Lyrics cache + prefetch
+// Caches the most recently fetched lyrics data per track ID so that:
+//   1. The full lyrics view (second request) returns instantly from cache.
+//   2. The *first* lyrics request also returns instantly if a prefetch
+//      was triggered early enough (on track URI observation).
+private struct LyricsCacheEntry {
+    let data: Data
+    let trackId: String
+}
+private var lyricsCache: LyricsCacheEntry?
+
+// Track ID currently being prefetched, to avoid duplicate background fetches.
+private var prefetchingTrackId: String?
+
+/// Kicks off a background lyrics fetch for `trackId` so the cache is warm
+/// before Spotify fires its `/color-lyrics/v2` request.
+/// Safe to call multiple times — duplicate calls for the same track are ignored.
+func prefetchLyricsIfNeeded(trackId: String) {
+    guard UserDefaults.lyricsSource.isReplacingLyrics else { return }
+    // Already cached or already fetching — nothing to do.
+    if let entry = lyricsCache, entry.trackId == trackId { return }
+    if prefetchingTrackId == trackId { return }
+
+    prefetchingTrackId = trackId
+    writeDebugLog("[Lyrics] prefetch start for \(trackId)")
+
+    DispatchQueue.global(qos: .userInitiated).async {
+        defer {
+            if prefetchingTrackId == trackId {
+                prefetchingTrackId = nil
+            }
+        }
+        do {
+            var lyrics = try loadCustomLyricsForTrackId(trackId)
+
+            // Apply color so the cached payload is fully valid.
+            // Mirror the same logic used in getLyricsDataForCurrentTrack.
+            let lyricsColorsSettings = UserDefaults.lyricsColors
+            if !lyricsColorsSettings.displayOriginalColors {
+                let color: Color
+                if lyricsColorsSettings.useStaticColor {
+                    color = Color(hex: lyricsColorsSettings.staticColor)
+                } else if let uiColor = backgroundViewModel?.color() {
+                    color = Color(uiColor).normalized(lyricsColorsSettings.normalizationFactor)
+                } else {
+                    color = Color.gray
+                }
+                lyrics.colors = LyricsColors.with {
+                    $0.backgroundColor = color.uInt32
+                    $0.lineColor = Color.black.uInt32
+                    $0.activeLineColor = Color.white.uInt32
+                }
+            }
+
+            if let data = try? lyrics.serializedData() {
+                storeLyricsCache(data: data, trackId: trackId)
+                writeDebugLog("[Lyrics] prefetch complete for \(trackId)")
+            }
+        } catch {
+            writeDebugLog("[Lyrics] prefetch failed for \(trackId): \(error)")
+        }
+    }
+}
+
+/// Returns cached lyrics data for the given track ID if available.
+func cachedLyricsData(for trackId: String) -> Data? {
+    if let entry = lyricsCache, entry.trackId == trackId {
+        return entry.data
+    }
+    return nil
+}
+
+/// Stores lyrics data in the cache for the given track ID.
+func storeLyricsCache(data: Data, trackId: String) {
+    lyricsCache = LyricsCacheEntry(data: data, trackId: trackId)
+}
+
+/// Clears the cache and any in-flight prefetch marker (called on track change).
+func clearLyricsCache() {
+    lyricsCache = nil
+    prefetchingTrackId = nil
+}
+
 /// Returns a serialized empty `Lyrics` protobuf payload.
 /// Used as a fallback when every lyrics source (including Genius fallback) fails,
 /// so we show "no lyrics" instead of leaking Spotify's own Musixmatch response.
@@ -305,15 +402,7 @@ func getLyricsDataForCurrentTrack(_ originalPath: String, originalLyrics: Lyrics
     
     // track id from URL path; player objects are nil on 9.1.6
     // path: /color-lyrics/v2/track/{trackId}
-    let trackIdentifier: String
-    if let range = originalPath.range(of: #"/track/([a-zA-Z0-9]+)"#, options: .regularExpression) {
-        let match = originalPath[range]
-        trackIdentifier = String(match.split(separator: "/").last ?? "")
-    } else {
-        throw LyricsError.noCurrentTrack
-    }
-
-    if trackIdentifier.isEmpty {
+    guard let trackIdentifier = extractTrackId(from: originalPath), !trackIdentifier.isEmpty else {
         throw LyricsError.noCurrentTrack
     }
 
@@ -321,6 +410,17 @@ func getLyricsDataForCurrentTrack(_ originalPath: String, originalLyrics: Lyrics
         capturedTrackTitle = nil
         capturedArtistName = nil
         capturedTrackId = nil
+        // Clear cache when the track changes so stale data is never shown.
+        clearLyricsCache()
+    }
+
+    // Return cached lyrics data immediately if available for this track.
+    // Spotify fires two requests per track: one for the preview widget and one
+    // for the full lyrics view. Without this cache the second request causes a
+    // full re-fetch (up to 18 s), making the full lyrics panel feel slow to open.
+    if let cached = cachedLyricsData(for: trackIdentifier) {
+        writeDebugLog("[Lyrics] cache hit for \(trackIdentifier)")
+        return cached
     }
 
     var lyrics = try loadCustomLyricsForTrackId(trackIdentifier)
@@ -353,5 +453,8 @@ func getLyricsDataForCurrentTrack(_ originalPath: String, originalLyrics: Lyrics
     }
     
     let serializedData = try lyrics.serializedData()
+    // Store in cache so the next request for this track (e.g. full lyrics view)
+    // returns immediately without a new network fetch.
+    storeLyricsCache(data: serializedData, trackId: trackIdentifier)
     return serializedData
 }

@@ -17,7 +17,12 @@ class HttpClientURLSessionHook: ClassHook<NSObject>, SpotifySessionDelegate {
            let headers = request.allHTTPHeaderFields,
            let auth = headers["Authorization"] ?? headers["authorization"],
            auth.hasPrefix("Bearer ") {
-            spotifyAccessToken = String(auth.dropFirst(7))
+            let token = String(auth.dropFirst(7))
+            spotifyAccessToken = token
+            // TEMP DEBUG: log token shape + source URL, never the token itself.
+            let dotCount = token.filter { $0 == "." }.count
+            let shape = "len=\(token.count) dots=\(dotCount) prefix=\(token.prefix(6))"
+            writeDebugLog("[TokenCapture] \(shape) from \(task.currentRequest?.url?.absoluteString ?? "<no url>")")
         }
 
         guard let url = task.currentRequest?.url else {
@@ -65,6 +70,15 @@ class HttpClientURLSessionHook: ClassHook<NSObject>, SpotifySessionDelegate {
         do {
             if url.isLyrics {
                 let originalLyrics = try? Lyrics(serializedBytes: buffer)
+
+                // Fast path: serve from cache without async dispatch or semaphore.
+                if let trackId = extractTrackId(from: url.path),
+                   let cached = cachedLyricsData(for: trackId) {
+                    orig.URLSession(session, dataTask: task, didReceiveData: cached)
+                    orig.URLSession(session, task: task, didCompleteWithError: nil)
+                    return
+                }
+
                 let semaphore = DispatchSemaphore(value: 0)
                 var customLyricsData: Data?
                 DispatchQueue.global(qos: .userInitiated).async {
@@ -115,16 +129,28 @@ class HttpClientURLSessionHook: ClassHook<NSObject>, SpotifySessionDelegate {
             return
         }
 
-        do {
-            let data = try getLyricsDataForCurrentTrack(url.path)
-            guard let ok = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "2.0", headerFields: [:]) else {
-                orig.URLSession(session, dataTask: task, didReceiveResponse: response, completionHandler: handler)
+        // Fetch on a background queue while holding the completion handler open.
+        // Calling getLyricsDataForCurrentTrack synchronously here would block the
+        // delegate queue and prevent subsequent delegate callbacks from firing.
+        DispatchQueue.global(qos: .userInitiated).async { [self] in
+            let data: Data?
+            if let trackId = extractTrackId(from: url.path),
+               let cached = cachedLyricsData(for: trackId) {
+                data = cached
+            } else {
+                data = try? getLyricsDataForCurrentTrack(url.path)
+            }
+
+            guard let lyricsData = data,
+                  let ok = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "2.0", headerFields: [:]) else {
+                handler(.allow)
+                orig.URLSession(session, dataTask: task, didReceiveResponse: response, completionHandler: { _ in })
                 return
             }
+
             orig.URLSession(session, dataTask: task, didReceiveResponse: ok, completionHandler: handler)
-            orig.URLSession(session, dataTask: task, didReceiveData: data)
-        } catch {
-            orig.URLSession(session, task: task, didCompleteWithError: error)
+            orig.URLSession(session, dataTask: task, didReceiveData: lyricsData)
+            orig.URLSession(session, task: task, didCompleteWithError: nil)
         }
     }
 

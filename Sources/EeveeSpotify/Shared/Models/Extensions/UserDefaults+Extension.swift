@@ -12,6 +12,7 @@ extension UserDefaults {
     private static let lyricsOptionsKey = "lyricsOptions"
     private static let hasShownCommonIssuesTipKey = "hasShownCommonIssuesTip"
     private static let hasPatchedBootstrapKey = "eeveeHasPatchedBootstrap"
+    private static let iconNamePrettifyKey = "iconNamePrettify"
 
     static var musixmatchToken: String {
         get {
@@ -75,6 +76,17 @@ extension UserDefaults {
         }
         set (hasShownCommonIssuesTip) {
             container.set(hasShownCommonIssuesTip, forKey: hasShownCommonIssuesTipKey)
+        }
+    }
+
+    /// When true, icon names are prettified: underscores/hyphens become spaces,
+    /// camelCase boundaries and numbers get spaces, and parentheses get a leading space.
+    static var iconNamePrettify: Bool {
+        get {
+            container.object(forKey: iconNamePrettifyKey) as? Bool ?? true
+        }
+        set {
+            container.set(newValue, forKey: iconNamePrettifyKey)
         }
     }
 }

@@ -5,11 +5,14 @@ extension EeveeLyricsSettingsView {
         var text = "lyrics_source_description".localized
 
         text.append("\n\n")
+        text.append("SpicyLyrics provides word-by-word karaoke lyrics using Spotify's own token. No extra setup needed.")
+
+        text.append("\n\n")
         text.append("petitlyrics_description".localized)
-        
+
         text.append("\n\n")
         text.append("lyrics_additional_info".localized)
-        
+
         return Text(text)
     }
     

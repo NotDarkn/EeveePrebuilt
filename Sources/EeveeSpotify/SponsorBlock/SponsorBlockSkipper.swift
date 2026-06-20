@@ -140,6 +140,8 @@ final class SponsorBlockSkipper {
         let isEpisodeURI = uriString.hasPrefix("spotify:episode:") || uriString.contains("/episode/")
         guard isEpisodeURI, let episodeID = extractEpisodeID(fromURI: uriString) else {
             queue.async {
+                // Stop the timer immediately before clearing state, so that
+                // any in-flight poll tick sees empty segments and cannot seek a music track.
                 self.stopPolling()
                 let wasActive = (self.currentEpisodeID != nil) || !self.currentSegments.isEmpty
                 if wasActive {
@@ -151,6 +153,9 @@ final class SponsorBlockSkipper {
                     self.lastDuration = 0
                     self.lastIsPlaying = false
                     self.pendingSeekTarget = nil
+                    self.preSeekPosition = nil
+                    // Clear cached seek selector so it cannot be reused on a non-episode track.
+                    self.seekSelectorCached = nil
                     self.broadcastSegments()
                 }
             }
@@ -279,6 +284,8 @@ final class SponsorBlockSkipper {
 
     private func checkAndSkip(reportedPosition pos: Double, options: SponsorBlockOptions) {
         guard !currentSegments.isEmpty else { return }
+        // Safety guard: never seek if we are not on an episode track.
+        guard currentEpisodeID != nil else { return }
 
         if !playthroughAllowed.isEmpty {
             playthroughAllowed = playthroughAllowed.filter { uuid in

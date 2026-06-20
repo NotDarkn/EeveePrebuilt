@@ -26,7 +26,7 @@ struct ContributorRow: View {
                     }
                 }
                 Text(contributor.roles.joined(separator: ", "))
-                    .font(.callout)
+                    .font(.body)
                     .foregroundColor(.gray)
             }
             .padding(.vertical, 10)
@@ -48,7 +48,7 @@ struct ContributorRow: View {
                         ForEach(richRoles, id: \.name) { role in
                             HStack(spacing: 6) {
                                 Text(role.name)
-                                    .font(.callout)
+                                    .font(.body)
                                     .foregroundColor(.gray)
 
                                 // Co-contributor: dot separator + bigger pfp + white name matching contributor style
@@ -56,13 +56,13 @@ struct ContributorRow: View {
                                     ForEach(Array(coUsernames.enumerated()), id: \.offset) { index, username in
                                         HStack(spacing: 6) {
                                             Text("·")
-                                                .font(.callout)
-                                                .foregroundColor(.gray)
+                                                .font(.body).bold()
+                                                .foregroundColor(.white)
                                             ImageView(urlString: "https://github.com/\(username).png")
                                                 .frame(width: 22, height: 22)
                                                 .clipShape(Circle())
                                             Text(role.coDisplayNames?[safe: index] ?? username)
-                                                .font(.callout).bold()
+                                                .font(.body).bold()
                                                 .foregroundColor(.white)
                                         }
                                     }
@@ -74,11 +74,11 @@ struct ContributorRow: View {
                             ForEach(Array(contributor.roles.enumerated()), id: \.offset) { index, role in
                                 if index > 0 {
                                     Text(", ")
-                                        .font(.callout)
+                                        .font(.body)
                                         .foregroundColor(.gray)
                                 }
                                 Text(role)
-                                    .font(.callout)
+                                    .font(.body)
                                     .foregroundColor(.gray)
                             }
                         }
