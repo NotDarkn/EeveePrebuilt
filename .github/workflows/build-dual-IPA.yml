@@ -305,8 +305,8 @@ jobs:
           
       - name: Stage alternate app icons
         run: |
-          chmod +x Tools/alt-icons.sh
-          Tools/alt-icons.sh "$OUT_IPA"
+          chmod +x Tools/alt-icons-modified.sh
+          Tools/alt-icons-modified.sh "$OUT_IPA"
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v7
