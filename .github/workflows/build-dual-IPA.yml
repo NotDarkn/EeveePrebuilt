@@ -208,7 +208,7 @@ jobs:
             exit 1
           fi
 
-      - name: Fetch OpenSpotifySafariExtension.appex
+      - name: Download OpenSpotifySafariExtension.appex
         run: |
           EXT_DIR="$RUNNER_TEMP/OpenSpotifySafariExtension"
           rm -rf "$EXT_DIR"
@@ -273,26 +273,30 @@ jobs:
           chmod +x Tools/strip-ipa.sh
           Tools/strip-ipa.sh "$OUT_IPA"
 
-      - name: Add OpenSpotifySafariExtension.appex
-        run: |
-          cd "$(dirname "$OUT_IPA")"
-          rm -rf Payload
-          unzip -q "$(basename "$OUT_IPA")"
-
-          mkdir -p "Payload/Spotify.app/PlugIns"
-          rm -rf "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
-          cp -R "$OPENSPOTIFY_APPEX" "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
-      
       - name: Strip Watch app (if any survived)
         run: |
+          IPA_NAME="$(basename "$OUT_IPA")"
           cd "$(dirname "$OUT_IPA")"
 
-          rm -rf Payload/Spotify.app/com.apple.WatchPlaceholder
-          rm -rf Payload/Spotify.app/Watch
-          
-          rm -f "$(basename "$OUT_IPA")"
-          zip -qry "$(basename "$OUT_IPA")" Payload
-          rm -rf Payload
+          zip -d "$IPA_NAME" \
+            "Payload/Spotify.app/Watch/*" \
+            "Payload/Spotify.app/com.apple.WatchPlaceholder/*" \
+            "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex/*" \
+            >/dev/null 2>&1 || true
+        
+      - name: Add OpenSpotifySafariExtension.appex
+        run: |
+          IPA_NAME="$(basename "$OUT_IPA")"
+          cd "$(dirname "$OUT_IPA")"
+
+          STAGE="$RUNNER_TEMP/appex_stage"
+          mkdir -p "$STAGE/Payload/Spotify.app/PlugIns"
+          cp -R "$OPENSPOTIFY_APPEX" "$STAGE/Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
+
+          cd "$STAGE"
+          zip -qry "$OLDPWD/$IPA_NAME" "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
+          cd "$OLDPWD"
+          rm -rf "$STAGE"
           
       - name: Stage alternate app icons
         run: |
