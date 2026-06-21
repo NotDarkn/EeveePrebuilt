@@ -31,6 +31,13 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
+      - name: Cache EeveeSpotify deb
+        id: deb-eevee-cache
+        uses: actions/cache@v5
+        with:
+          path: "packages/com.eevee.spotify_${{ env.COMMIT_ENV }}_iphoneos-arm64.deb"
+          key: deb-${{ env.COMMIT_ENV }}-cache
+
         # this grabs the latest commit ID from jaydenjcpy's EeveeSpotifyReincarnated repo 
         # then it's cut down to the first 7 characters for the shortened commit ID that is used for naming files
       - name: Setup Commit ID
@@ -42,12 +49,14 @@ jobs:
           echo "COMMIT_ENV=$COMMIT" >> $GITHUB_ENV
 
       - name: Setup Xcode
+        if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '16.2.0'
 
         # saves roughly 5 to 8 seconds when caching theos :)
       - name: Cache Theos
+        if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
         id: deb-theos-cache
         uses: actions/cache@v5
         with:
@@ -61,13 +70,6 @@ jobs:
           repository: theos/theos
           path: ${{ github.workspace }}/theos
           submodules: recursive
-
-      - name: Cache EeveeSpotify deb
-        id: deb-eevee-cache
-        uses: actions/cache@v5
-        with:
-          path: "packages/com.eevee.spotify_${{ env.COMMIT_ENV }}_iphoneos-arm64.deb"
-          key: deb-${{ env.COMMIT_ENV }}-cache
 
       - name: Install deb build tools
         if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
@@ -104,6 +106,7 @@ jobs:
         # this should save another like 10 to 15s as it'll already have Swift Support Tools built
       - name: Grab Swift Support Tools from cache
         id: swift-cache
+        if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
         uses: actions/cache@v5
         with:
           path: ${{ env.THEOS }}/vendor/swift-support/.theos_build
@@ -112,6 +115,7 @@ jobs:
         # if this works, it should save roughly 3 to 4 minutes for future workflow runs
       - name: Grab Orion Preprocessor from cache
         id: orion-cache
+        if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
         uses: actions/cache@v5
         with:
           path: ${{ env.THEOS }}/vendor/orion/.theos_build
