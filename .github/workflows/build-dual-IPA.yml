@@ -221,7 +221,7 @@ jobs:
           [ -e "$EXT_SRC" ] || { echo "OpenSpotifySafariExtension.appex not found in repo" >&2; exit 1; }
           echo "OPENSPOTIFY_APPEX=$EXT_SRC" >> $GITHUB_ENV
 
-      - name: Identify Spotify Version from IPA
+      - name: Identify Spotify version from IPA
         id: SPOTIFY_VERSION
         run: |
           VERSION=$(unzip -p ${{ github.workspace }}/spotify.ipa 'Payload/Spotify.app/Info.plist' \
