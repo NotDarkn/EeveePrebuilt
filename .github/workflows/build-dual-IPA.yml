@@ -12,11 +12,6 @@ on:
         description: "URL to a decrypted Spotify IPA"
         required: true
         type: string
-      spotify_version:
-        description: "Spotify version (e.g. 9.1.56)"
-        default: "9.1.58"
-        required: true
-        type: string
 
 env:
   THEOS: ${{ github.workspace }}/theos
@@ -26,7 +21,7 @@ jobs:
   build-deb:
     runs-on: macos-latest
     outputs:
-      commit_id: ${{ steps.SETUP_COMMIT_ID.outputs.COMMIT_ID }}
+      COMMIT_ID: ${{ steps.SETUP_COMMIT_ID.outputs.COMMIT_ID }}
     steps:
 
       - name: Checkout EeveeReincarnatedIPA
@@ -150,9 +145,10 @@ jobs:
         variant:
           - Unpatched
           - Patched
+    outputs:
+      SPOTIFY_VERSION: ${{ steps.SPOTIFY_VERSION.outputs.SPOT_VERSION }}
     env:
       COMMIT_ID: ${{ needs.build-deb.outputs.commit_id }}
-      SPOT_VERSION: ${{ inputs.spotify_version }}
     steps:
       - name: Checkout EeveeReincarnatedIPA
         uses: actions/checkout@v7
@@ -225,6 +221,14 @@ jobs:
           [ -e "$EXT_SRC" ] || { echo "OpenSpotifySafariExtension.appex not found in repo" >&2; exit 1; }
           echo "OPENSPOTIFY_APPEX=$EXT_SRC" >> $GITHUB_ENV
 
+      - name: Identify Spotify Version from IPA
+        id: SPOTIFY_VERSION
+        run: |
+          VERSION=$(unzip -p ${{ github.workspace }}/spotify.ipa 'Payload/Spotify.app/Info.plist' \
+            | plutil -extract CFBundleShortVersionString raw - 2>/dev/null || echo "unknown")
+          echo "SPOT_VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "SPOT_VERSION=$VERSION" >> $GITHUB_ENV
+
       - name: Inject deb + framework into IPA (cyan)
         run: |
           mkdir -p Outputs/IPAS
@@ -236,6 +240,7 @@ jobs:
           DYLIB_SRC=$(find "$DEB_EXTRACT" -name 'EeveeSpotify.dylib' | head -1)
           BUNDLE_SRC=$(find "$DEB_EXTRACT" -type d -name 'EeveeSpotify.bundle' | head -1)
           FRAMEWORK_SRC=$(find "$DEB_EXTRACT" -type d -name 'EeveeSwiftProtobuf.framework' | head -1)
+
           OUT="Outputs/IPAS/EeveeReincarnatedIPA-${{ matrix.variant }}-${COMMIT_ID}-${SPOT_VERSION}.ipa"
 
           INJECT=("$DYLIB_SRC")
@@ -321,6 +326,7 @@ jobs:
     permissions:
       contents: write
     env:
+      SPOT_VERSION: ${{ needs.build-ipa.outputs.spotify_version }}
       COMMIT_ID: ${{ needs.build-deb.outputs.commit_id }}
     steps:
       - name: Checkout (for tags)
@@ -355,8 +361,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: "${{ inputs.spotify_version }}-${{ env.COMMIT_ID }}"
-          name: "${{ inputs.spotify_version }} // ${{ env.COMMIT_ID }}"
+          tag_name: "${{ env.SPOT_VERSION }}-${{ env.COMMIT_ID }}"
+          name: "${{ env.SPOT_VERSION }} // ${{ env.COMMIT_ID }}"
           body: |
             # EeveeSpotifyReincarnated [`${{ env.COMMIT_ID }}`](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated/commit/${{ env.COMMIT_ID }})
             This version pulls the latest changes made up to the commit `${{ env.COMMIT_ID }}` in the [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated) repo. 
