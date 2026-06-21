@@ -14,7 +14,7 @@ on:
         type: string
       spotify_version:
         description: "Spotify version (e.g. 9.1.56)"
-        default: "9.1.56"
+        default: "9.1.58"
         required: true
         type: string
 
