@@ -31,13 +31,6 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-      - name: Cache EeveeSpotify deb
-        id: deb-eevee-cache
-        uses: actions/cache@v5
-        with:
-          path: "packages/com.eevee.spotify_${{ env.COMMIT_ENV }}_iphoneos-arm64.deb"
-          key: deb-${{ env.COMMIT_ENV }}-cache
-
         # this grabs the latest commit ID from jaydenjcpy's EeveeSpotifyReincarnated repo 
         # then it's cut down to the first 7 characters for the shortened commit ID that is used for naming files
       - name: Setup Commit ID
@@ -47,6 +40,13 @@ jobs:
           COMMIT=${COMMIT_FULL:0:7}
           echo "COMMIT_ID=$COMMIT" >> $GITHUB_OUTPUT
           echo "COMMIT_ENV=$COMMIT" >> $GITHUB_ENV
+
+      - name: Cache EeveeSpotify deb
+        id: deb-eevee-cache
+        uses: actions/cache@v5
+        with:
+          path: "packages/com.eevee.spotify_${{ env.COMMIT_ENV }}_iphoneos-arm64.deb"
+          key: deb-${{ env.COMMIT_ENV }}-cache
 
       - name: Setup Xcode
         if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
