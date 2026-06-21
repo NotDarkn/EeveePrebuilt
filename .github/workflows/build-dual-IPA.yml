@@ -255,7 +255,7 @@ jobs:
           # -c max compress. Watch + native appex strip happens in the next
           # step via Tools/strip-ipa.sh.
           cyan -i ${{ github.workspace }}/spotify.ipa -o "$OUT" \
-               -f "${INJECT[@]}" -m 15.0 -du
+               -f "${INJECT[@]}" -c 1 -m 15.0 -du
           echo "OUT_IPA=$OUT" >> $GITHUB_ENV
 
       - name: (PATCHED) Grab zxPluginsInject.dylib latest commit ID
