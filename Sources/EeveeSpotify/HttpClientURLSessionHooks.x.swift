@@ -71,14 +71,6 @@ class HttpClientURLSessionHook: ClassHook<NSObject>, SpotifySessionDelegate {
             if url.isLyrics {
                 let originalLyrics = try? Lyrics(serializedBytes: buffer)
 
-                // Fast path: serve from cache without async dispatch or semaphore.
-                if let trackId = extractTrackId(from: url.path),
-                   let cached = cachedLyricsData(for: trackId) {
-                    orig.URLSession(session, dataTask: task, didReceiveData: cached)
-                    orig.URLSession(session, task: task, didCompleteWithError: nil)
-                    return
-                }
-
                 let semaphore = DispatchSemaphore(value: 0)
                 var customLyricsData: Data?
                 DispatchQueue.global(qos: .userInitiated).async {
@@ -133,13 +125,7 @@ class HttpClientURLSessionHook: ClassHook<NSObject>, SpotifySessionDelegate {
         // Calling getLyricsDataForCurrentTrack synchronously here would block the
         // delegate queue and prevent subsequent delegate callbacks from firing.
         DispatchQueue.global(qos: .userInitiated).async { [self] in
-            let data: Data?
-            if let trackId = extractTrackId(from: url.path),
-               let cached = cachedLyricsData(for: trackId) {
-                data = cached
-            } else {
-                data = try? getLyricsDataForCurrentTrack(url.path)
-            }
+            let data = try? getLyricsDataForCurrentTrack(url.path)
 
             guard let lyricsData = data,
                   let ok = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "2.0", headerFields: [:]) else {

@@ -87,18 +87,6 @@ class SPTDataLoaderServiceHook: ClassHook<NSObject>, SpotifySessionDelegate {
             if url.isLyrics {
                 let originalLyrics = try? Lyrics(serializedBytes: buffer)
 
-                // Fast path: if lyrics are already cached for this track, skip the
-                // async dispatch + semaphore entirely and deliver inline. This makes
-                // the full lyrics panel open instantly on first and subsequent views.
-                if let trackId = extractTrackId(from: url.path),
-                   let cached = cachedLyricsData(for: trackId) {
-                    DispatchQueue.main.async { [self] in
-                        orig.URLSession(session, dataTask: task, didReceiveData: cached)
-                        orig.URLSession(session, task: task, didCompleteWithError: nil)
-                    }
-                    return
-                }
-
                 let semaphore = DispatchSemaphore(value: 0)
                 var customLyricsData: Data?
 
@@ -167,14 +155,7 @@ class SPTDataLoaderServiceHook: ClassHook<NSObject>, SpotifySessionDelegate {
         }
 
         DispatchQueue.global(qos: .userInitiated).async { [self] in
-            // Fast path: serve from cache without a new fetch.
-            let data: Data?
-            if let trackId = extractTrackId(from: url.path),
-               let cached = cachedLyricsData(for: trackId) {
-                data = cached
-            } else {
-                data = try? getLyricsDataForCurrentTrack(url.path)
-            }
+            let data = try? getLyricsDataForCurrentTrack(url.path)
 
             guard let lyricsData = data,
                   let ok = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "2.0", headerFields: [:]) else {
