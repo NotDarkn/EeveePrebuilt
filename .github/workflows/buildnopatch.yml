@@ -159,6 +159,7 @@ jobs:
       # If you later need it back, restore the "LC-inject zxPluginsInject (ipapatch)" step.
       
       - name: Strip Watch app (if any survived)
+        if: ${{ inputs.ipa_url != '' }}
         run: |
           cd "$(dirname "$OUT_IPA")"
           rm -rf Payload

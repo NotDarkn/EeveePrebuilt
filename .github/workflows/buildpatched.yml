@@ -156,6 +156,7 @@ jobs:
           rm -rf Payload
 
       - name: Strip Watch app (if any survived)
+        if: ${{ inputs.ipa_url != '' }}
         run: |
           cd "$(dirname "$OUT_IPA")"
           rm -rf Payload
