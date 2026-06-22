@@ -383,8 +383,9 @@ jobs:
             @jaydenjcpy - [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated)
             @estrogencat - [EeveeIPA](https://github.com/estrogencat/EeveeIPA)
 
+
             > [!NOTE]
-            > the `.deb` files are just the tweak files if you want to inject EeveeSpotifyReincarnated into your own **decrypted** Spotify app.
+            > the `.deb` is just the tweak if you prefer to inject EeveeSpotifyReincarnated into your own **decrypted** Spotify app.
           draft: true
           prerelease: false
           files: |
