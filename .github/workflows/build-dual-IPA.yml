@@ -62,7 +62,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/theos
-          key: theos-cache
+          key: theos-cache-${{ env.XCODE_VERSION }}
 
       - name: Setup Theos
         if: steps.deb-eevee-cache.outputs.cache-hit != 'true' && steps.deb-theos-cache.outputs.cache-hit != 'true'
