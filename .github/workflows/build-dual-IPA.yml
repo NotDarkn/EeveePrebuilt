@@ -110,7 +110,9 @@ jobs:
         if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
         uses: actions/cache@v5
         with:
-          path: ${{ env.THEOS }}/vendor/swift-support/
+          path: |
+            ${{ env.THEOS }}/vendor/swift-support/.theos_build
+            ${{ env.THEOS }}/vendor/swift-support/.build
           key: swift_tools-cache-${{ env.XCODE_VERSION }}
         
         # if this works, it should save roughly 3 to 4 minutes for future workflow runs
@@ -119,7 +121,9 @@ jobs:
         if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
         uses: actions/cache@v5
         with:
-          path: ${{ env.THEOS }}/vendor/orion/
+          path: |
+            ${{ env.THEOS }}/vendor/orion/.theos_build
+            ${{ env.THEOS }}/vendor/orion/.build
           key: orion_build-cache-${{ env.XCODE_VERSION }}
 
       - name: Build .deb (rootless)
