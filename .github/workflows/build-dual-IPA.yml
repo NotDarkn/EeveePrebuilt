@@ -3,11 +3,6 @@ name: Build EeveeReincarnatedIPAs (DUAL)
 on:
   workflow_dispatch:
     inputs:
-      github_release:
-        description: "Create a GitHub Release?"
-        default: true
-        required: true
-        type: boolean
       branch:
         description: "Branch to build from"
         default: "Master"
@@ -17,6 +12,11 @@ on:
         description: "URL to a decrypted Spotify IPA"
         required: true
         type: string
+      github_release:
+        description: "Create a GitHub Release?"
+        default: true
+        required: true
+        type: boolean
 
 env:
   THEOS: ${{ github.workspace }}/theos
