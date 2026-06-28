@@ -3,6 +3,11 @@ name: Build EeveeReincarnatedIPAs (DUAL)
 on:
   workflow_dispatch:
     inputs:
+      github_release:
+        description: "Create a GitHub Release?"
+        default: true
+        required: true
+        type: boolean
       branch:
         description: "Branch to build from"
         default: "Master"
@@ -339,35 +344,41 @@ jobs:
       COMMIT_ID: ${{ needs.build-deb.outputs.commit_id }}
     steps:
       - name: Checkout (for tags)
+        if: ${{ inputs.github_release == true }}
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Download .deb artifact
+        if: ${{ inputs.github_release == true }}
         uses: actions/download-artifact@v8
         with:
           name: com.eevee.spotify_${{ env.COMMIT_ID }}_iphoneos-arm64
           path: release_files/deb
 
       - name: Download unpatched IPA
+        if: ${{ inputs.github_release == true }}
         uses: actions/download-artifact@v8
         with:
           name: EeveeReincarnatedIPA-Unpatched
           path: release_files/unpatched
 
       - name: Download patched IPA
+        if: ${{ inputs.github_release == true }}
         uses: actions/download-artifact@v8
         with:
           name: EeveeReincarnatedIPA-Patched
           path: release_files/patched
 
       - name: Get previous tag (for description)
+        if: ${{ inputs.github_release == true }}
         run: |
           git fetch --tags
           PREV_TAG=$(git tag --sort=-creatordate | head -n 1)
           echo "PREV_TAG=$PREV_TAG" >> $GITHUB_ENV
 
       - name: Create GitHub Release
+        if: ${{ inputs.github_release == true }}
         uses: softprops/action-gh-release@v3
         with:
           tag_name: "${{ env.SPOT_VERSION }}-${{ env.COMMIT_ID }}"
