@@ -16,6 +16,7 @@ on:
 env:
   THEOS: ${{ github.workspace }}/theos
   SWIFTPROTOBUF_VERSION: "1.29.0"
+  XCODE_VERSION: "26.3.0"
 
 jobs:
   build-deb:
@@ -52,7 +53,7 @@ jobs:
         if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '26.3.0'
+          xcode-version: ${{ env.XCODE_VERSION }}
 
         # saves roughly 5 to 8 seconds when caching theos :)
       - name: Cache Theos
@@ -110,7 +111,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ${{ env.THEOS }}/vendor/swift-support/.theos_build
-          key: swift_tools-cache
+          key: swift_tools-cache-${{ env.XCODE_VERSION }}
         
         # if this works, it should save roughly 3 to 4 minutes for future workflow runs
       - name: Grab Orion Preprocessor from cache
@@ -119,7 +120,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ${{ env.THEOS }}/vendor/orion/.theos_build
-          key: orion_build-cache
+          key: orion_build-cache-${{ env.XCODE_VERSION }}
 
       - name: Build .deb (rootless)
         if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
