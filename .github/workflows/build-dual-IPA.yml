@@ -12,6 +12,11 @@ on:
         description: "URL to a decrypted Spotify IPA"
         required: true
         type: string
+      ipa_packages:
+        description: "Create both IPA packages?"
+        default: true
+        required: true
+        type: boolean
       github_release:
         description: "Create a GitHub Release?"
         default: true
@@ -163,6 +168,7 @@ jobs:
       SPOTIFY_VERSION: ${{ steps.SPOTIFY_VERSION.outputs.SPOT_VERSION }}
     env:
       COMMIT_ID: ${{ needs.build-deb.outputs.commit_id }}
+    if: ${{ inputs.ipa_packages == true }}
     steps:
       - name: Checkout EeveeReincarnatedIPA
         uses: actions/checkout@v7
