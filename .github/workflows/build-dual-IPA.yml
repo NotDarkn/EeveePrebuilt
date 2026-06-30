@@ -177,7 +177,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/theos
-          key: theos-cache
+          key: theos-cache-${{ env.XCODE_VERSION }}
 
       - name: (PATCHED) Setup Theos
         uses: actions/checkout@v7
