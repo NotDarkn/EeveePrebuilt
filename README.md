@@ -2,7 +2,7 @@
 # EeveeReincarnatedIPA: THE README MOVED [HERE](https://github.com/NotDarkn/EeveeReincarnatedIPA/tree/README/README.md)!
 this branch is meant to just build the IPAs :)
 
-![Banner](Images/banner2.png?)
+![Banner](Images/banner4.png?)
 
 # EeveeSpotifyReincarnated
 
