@@ -392,8 +392,7 @@ jobs:
           tag_name: "${{ env.SPOT_VERSION }}-${{ env.COMMIT_ID }}"
           name: "${{ env.SPOT_VERSION }} // ${{ env.COMMIT_ID }}"
           body: |
-            ![Banner](https://github.com/NotDarkn/EeveePrebuilt/blob/Master/Images/banner3.png)
-            ---
+            # EeveePrebuilt // [${{ env.SPOT_VERSION }}-${{ env.COMMIT_ID }}](https://github.com/NotDarkn/EeveePrebuilt/releases/tag/${{ env.SPOT_VERSION }}-${{ env.COMMIT_ID }})
             This version pulls the latest changes made up to the commit [`${{ env.COMMIT_ID }}`](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated/commit/${{ env.COMMIT_ID }}) in the [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated) repo. 
 
             ## Changelogs (vs. [${{ env.PREV_TAG }}](https://github.com/NotDarkn/EeveePrebuilt/releases/tag/${{ env.PREV_TAG }}))
