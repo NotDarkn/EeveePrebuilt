@@ -1,4 +1,4 @@
-name: Build EeveePrebuilts (DUAL)
+name: Create EeveePrebuilts (DUAL)
 
 on:
   workflow_dispatch:
