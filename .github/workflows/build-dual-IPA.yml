@@ -398,10 +398,9 @@ jobs:
             Patched → Use if you're using **TrollStore** or a **Paid Developer Certificate** to sideload.
 
             ## Credits
-            @whoeevee - [EeveeSpotify](https://github.com/whoeevee/EeveeSpotifyReborn)
             @jaydenjcpy - [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated)
+            @whoeevee - [EeveeSpotify](https://github.com/whoeevee/EeveeSpotifyReborn)
             @estrogencat - [EeveeIPA](https://github.com/estrogencat/EeveeIPA)
-
 
             > [!NOTE]
             > the `.deb` is just the tweak if you prefer to inject EeveeSpotifyReincarnated into your own **decrypted** Spotify app.
