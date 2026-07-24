@@ -1,3 +1,6 @@
+> [!NOTE]
+> Spotify `9.1.66` has came out but EeveeSpotifyReincarnated does **not** work with it yet. The latest version will be `9.1.62` until a fix is made.
+
 ![Banner](https://github.com/NotDarkn/EeveePrebuilt/blob/Master/Images/banner3.png)
 ---
 **Maintainers**: [**jaydenjcpy**](https://github.com/jaydenjcpy) & [**faroukbmiled**](https://github.com/faroukbmiled) & [**Mod4**](https://github.com/M0d-4) - **Uploader:** [**NotDarkn**](https://github.com/notdarkn) <br />
