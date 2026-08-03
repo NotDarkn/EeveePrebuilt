@@ -151,7 +151,7 @@ jobs:
         run: |
           DEB_PATH=$(find packages -name "com.eevee.spotify_*.deb" | head -1)
           [ -n "$DEB_PATH" ] || { echo "deb not produced" >&2; exit 1; }
-          DEB_RENAME="packages/com.eevee.spotify_${COMMIT_ENV}_iphoneos-${THEOS_SCHEME}.deb"
+          DEB_RENAME="packages/com.eevee.spotify_${COMMIT_ENV}-${THEOS_SCHEME}.deb"
           mv "$DEB_PATH" "$DEB_RENAME"
           echo "DEB_PATH=$DEB_RENAME" >> $GITHUB_ENV
           echo "DEB_NAME=$(basename "$DEB_RENAME")" >> $GITHUB_ENV
@@ -159,7 +159,7 @@ jobs:
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v7
         with:
-          name: com.eevee.spotify_${{ env.COMMIT_ENV }}_iphoneos-${{ env.THEOS_SCHEME }}
+          name: com.eevee.spotify_${{ env.COMMIT_ENV }}-${{ env.THEOS_SCHEME }}
           path: ${{ env.DEB_PATH }}
           if-no-files-found: error
 
