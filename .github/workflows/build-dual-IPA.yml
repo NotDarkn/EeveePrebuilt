@@ -63,7 +63,7 @@ jobs:
         id: deb-eevee-cache
         uses: actions/cache@v5
         with:
-          path: "packages/com.eevee.spotify_${{ env.COMMIT_ENV }}_iphoneos-${{ env.THEOS_SCHEME }}.deb"
+          path: "packages/com.eevee.spotify_${{ env.COMMIT_ENV }}-${{ env.THEOS_SCHEME }}.deb"
           key: deb-${{ env.COMMIT_ENV }}-${{ env.THEOS_SCHEME }}-cache
 
       - name: Setup Xcode
@@ -228,7 +228,7 @@ jobs:
       - name: Download .deb artifact
         uses: actions/download-artifact@v8
         with:
-          name: com.eevee.spotify_${{ env.COMMIT_ID }}_iphoneos-rootless
+          name: com.eevee.spotify_${{ env.COMMIT_ID }}-rootless
           path: deb
       
       - name: Download decrypted .ipa
@@ -367,14 +367,14 @@ jobs:
         if: ${{ inputs.github_release == true }}
         uses: actions/download-artifact@v8
         with:
-          name: com.eevee.spotify_${{ env.COMMIT_ID }}_iphoneos-rootless
+          name: com.eevee.spotify_${{ env.COMMIT_ID }}-rootless
           path: release_files/deb
 
       - name: Download roothide .deb
         if: ${{ inputs.github_release == true }}
         uses: actions/download-artifact@v8
         with:
-          name: com.eevee.spotify_${{ env.COMMIT_ID }}_iphoneos-roothide
+          name: com.eevee.spotify_${{ env.COMMIT_ID }}-roothide
           path: release_files/deb
 
       - name: Download unpatched IPA
