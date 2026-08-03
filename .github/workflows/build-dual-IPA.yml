@@ -19,15 +19,27 @@ on:
         type: boolean
 
 env:
-  THEOS: ${{ github.workspace }}/theos
   SWIFTPROTOBUF_VERSION: "1.29.0"
-  XCODE_VERSION: "26.3.0"
+  XCODE_VERSION: "latest-stable"
 
 jobs:
   build-deb:
+    strategy:
+      matrix:
+        include:
+          - scheme: rootless
+            label: rootless
+            theos_repository: theos/theos
+          - scheme: roothide
+            label: roothide
+            theos_repository: roothide/theos
     runs-on: macos-latest
     outputs:
       COMMIT_ID: ${{ steps.SETUP_COMMIT_ID.outputs.COMMIT_ID }}
+      DEB_SCHEME: ${{ steps.SETUP_COMMIT_ID.outputs.DEB_SCHEME }}
+    env:
+      THEOS: ${{ github.workspace }}/theos
+      THEOS_PACKAGE_SCHEME: ${{ matrix.scheme }}
     steps:
 
       - name: Checkout EeveePrebuilt
@@ -46,12 +58,14 @@ jobs:
           COMMIT=${COMMIT_FULL:0:7}
           echo "COMMIT_ID=$COMMIT" >> $GITHUB_OUTPUT
           echo "COMMIT_ENV=$COMMIT" >> $GITHUB_ENV
+          echo "DEB_SCHEME=$THEOS_PACKAGE_SCHEME" >> $GITHUB_OUTPUT
+          echo "THEOS_SCHEME=$THEOS_PACKAGE_SCHEME" >> $GITHUB_ENV
 
       - name: Cache EeveeSpotify deb
         id: deb-eevee-cache
         uses: actions/cache@v5
         with:
-          path: "packages/com.eevee.spotify_${{ env.COMMIT_ENV }}_iphoneos-arm64.deb"
+          path: "packages/com.eevee.spotify_${{ env.COMMIT_ENV }}_iphoneos-${{ env.THEOS_SCHEME }}.deb"
           key: deb-${{ env.COMMIT_ENV }}-cache
 
       - name: Setup Xcode
@@ -67,13 +81,13 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/theos
-          key: theos-cache-${{ env.XCODE_VERSION }}
+          key: theos-cache-${{ env.XCODE_VERSION }}-${{ matrix.label }}
 
-      - name: Setup Theos
+      - name: Setup ${{ matrix.label }} Theos
         if: steps.deb-eevee-cache.outputs.cache-hit != 'true' && steps.deb-theos-cache.outputs.cache-hit != 'true'
         uses: actions/checkout@v7
         with:
-          repository: theos/theos
+          repository: ${{ matrix.theos_repository }}
           path: ${{ github.workspace }}/theos
           submodules: recursive
 
@@ -107,9 +121,7 @@ jobs:
         if: steps.deb-eevee-cache.outputs.cache-hit != 'true' && steps.protobuf-cache.outputs.cache-hit != 'true'
         env:
           SWIFTPROTOBUF_VERSION: ${{ env.SWIFTPROTOBUF_VERSION }}
-        run: |
-          chmod +x Tools/SwiftProtobufBuild/build-eeveeswiftprotobuf.sh
-          Tools/SwiftProtobufBuild/build-eeveeswiftprotobuf.sh
+        run: make build-eeveeswiftprotobuf
 
         # this should save another like 10 to 15s as it'll already have Swift Support Tools built
       - name: Grab Swift Support Tools from cache
@@ -133,15 +145,15 @@ jobs:
             ${{ env.THEOS }}/vendor/orion/.build
           key: orion_build-cache-${{ env.XCODE_VERSION }}
 
-      - name: Build .deb (rootless)
+      - name: Build .deb (${{ matrix.label }})
         if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
-        run: THEOS_PACKAGE_SCHEME=rootless make package FINALPACKAGE=1
+        run: THEOS_PACKAGE_SCHEME=${{ matrix.scheme }} make package FINALPACKAGE=1
       
       - name: Find .deb artifact
         run: |
           DEB_PATH=$(find packages -name "com.eevee.spotify_*.deb" | head -1)
           [ -n "$DEB_PATH" ] || { echo "deb not produced" >&2; exit 1; }
-          DEB_RENAME="packages/com.eevee.spotify_${COMMIT_ENV}_iphoneos-arm64.deb"
+          DEB_RENAME="packages/com.eevee.spotify_${COMMIT_ENV}_iphoneos-${THEOS_SCHEME}.deb"
           mv "$DEB_PATH" "$DEB_RENAME"
           echo "DEB_PATH=$DEB_RENAME" >> $GITHUB_ENV
           echo "DEB_NAME=$(basename "$DEB_RENAME")" >> $GITHUB_ENV
@@ -149,7 +161,7 @@ jobs:
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v7
         with:
-          name: com.eevee.spotify_${{ env.COMMIT_ENV }}_iphoneos-arm64
+          name: com.eevee.spotify_${{ env.COMMIT_ENV }}_iphoneos-${{ env.THEOS_SCHEME }}
           path: ${{ env.DEB_PATH }}
           if-no-files-found: error
 
@@ -217,7 +229,7 @@ jobs:
       - name: Download .deb artifact
         uses: actions/download-artifact@v8
         with:
-          name: com.eevee.spotify_${{ env.COMMIT_ID }}_iphoneos-arm64
+          name: com.eevee.spotify_${{ env.COMMIT_ID }}_iphoneos-rootless
           path: deb
       
       - name: Download decrypted .ipa
@@ -345,6 +357,7 @@ jobs:
     env:
       SPOT_VERSION: ${{ needs.build-ipa.outputs.spotify_version }}
       COMMIT_ID: ${{ needs.build-deb.outputs.commit_id }}
+      DEB_SCHEME: ${{ needs.build-deb.outputs.deb_scheme }}
     steps:
       - name: Checkout (for tags)
         if: ${{ inputs.github_release == true }}
@@ -352,11 +365,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download .deb artifact
+      - name: Download .deb artifacts
         if: ${{ inputs.github_release == true }}
         uses: actions/download-artifact@v8
         with:
-          name: com.eevee.spotify_${{ env.COMMIT_ID }}_iphoneos-arm64
+          name: com.eevee.spotify_${{ env.COMMIT_ID }}_iphoneos-${{ env.DEB_SCHEME }}
           path: release_files/deb
 
       - name: Download unpatched IPA
