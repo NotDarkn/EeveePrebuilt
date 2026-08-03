@@ -112,9 +112,9 @@ jobs:
           # /Users/runner/work/EeveePrebuilt/EeveePrebuilt/theos/lib/iphone/rootless/EeveeSwiftProtobuf.framework
           # env.THEOS is /Users/runner/work/EeveePrebuilt/EeveePrebuilt/theos
           # the rest of the path is just where EeveeSwiftProtobuf.framework is.
-          path: ${{ env.THEOS }}/lib/iphone/rootless/EeveeSwiftProtobuf.framework
+          path: ${{ env.THEOS }}/lib/iphone/${{ env.THEOS_SCHEME }}/EeveeSwiftProtobuf.framework
           # this should end up being like "eeveeswiftprotobuf-1.29.0"
-          key: eeveeswiftprotobuf-${{ env.PROTOBUF_COMMIT_ID }}-cache
+          key: eeveeswiftprotobuf-${{ env.PROTOBUF_COMMIT_ID }}-${{ env.THEOS_SCHEME }}-cache
 
         # hopefully, this should only run if the above step (cache) doesn't exist
       - name: Build EeveeSwiftProtobuf.framework from source
@@ -177,6 +177,7 @@ jobs:
       SPOTIFY_VERSION: ${{ steps.SPOTIFY_VERSION.outputs.SPOT_VERSION }}
     env:
       COMMIT_ID: ${{ needs.build-deb.outputs.commit_id }}
+      THEOS: ${{ github.workspace }}/theos
     if: ${{ inputs.ipa_url != '' }}
     steps:
       - name: Checkout EeveePrebuilt
