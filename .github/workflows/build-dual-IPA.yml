@@ -421,7 +421,7 @@ jobs:
             @estrogencat - [EeveeIPA](https://github.com/estrogencat/EeveeIPA)
 
             > [!NOTE]
-            > the `.deb` is just the tweak if you prefer to inject EeveeSpotifyReincarnated into your own **decrypted** Spotify app.
+            > The `com.eevee.spotify-rootless.deb` & `com.eevee.spotify-roothide.deb` are for people who're on jailbroken devices.
           draft: true
           prerelease: false
           files: |
