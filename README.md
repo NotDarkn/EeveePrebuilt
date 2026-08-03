@@ -1,8 +1,10 @@
 
-# EeveeReincarnatedIPA: THE README MOVED [HERE](https://github.com/NotDarkn/EeveeReincarnatedIPA/tree/README/README.md)!
+# EeveePrebilt: THE README MOVED [HERE](https://github.com/NotDarkn/EeveePrebuilt/tree/README/README.md)!
 this branch is meant to just build the IPAs :)
 
-![Banner](Images/banner4.png?)
+<a href="https://github.com/NotDarkn/EeveePrebuilt/releases/latest">
+  <img src="https://github.com/NotDarkn/EeveePrebuilt/blob/Master/Images/banner4.png" alt="EeveePrebuilt Banner" width="auto" height="auto">
+</a>
 
 # EeveeSpotifyReincarnated
 
