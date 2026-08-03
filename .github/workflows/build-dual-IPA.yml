@@ -40,7 +40,6 @@ jobs:
       THEOS: ${{ github.workspace }}/theos
       THEOS_PACKAGE_SCHEME: ${{ matrix.scheme }}
     steps:
-
       - name: Checkout EeveePrebuilt
         uses: actions/checkout@v7
         with:
