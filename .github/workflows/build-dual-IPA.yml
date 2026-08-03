@@ -36,7 +36,6 @@ jobs:
     runs-on: macos-latest
     outputs:
       COMMIT_ID: ${{ steps.SETUP_COMMIT_ID.outputs.COMMIT_ID }}
-      DEB_SCHEME: ${{ steps.SETUP_COMMIT_ID.outputs.DEB_SCHEME }}
     env:
       THEOS: ${{ github.workspace }}/theos
       THEOS_PACKAGE_SCHEME: ${{ matrix.scheme }}
@@ -58,7 +57,6 @@ jobs:
           COMMIT=${COMMIT_FULL:0:7}
           echo "COMMIT_ID=$COMMIT" >> $GITHUB_OUTPUT
           echo "COMMIT_ENV=$COMMIT" >> $GITHUB_ENV
-          echo "DEB_SCHEME=$THEOS_PACKAGE_SCHEME" >> $GITHUB_OUTPUT
           echo "THEOS_SCHEME=$THEOS_PACKAGE_SCHEME" >> $GITHUB_ENV
 
       - name: Cache EeveeSpotify deb
@@ -358,7 +356,6 @@ jobs:
     env:
       SPOT_VERSION: ${{ needs.build-ipa.outputs.spotify_version }}
       COMMIT_ID: ${{ needs.build-deb.outputs.commit_id }}
-      DEB_SCHEME: ${{ needs.build-deb.outputs.deb_scheme }}
     steps:
       - name: Checkout (for tags)
         if: ${{ inputs.github_release == true }}
@@ -366,11 +363,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download .deb artifacts
+      - name: Download rootless .deb
         if: ${{ inputs.github_release == true }}
         uses: actions/download-artifact@v8
         with:
-          name: com.eevee.spotify_${{ env.COMMIT_ID }}_iphoneos-${{ env.DEB_SCHEME }}
+          name: com.eevee.spotify_${{ env.COMMIT_ID }}_iphoneos-rootless
+          path: release_files/deb
+
+      - name: Download roothide .deb
+        if: ${{ inputs.github_release == true }}
+        uses: actions/download-artifact@v8
+        with:
+          name: com.eevee.spotify_${{ env.COMMIT_ID }}_iphoneos-roothide
           path: release_files/deb
 
       - name: Download unpatched IPA
