@@ -1,4 +1,7 @@
-![Banner](https://github.com/NotDarkn/EeveePrebuilt/blob/Master/Images/banner3.png)
+<a href="https://github.com/NotDarkn/EeveePrebuilt/releases/latest">
+  <img src="https://github.com/NotDarkn/EeveePrebuilt/blob/Master/Images/banner3.png" alt="EeveePrebuilt Banner" width="auto" height="auto">
+</a>
+
 ---
 **Maintainers**: [**jaydenjcpy**](https://github.com/jaydenjcpy) & [**faroukbmiled**](https://github.com/faroukbmiled) & [**Mod4**](https://github.com/M0d-4) - **Uploader:** [**NotDarkn**](https://github.com/notdarkn) <br />
 **Last Update:** `8/2/26` (MM/DD/YY) - **Spotify Version:** `9.1.68.1889`
