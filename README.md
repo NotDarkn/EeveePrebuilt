@@ -14,12 +14,11 @@ I created this repository mainly so I could create myself prebuilt binaries of [
 The latest prebuilt binaries can be found [here](https://github.com/NotDarkn/EeveePrebuilt/releases/latest).
 
 ## How I Build
-1. Obtain the latest Spotify IPA from either [Decrypted iOS IPA App Store](https://armconverter.com/decryptedappstore/us) or [decrypt.day](https://decrypt.day).
-2. Upload the IPA to a file hosting website ([*catbox.moe*](https://catbox.moe)) for GitHub Actions to obtain from.
-3. Go into "[Actions](https://github.com/NotDarkn/EeveePrebuilt/actions)" → "Create IPA" → "Run Workflow" → Insert the URL<sup>1</sup> from step 2 and run the workflow.
-4. After it finishes, test<sup>2</sup> the IPAs, and undraft the GitHub release.
+1. Obtain the latest Spotify IPA url from [Decrypted iOS IPA App Store](https://armconverter.com/decryptedappstore/us).
+2. Go into "[Actions](https://github.com/NotDarkn/EeveePrebuilt/actions)" → "Create IPA" → "Run Workflow" → Insert the URL<sup>1</sup> from step 1 and run the workflow.
+3. After it finishes, test<sup>2</sup> the IPAs, and create the GitHub release.
 
-<sup>1. If EeveeSpotifyReincarnated updates but Spotify hasn't, then I **reuse** the Spotify IPA I uploaded before to build IPAs again.</sup><br />
+<sup>1. If EeveeSpotifyReincarnated updates but Spotify hasn't, then I **reuse** the Spotify IPA URL from before to build IPAs again.</sup><br />
 <sup>2. These prebuilt binaries are tested using an **iPhone 13 mini** running **iOS `27.0`** with a **Free Developer Account** through **Sideloadly**.<sup>3</sup></sup><br />
 <sup>3. I am unable to test patched binaries which in return means I **cannot** verify if they successfully install or launch.
 
