@@ -1,3 +1,6 @@
+## 8/28/2026 temp update
+hey! i know 9.1.78 came out but i don't have a decrypted IPA for it yet, so it might be like a few hours before a release is made for it -.-
+
 <a href="https://github.com/NotDarkn/EeveePrebuilt/releases/latest">
   <img src="https://github.com/NotDarkn/EeveePrebuilt/blob/Master/Images/banner3.png" alt="EeveePrebuilt Banner" width="auto" height="auto">
 </a>
