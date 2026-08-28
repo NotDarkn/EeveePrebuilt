@@ -1,13 +1,10 @@
-## 8/28/2026 temp update
-hey! i know 9.1.78 came out but i don't have a decrypted IPA for it yet, so it might be like a few hours before a release is made for it -.-
-
 <a href="https://github.com/NotDarkn/EeveePrebuilt/releases/latest">
   <img src="https://github.com/NotDarkn/EeveePrebuilt/blob/Master/Images/banner3.png" alt="EeveePrebuilt Banner" width="auto" height="auto">
 </a>
 
 ---
 **Developer:** [**@SideloadLabs**](https://github.com/SideloadLabs) - **Uploader:** [**NotDarkn**](https://github.com/notdarkn) <br />
-**Last Update:** `8/24/26` (MM/DD/YY) - **Spotify Version:** `9.1.76.2050`
+**Last Update:** `8/28/26` (MM/DD/YY) - **Spotify Version:** `9.1.78.2217`
 
 I created this repository mainly so I could create myself prebuilt binaries of [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated) without needing to wait for another repository to do it for me (_or perhaps losing out on some changes_).
 
