@@ -47,12 +47,12 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-        # this grabs the latest commit ID from jaydenjcpy's EeveeSpotifyReincarnated repo 
+        # this grabs the latest commit ID from SideloadLabs's EeveeSpotifyReincarnated repo 
         # then it's cut down to the first 7 characters for the shortened commit ID that is used for naming files
       - name: Setup Commit ID
         id: SETUP_COMMIT_ID
         run: |
-          COMMIT_FULL=$(git ls-remote https://github.com/jaydenjcpy/EeveeSpotifyReincarnated.git ${{ inputs.branch }} | cut -f1)
+          COMMIT_FULL=$(git ls-remote https://github.com/SideloadLabs/EeveeSpotifyReincarnated.git ${{ inputs.branch }} | cut -f1)
           COMMIT=${COMMIT_FULL:0:7}
           echo "COMMIT_ID=$COMMIT" >> $GITHUB_OUTPUT
           echo "COMMIT_ENV=$COMMIT" >> $GITHUB_ENV
@@ -405,7 +405,7 @@ jobs:
           name: "${{ env.SPOT_VERSION }} // ${{ env.COMMIT_ID }}"
           body: |
             # EeveePrebuilt // [${{ env.SPOT_VERSION }}-${{ env.COMMIT_ID }}](https://github.com/NotDarkn/EeveePrebuilt/releases/tag/${{ env.SPOT_VERSION }}-${{ env.COMMIT_ID }})
-            This version pulls the latest changes made up to the commit [`${{ env.COMMIT_ID }}`](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated/commit/${{ env.COMMIT_ID }}) in the [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated) repo. 
+            This version pulls the latest changes made up to the commit [`${{ env.COMMIT_ID }}`](https://github.com/SideloadLabs/EeveeSpotifyReincarnated/commit/${{ env.COMMIT_ID }}) in the [EeveeSpotifyReincarnated](https://github.com/SideloadLabs/EeveeSpotifyReincarnated) repo. 
 
             ## Changelogs (vs. [${{ env.PREV_TAG }}](https://github.com/NotDarkn/EeveePrebuilt/releases/tag/${{ env.PREV_TAG }}))
 
@@ -415,7 +415,7 @@ jobs:
             Patched → Use if you're using **TrollStore** or a **Paid Developer Certificate** to sideload.
 
             ## Credits
-            @SideloadLabs - [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated)
+            @SideloadLabs - [EeveeSpotifyReincarnated](https://github.com/SideloadLabs/EeveeSpotifyReincarnated)
             @whoeevee - [EeveeSpotify](https://github.com/whoeevee/EeveeSpotifyReborn)
             @estrogencat - [EeveeIPA](https://github.com/estrogencat/EeveeIPA)
 
