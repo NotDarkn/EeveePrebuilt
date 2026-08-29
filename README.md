@@ -6,7 +6,7 @@
 **Developer:** [**@SideloadLabs**](https://github.com/SideloadLabs) - **Uploader:** [**NotDarkn**](https://github.com/notdarkn) <br />
 **Last Update:** `8/28/26` (MM/DD/YY) - **Spotify Version:** `9.1.78.2214`
 
-I created this repository mainly so I could create myself prebuilt binaries of [EeveeSpotifyReincarnated](https://github.com/jaydenjcpy/EeveeSpotifyReincarnated) without needing to wait for another repository to do it for me (_or perhaps losing out on some changes_).
+I created this repository mainly so I could create myself prebuilt binaries of [EeveeSpotifyReincarnated](https://github.com/SideloadLabs/EeveeSpotifyReincarnated) without needing to wait for another repository to do it for me (_or perhaps losing out on some changes_).
 
 <sup>This repository is inspired from [@estrogencat](https://github.com/estrogencat)'s [EeveeIPA](https://github.com/estrogencat/EeveeIPA) repository. Her prebuilts didn't let me sideload with [Sideloadly](https://sideloadly.io/)<sup>*</sup>, so I made this. <br /><sup>*She've since fixed it as told in her [README.md](https://github.com/estrogencat/EeveeIPA#eeveespotifyreincarnated-).</sup></sup>
 
@@ -25,10 +25,10 @@ The latest prebuilt binaries can be found [here](https://github.com/NotDarkn/Eev
 ## Credits
 
 - EeveeSpotifyReincarnated
-  - [Jayden](https://github.com/jaydenjcpy) - EeveeSpotifyReincarnated
+  - [SideloadLabs](https://github.com/SideloadLabs) - EeveeSpotifyReincarnated
   - [Ryuk](https://github.com/faroukbmiled) - True Shuffle, App Icon, Spotify v9.1.46+ Support
   - [Mod4](https://github.com/M0d-4) - Custom Lyrics, iPadUI fix
-  - [estrogencat](https://github.com/estrogencat) - Icon Fixes 
+  - [estrogencat](https://github.com/estrogencat) - Icon Fixes, Motivation for EeveePrebuilt
 
 - EeveeSpotify
   - [whoeevee](https://github.com/whoeevee) - EeveeSpotify & EeveeSpotifyReborn, where all this started
