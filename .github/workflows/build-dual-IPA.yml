@@ -146,11 +146,11 @@ jobs:
         uses: levibostian/action-hide-sensitive-inputs@v1 
 
       # as much as i don't want it to download the IPA here, it just is what it is
-      - name: Grab spoti.pw flag table
-        if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
-        run: |
-          wget "${{ inputs.ipa_url }}" --no-verbose -O "$RUNNER_TEMP/flags-ipa"
-          python3 Sources/EeveeSpotifyC/SubRepos/spoti.pw/scripts/extract-flags.py "$RUNNER_TEMP/flags-ipa"
+      # - name: Grab spoti.pw flag table
+      #   if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
+      #   run: |
+      #     wget "${{ inputs.ipa_url }}" --no-verbose -O "$RUNNER_TEMP/flags-ipa"
+      #     python3 Sources/EeveeSpotifyC/SubRepos/spoti.pw/scripts/extract-flags.py "$RUNNER_TEMP/flags-ipa"
 
       - name: Build .deb (${{ matrix.label }})
         if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
