@@ -142,8 +142,8 @@ jobs:
             ${{ env.THEOS }}/vendor/orion/.build
           key: orion_build-cache-${{ env.XCODE_VERSION }}
 
-      - name: Mask decrypted .ipa URL
-        uses: levibostian/action-hide-sensitive-inputs@v1 
+      # - name: Mask decrypted .ipa URL
+      #   uses: levibostian/action-hide-sensitive-inputs@v1 
 
       # as much as i don't want it to download the IPA here, it just is what it is
       # - name: Grab spoti.pw flag table
@@ -350,7 +350,7 @@ jobs:
           chmod +x Tools/alt-icons-modified.sh
           Tools/alt-icons-modified.sh "$OUT_IPA"
 
-      - name: Upload Regular IPA artifact
+      - name: Upload IPA artifact
         uses: actions/upload-artifact@v7
         with:
           name: EeveePrebuilt-${{ matrix.variant }}
