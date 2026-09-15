@@ -1,3 +1,10 @@
+# EeveePrebuilt's README is moved [here](https://github.com/NotDarkn/EeveePrebuilt/tree/README) 💜
+<a href="https://github.com/NotDarkn/EeveePrebuilt/releases/latest">
+  <img src="https://github.com/NotDarkn/EeveePrebuilt/blob/Master/Images/banner2.png" alt="EeveePrebuilt Banner" width="auto" height="auto">
+</a>
+
+---
+
 ![Banner](Images/banner.png?)
 
 # EeveeSpotifyReincarnated
