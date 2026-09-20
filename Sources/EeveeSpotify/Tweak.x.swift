@@ -293,6 +293,10 @@ struct EeveeSpotify: Tweak {
         // Spotify 9.1.x. Each target is runtime-gated for minor-version safety.
         activateUpsellServiceBlocker()
 
+        // Block ClientMessagingPlatform marketing surfaces (9.1.84 win-back
+        // fullscreen takeover and Home Premium banner) and their element views.
+        activateClientMessagingPlatformBlocker()
+
         // Block upsell components injected into Hub/home JSON (e.g. upgrade banners).
         if NSClassFromString("HUBViewModelBuilderImplementation") != nil {
             AdBlockerGroup().activate()
