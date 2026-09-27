@@ -419,18 +419,11 @@ jobs:
 
             ## Changelogs (vs. [${{ env.PREV_TAG }}](https://github.com/NotDarkn/EeveePrebuilt/releases/tag/${{ env.PREV_TAG }}))
 
-            ## Unpatched vs. Patched
-            Unpatched → Use if you're using a **Free Developer Account** to sideload. (e.g. [Sideloadly](https://sideloadly.io) / [PlumeImpactor](https://github.com/claration/Impactor))
-
-            Patched → Use if you're using **TrollStore** or a **Paid Developer Certificate** to sideload.
-
-            ## Credits
-            @SideloadLabs - [EeveeSpotifyReincarnated](https://github.com/SideloadLabs/EeveeSpotifyReincarnated)
-            @whoeevee - [EeveeSpotify](https://github.com/whoeevee/EeveeSpotifyReborn)
-            @estrogencat - [EeveeIPA](https://github.com/estrogencat/EeveeIPA)
-
-            > [!NOTE]
-            > The `com.eevee.spotify-rootless.deb` & `com.eevee.spotify-roothide.deb` are for people who're on jailbroken devices.
+            ## Files
+            - `com.eevee.spotify-${{ env.COMMIT_ID }}-roothide.deb`: For jailbroken devices.
+            - `com.eevee.spotify-${{ env.COMMIT_ID }}-rootless.deb`: For jailbroken devices **with [RootHide](https://github.com/roothide) installed**.
+            - `EeveePrebuilt-Patched-${{ env.SPOT_VERSION }}-${{ env.COMMIT_ID }}.ipa`: For people with **[TrollStore](https://github.com/opa334/TrollStore)** or a **[Paid Developer Certificate](https://developer.apple.com/programs/enroll/)**.
+            - `EeveePrebuilt-Unpatched-${{ env.SPOT_VERSION }}-${{ env.COMMIT_ID }}.ipa`: For people with a **Free Developer Account**. (e.g. [**PlumeImpactor**](https://github.com/claration/Impactor))
           draft: true
           prerelease: false
           files: |
