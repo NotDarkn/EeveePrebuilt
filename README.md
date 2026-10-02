@@ -4,7 +4,7 @@
 
 ---
 **Developer:** [**@SideloadLabs**](https://github.com/SideloadLabs) - **Uploader:** [**NotDarkn**](https://github.com/notdarkn) <br />
-**Last Update:** `9/24/26` (MM/DD/YY) - **Spotify Version:** `9.1.86.2428`
+**Last Update:** `10/01/26` (MM/DD/YY) - **Spotify Version:** `9.1.88.2209`
 
 I created this repository mainly so I could create myself prebuilt binaries of [EeveeSpotifyReincarnated](https://github.com/SideloadLabs/EeveeSpotifyReincarnated) without needing to wait for another repository to do it for me (_or perhaps losing out on some changes_).
 
