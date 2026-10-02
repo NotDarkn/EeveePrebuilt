@@ -118,7 +118,11 @@ jobs:
         if: steps.deb-eevee-cache.outputs.cache-hit != 'true' && steps.protobuf-cache.outputs.cache-hit != 'true'
         env:
           SWIFTPROTOBUF_VERSION: ${{ env.SWIFTPROTOBUF_VERSION }}
-        run: make build-eeveeswiftprotobuf
+        run: |
+          make build-eeveeswiftprotobuf
+          F="${{ env.THEOS }}/lib/iphone/${{ env.THEOS_SCHEME }}/EeveeSwiftProtobuf.framework/EeveeSwiftProtobuf"
+          lipo -thin arm64 "$F" -output thin && mv thin "$F"
+          codesign -f -s - "$F"
 
         # this should save another like 10 to 15s as it'll already have Swift Support Tools built
       - name: Grab Swift Support Tools from cache
