@@ -119,12 +119,12 @@ jobs:
         # a fix that can be made with the way this framework is built to resolve that Sideloadly issue.
         # source: https://www.reddit.com/r/sideloadly/comments/1wupno3/comment/pd5xvn9
       - name: Build EeveeSwiftProtobuf.framework from source
-        if: matrix.scheme == 'rootless' && steps.deb-eevee-cache.outputs.cache-hit != 'true' && steps.protobuf-cache.outputs.cache-hit != 'true'
+        if: steps.deb-eevee-cache.outputs.cache-hit != 'true' && steps.protobuf-cache.outputs.cache-hit != 'true'
         env:
           SWIFTPROTOBUF_VERSION: ${{ env.SWIFTPROTOBUF_VERSION }}
         run: |
           make build-eeveeswiftprotobuf
-          
+
           if [ "${{ matrix.scheme }}" = "rootless" ]; then
             F="${{ env.THEOS }}/lib/iphone/${{ env.THEOS_SCHEME }}/EeveeSwiftProtobuf.framework/EeveeSwiftProtobuf"
             lipo -thin arm64 "$F" -output thin && mv thin "$F"
