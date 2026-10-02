@@ -114,15 +114,22 @@ jobs:
           key: eeveeswiftprotobuf-${{ env.PROTOBUF_COMMIT_ID }}-${{ env.THEOS_SCHEME }}-cache
 
         # hopefully, this should only run if the above step (cache) doesn't exist
+        # update (10/1/2026): u/Apprehensive-Two7029 provided this fix for the EeveeSwiftProtobuf framework being
+        # broken when sideloading with Sideloadly. even though this became an issue with v0.70.0, there is still
+        # a fix that can be made with the way this framework is built to resolve that Sideloadly issue.
+        # source: https://www.reddit.com/r/sideloadly/comments/1wupno3/comment/pd5xvn9
       - name: Build EeveeSwiftProtobuf.framework from source
-        if: steps.deb-eevee-cache.outputs.cache-hit != 'true' && steps.protobuf-cache.outputs.cache-hit != 'true'
+        if: matrix.scheme == 'rootless' && steps.deb-eevee-cache.outputs.cache-hit != 'true' && steps.protobuf-cache.outputs.cache-hit != 'true'
         env:
           SWIFTPROTOBUF_VERSION: ${{ env.SWIFTPROTOBUF_VERSION }}
         run: |
           make build-eeveeswiftprotobuf
-          F="${{ env.THEOS }}/lib/iphone/${{ env.THEOS_SCHEME }}/EeveeSwiftProtobuf.framework/EeveeSwiftProtobuf"
-          lipo -thin arm64 "$F" -output thin && mv thin "$F"
-          codesign -f -s - "$F"
+          
+          if [ "${{ matrix.scheme }}" = "rootless" ]; then
+            F="${{ env.THEOS }}/lib/iphone/${{ env.THEOS_SCHEME }}/EeveeSwiftProtobuf.framework/EeveeSwiftProtobuf"
+            lipo -thin arm64 "$F" -output thin && mv thin "$F"
+            codesign -f -s - "$F"
+          fi
 
         # this should save another like 10 to 15s as it'll already have Swift Support Tools built
       - name: Grab Swift Support Tools from cache
