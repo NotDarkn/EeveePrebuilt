@@ -19,7 +19,7 @@ The latest prebuilt binaries can be found [here](https://github.com/NotDarkn/Eev
 3. After it finishes, test<sup>2</sup> the IPAs, write changelogs, and publish the GitHub release.
 
 <sup>1. If EeveeSpotifyReincarnated updates but Spotify hasn't, then I **reuse** the Spotify IPA URL from before to build IPAs again.</sup><br />
-<sup>2. These prebuilt binaries are tested using an **iPhone 13 mini** running **iOS `27.0`** with a **Free Developer Account** through **Sideloadly**.
+<sup>2. These prebuilt binaries are tested using an **iPhone 13 mini** (`27.0`) with [**Sideloadly**](https://sideloadly.io) and an **iPad Pro (10.5-inch)** (`17.7.11`) with [**TrollStore Lite**](https://havoc.app/package/trollstorelite).
 
 ## Credits
 
