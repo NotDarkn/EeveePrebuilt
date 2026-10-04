@@ -433,8 +433,8 @@ jobs:
             ## Files
             - `com.eevee.spotify-${{ env.COMMIT_ID }}-roothide.deb`: For jailbroken devices with [**RootHide**](https://github.com/roothide) installed.
             - `com.eevee.spotify-${{ env.COMMIT_ID }}-rootless.deb`: For jailbroken devices (e.g. [**Dopamine**](https://github.com/opa334/dopamine), [**palera1n**](https://github.com/palera1n/palera1n))
-            - `EeveePrebuilt-Patched-${{ env.SPOT_VERSION }}-${{ env.COMMIT_ID }}.ipa`: For people with **[TrollStore](https://github.com/opa334/TrollStore)** or a **[Paid Developer Certificate](https://developer.apple.com/programs/enroll/)**.
-            - `EeveePrebuilt-Unpatched-${{ env.SPOT_VERSION }}-${{ env.COMMIT_ID }}.ipa`: For people with a **Free Developer Account**. (e.g. [**PlumeImpactor**](https://github.com/claration/Impactor))
+            - `EeveePrebuilt-Patched-${{ env.COMMIT_ID }}-${{ env.SPOT_VERSION }}.ipa`: For people with **[TrollStore](https://github.com/opa334/TrollStore)** or a **[Paid Developer Certificate](https://developer.apple.com/programs/enroll/)**.
+            - `EeveePrebuilt-Unpatched-${{ env.COMMIT_ID }}-${{ env.SPOT_VERSION }}.ipa`: For people with a **Free Developer Account**. (e.g. [**PlumeImpactor**](https://github.com/claration/Impactor))
           draft: true
           prerelease: false
           files: |
