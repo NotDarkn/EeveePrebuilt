@@ -47,6 +47,7 @@ LRCLIB: Zaman senkronizeli şarkı sözleri sunan en açık servistir. Ancak bir
 
 Musixmatch: Spotify'ın kullandığı servistir. Birçok şarkı için zaman senkronizeli sözler sağlar, ancak bu kaynağı kullanmak için bir kullanıcı jetonuna ihtiyacınız vardır.";
 lyrics_additional_info = "EeveeSpotify bir şarkıyı bulamazsa veya sözleri işleyemezse \"Bu şarkı için şarkı sözleri yüklenemedi\" mesajını görürsünüz. Genius kullanılırken tweak'in şarkı arama yöntemi nedeniyle bazı şarkıların sözleri yanlış olabilir. Çoğu durumda çalışacak şekilde ayarlanmıştır.";
+spicylyrics_description = "SpicyLyrics kelime kelime karaoke şarkı sözleri sunar. Varsayılan olarak yerleşik bir anahtar kullanılır. Kendi anahtarınızı kullanmak isterseniz Spicy ESR şablonu sayfasına gidin ve \"Sign in\" düğmesine basın. Giriş yaptıktan sonra Spicy'nin Hizmet Şartları'nı kabul edin ve \"Add ESR to my account\" düğmesine basın. Eklendikten sonra oluşturulan anahtarı kopyalayın, Eevee şarkı sözleri bölümüne yapıştırın, sonra Spicy'ye dönüp \"I have stored it\" düğmesine tıklayın. Ardından uygulamalar sayfasına gidin.";
 petitlyrics_description = "PetitLyrics: Bol miktarda zaman senkronizeli Japonca ve bazı uluslararası şarkı sözleri sunar.";
 
 musixmatch_user_token = "Musixmatch Kullanıcı Jetonu";
@@ -68,6 +69,8 @@ romanized_lyrics_description = "Japonca, Korece ve Çince için Latin alfabesiyl
 
 musixmatch_language = "Musixmatch Şarkı Sözü Dili";
 musixmatch_language_description = "2 harfli bir Musixmatch dil kodu girerek varsa Musixmatch üzerindeki çevrilmiş şarkı sözlerini görebilirsiniz.";
+
+karaoke_word_synced_button = "Özel şarkı sözü görünümü";
 
 // UI
 
@@ -98,7 +101,7 @@ livecontainer_sharing_description = "Seçilen hedef desteklenmiyorsa LiveContain
 miscellaneous = "Çeşitli";
 
 clean_share_links = "Paylaşım Bağlantılarını Temizle";
-clean_share_links_description = "Paylaşılan Spotify bağlantılarından \"si\" takip parametresini kaldırır, böylece bağlantının hangi cihazdan veya hesaptan geldiği görünmez.";
+clean_share_links_description = "Paylaşılan bağlantılardan takip parametrelerini kaldırır.";
 
 /* MARK: Premium PopUps */
 
@@ -139,6 +142,10 @@ let_the_music_play = "Bırak müzik çalsın...";
 liked_songs = "Beğenilen Şarkılar";
 
 contributors = "Katkıda Bulunanlar";
+developer_note = "Geliştirici Notu";
+
+support_the_project = "Projeyi Destekle";
+support_the_project_description = "Gece geç saatlerdeki kodlamaları finanse edin";
 
 request_anonymous_token = "Anonim Jeton İste";
 request_anonymous_token_description = "Musixmatch'ten yetkilendirme olmadan jeton istemek için \"Anonim Jeton İste\" seçeneğine dokunun.";
@@ -297,11 +304,6 @@ categoriesTitle = "Kategoriler";
 categoriesSectionTitle1 = "Kategori bazlı eylemler";
 categoriesSectionDeps1 = "Kapalı = yok say. Göster = yalnızca çubuk üzerine çiz. Manuel = atlamadan önce sor. Otomatik = sessizce atla.";
 
-// Support the Project, links to Ko-fi in EeveeSettingsView
-support_the_project = "Projeyi destekle";
-support_the_project_description = "Katkıların bu tweak'i güncel tutmaya ve Hysan'ın Elsa için bir cesaret iksiri almasına yardımcı olur.";
-
-// Settings overhaul: flags, Liquid Glass, player, features, Spicy Lyrics, debug logging
 flags = "Bayraklar";
 flags_search = "Bayraklarda ara";
 flags_changed_only = "Yalnızca değişenler";
@@ -313,6 +315,7 @@ flags_empty = "Henüz bayrak taranmadı. Spotify'ı yeniden başlatın ve birka�
 flags_restart = "Uygulamak için yeniden başlatın";
 flags_reset = "Tüm değişiklikleri sıfırla";
 flags_rescan = "Bayrakları yeniden tara";
+
 liquid_glass = "Liquid Glass";
 liquid_glass_footer = "iOS 26 yerel cam efekti. Uygulamak için yeniden başlatın.";
 liquid_glass_unsupported = "iOS 26 gerekir.";
@@ -326,6 +329,7 @@ tab_bar_empty = "Sekmeleri listelemek için Spotify'ı cam sekme çubuğuyla bir
 new_player_design = "Yeni oynatıcı tasarımı";
 new_player_design_footer = "Spotify'ın yayımlanmamış sayfa tarzı oynatıcısı, kaydırıcısı ve sırası. Uygulamak için yeniden başlatın.";
 restart_now = "Şimdi yeniden başlat";
+
 tab_bar_editor_hint = "Açılışta açılması için bir sekmeye dokunun. Sıralamak için basılı tutup sürükleyin, gizlemek için yukarı sürükleyin. Gizli bir sekmeyi geri getirmek için ona dokunun.";
 settings_group_listening = "Dinleme";
 settings_group_looks = "Görünüm";
@@ -392,7 +396,7 @@ player_part_releaseCountdown = "Yayın geri sayımı";
 reset_page = "Sıfırla";
 reset_page_title = "Bu sayfa varsayılanlara sıfırlansın mı?";
 glass_home = "Ana Sayfa";
-rounded_artwork = "Yuvarlak çalışma listesi kapağı";
+rounded_artwork = "Yuvarlak çalma listesi kapak resmi";
 glass_playlist = "Çalma listeleri ve albümler";
 playlist_subtitle = "Kapak, ayırıcılar, üst bilgi parçaları";
 playlist_footer = "Bir çalma listesini açtığınızda veya kaydırdığınızda uygulanır.";
@@ -440,7 +444,7 @@ features_lock_like = "Beğen düğmesi";
 features_lock_podcast_skip = "Podcast'lerde atla";
 features_lock_chapters = "Bölüm atlama";
 features_lock_animated = "Animasyonlu kapak";
-features_sleep_timer = "Uyku zamanlayıcısı";
+features_sleep_timer = "Uyku Zamanlayıcısı";
 features_sleep_fade = "Yavaşça kıs";
 features_sleep_one_minute = "1 dakika seçeneği";
 features_home = "Ana Sayfa";
@@ -454,6 +458,7 @@ block_rating_prompts = "Puanlama isteklerini engelle";
 block_rating_prompts_footer = "App Store inceleme pencereleri çıkmaz. Uygulamak için yeniden başlatın.";
 spicylyrics_key_invalid = "Spicy Lyrics API anahtarı reddedildi";
 spicylyrics_api_key = "Spicy Lyrics API Anahtarı";
+spicylyrics_api_key_placeholder = "Spicy istemci anahtarını girin";
 spicylyrics_api_key_description = "Yerleşik anahtarı kullanmak için boş bırakın.";
 lyrics_made_by = "Yapan";
 lyrics_uploaded_by = "Yükleyen";
@@ -510,7 +515,7 @@ appearance_pages = "Sayfalar";
 tab_bar_subtitle = "Sıra, açılış sekmesi, özel sekmeler";
 lyrics_written_by = "Yazanlar:";
 lyrics_provided_by = "Şarkı sözlerini sağlayan";
-karaoke_section = "Özel şarkı sözü görünümü";
+karaoke_section = "Özel Şarkı Sözü Görünümü";
 karaoke_section_footer = "Ters yön, satırları aşağıdan yukarıya akıtır; etkin satır ekranda daha aşağıda olur. Bulanıklık yoğunluğu, etkin olmayan satırların ne kadar bulanık görüneceğini belirler.";
 karaoke_alignment = "Şarkı sözü hizalaması";
 karaoke_alignment_leading = "Sol";
@@ -521,17 +526,10 @@ episode_header = "Bölüm %@";
 home_gradient_style = "Stil";
 home_gradient_style_gradient = "Gradyan";
 home_gradient_style_solid = "Düz";
-spicylyrics_description = "SpicyLyrics kelime kelime karaoke şarkı sözleri sunar. Varsayılan olarak yerleşik bir anahtar kullanılır. Kendi anahtarınızı kullanmak isterseniz Spicy ESR template sayfasına gidin ve \"Sign in\" düğmesine basın. Giriş yaptıktan sonra Spicy'nin ToS'unu kabul edin ve \"Add ESR to my account\" düğmesine basın. Eklendikten sonra oluşturulan anahtarı kopyalayın, Eevee şarkı sözleri bölümüne yapıştırın, sonra Spicy'ye dönüp \"I have stored it\" düğmesine tıklayın. Ardından uygulamalar sayfasına gidin.";
-spicylyrics_template_link = "Spicy ESR template";
-karaoke_word_synced_button = "Özel şarkı sözü görünümü";
-debug_logging = "Hata ayıklama günlüğü";
+spicylyrics_template_link = "Spicy ESR şablonu";
+debug_logging = "Hata Ayıklama Günlüğü";
 karaoke_enabled = "Özel şarkı sözü görünümü";
 karaoke_blur_intensity = "Bulanıklık yoğunluğu";
-
-/* MARK: Added to match en.lproj */
-
-developer_note = "Geliştirici Notu";
-spicylyrics_api_key_placeholder = "Spicy istemci anahtarını girin";
-glass_lyrics_view = "Özel şarkı sözü görünümü";
-lyrics_source_restart_popup = "Yeni söz kaynağının her yerde kullanılması için Spotify'ı yeniden başlatın. Daha önce çaldığınız şarkılar o zamana kadar eski sözlerini korur.";
+glass_lyrics_view = "Cam şarkı sözleri görünümü";
+lyrics_source_restart_popup = "Yeni şarkı sözü kaynağının her yerde kullanılması için Spotify'ı yeniden başlatın. Daha önce çaldığınız şarkılar o zamana kadar eski sözlerini korur.";
 restart_later = "Sonra";
