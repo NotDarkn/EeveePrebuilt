@@ -10,7 +10,7 @@
 # EeveeSpotifyReincarnated
 
 **Maintainers:** [jaydenjcpy](https://github.com/jaydenjcpy) & [faroukbmiled](https://github.com/faroukbmiled) & [Mod4](https://github.com/M0d-4) <br />
-**Last Update:** `9/19/26` **Spotify Version:** `9.1.84`
+**Last Update:** `10/5/26` **Spotify Version:** `9.1.88`
 
 This tweak makes Spotify think you have a Premium subscription, granting free listening, just like Spotilife, and provides some additional features like custom lyrics.
 
@@ -20,14 +20,13 @@ This tweak makes Spotify think you have a Premium subscription, granting free li
 ## Custom Lyrics Support
 
 **Spotify 9.1.56 and above** - Full custom lyrics functionality is available with the following providers:
-- **Spicy Lyrics**
-- **Musixmatch(Requires Musixmatch Token)**
-- **PetitLyrics**
+- **SpicyLyrics**
+- **Musixmatch\***
 - **LRCLIB**
 - **Genius**
+- **PetitLyrics**
 
-> [!NOTE]
-> All providers work now
+<sup>*Musixmatch requires you to input a user token to retrieve lyrics. EeveeSpotifyReincarnated supports requesting an Anonymous Token to retrieve this functionality.</sup>
 
 ## How to build an EeveeSpotify IPA using Github actions
 > [!NOTE]
