@@ -6,7 +6,7 @@
 **Developer:** [**@SideloadLabs**](https://github.com/SideloadLabs) - **Uploader:** [**NotDarkn**](https://github.com/notdarkn) <br />
 **Last Update:** `10/05/26` (MM/DD/YY) - **Spotify Version:** `9.1.88.2209`
 
-I created this repository mainly so I could create myself prebuilt binaries of [EeveeSpotifyReincarnated](https://github.com/SideloadLabs/EeveeSpotifyReincarnated) without needing to wait for another repository to do it for me (_or perhaps losing out on some changes_).
+I created this repository mainly so I could create myself prebuilt binaries of [EeveeSpotifyReincarnated](https://github.com/SideloadLabs/EeveeSpotifyReincarnated) without needing to wait for another repository to do it for me (_and perhaps losing out on some changes_).
 
 <sup>This repository is inspired from [@estrogencat](https://github.com/estrogencat)'s [EeveeIPA](https://github.com/estrogencat/EeveeIPA) repository. Her prebuilts didn't let me sideload with [Sideloadly](https://sideloadly.io/)<sup>*</sup>, so I made this. <br /><sup>*She've since fixed it as told in her [README.md](https://github.com/estrogencat/EeveeIPA#eeveespotifyreincarnated-).</sup></sup>
 
