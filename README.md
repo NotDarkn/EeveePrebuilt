@@ -4,7 +4,7 @@
 
 ---
 **Developer:** [**@SideloadLabs**](https://github.com/SideloadLabs) - **Uploader:** [**NotDarkn**](https://github.com/notdarkn) <br />
-**Last Update:** `10/01/26` (MM/DD/YY) - **Spotify Version:** `9.1.88.2209`
+**Last Update:** `10/05/26` (MM/DD/YY) - **Spotify Version:** `9.1.88.2209`
 
 I created this repository mainly so I could create myself prebuilt binaries of [EeveeSpotifyReincarnated](https://github.com/SideloadLabs/EeveeSpotifyReincarnated) without needing to wait for another repository to do it for me (_or perhaps losing out on some changes_).
 
@@ -14,12 +14,12 @@ I created this repository mainly so I could create myself prebuilt binaries of [
 The latest prebuilt binaries can be found [here](https://github.com/NotDarkn/EeveePrebuilt/releases/latest).
 
 ## How I Build
-1. Obtain the latest Spotify IPA URL from [Decrypt IPA Store](https://decrypt.day/home).
+1. Obtain the latest Spotify IPA URL from the [Decrypt IPA Store](https://decrypt.day/home).
 2. Go into "[Actions](https://github.com/NotDarkn/EeveePrebuilt/actions)" → "Create IPA" → "Run Workflow" → Insert the URL<sup>1</sup> from step 1 and run the workflow.
 3. After it finishes, test<sup>2</sup> the IPAs, write changelogs, and publish the GitHub release.
 
 <sup>1. If EeveeSpotifyReincarnated updates but Spotify hasn't, then I **reuse** the Spotify IPA URL from before to build IPAs again.</sup><br />
-<sup>2. These prebuilt binaries are tested using an **iPhone 13 mini** (`27.0`) with [**Sideloadly**](https://sideloadly.io) and an **iPad Pro (10.5-inch)** (`17.7.11`) with [**TrollStore Lite**](https://havoc.app/package/trollstorelite).
+<sup>2. These prebuilt binaries are tested using an **iPhone 13 mini** (`27.0.1`) with [**Sideloadly**](https://sideloadly.io) and an **iPad Pro (10.5-inch)** (`17.7.11`) with [**TrollStore Lite**](https://havoc.app/package/trollstorelite).
 
 ## Credits
 **EeveePrebuilt**:
