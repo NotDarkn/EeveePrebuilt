@@ -24,6 +24,17 @@ void EeveeSBInvokeSeekDouble(id target, SEL selector, double argument) {
     (void)fn(target, selector, argument);
 }
 
+BOOL EeveeSetMainInfoValue(NSString *key, id value) {
+    @try {
+        id info = (__bridge id)CFBundleGetInfoDictionary(CFBundleGetMainBundle());
+        if (![info isKindOfClass:NSMutableDictionary.class]) return NO;
+        [(NSMutableDictionary *)info setObject:value forKey:key];
+        return [[NSBundle.mainBundle objectForInfoDictionaryKey:key] isEqual:value];
+    } @catch (NSException *e) {
+        return NO;
+    }
+}
+
 static void writeDebugLog(NSString *message) {
     NSString *logPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"eeveespotify_debug.log"];
     NSString *timestamp = [[NSDate date] description];

@@ -130,7 +130,7 @@ class SPTEncorePopUpPresenterHook: ClassHook<NSObject> {
 
     func presentPopUp(_ popUp: NSObject) {
         if isMarkedAsUpsell(popUp) {
-            NSLog("[EeveeSpotify][UpsellBlock] Blocked popup captured from model")
+            eeveeLog("[EeveeSpotify][UpsellBlock] Blocked popup captured from model")
             return
         }
 
@@ -153,7 +153,7 @@ class SPTEncorePopUpPresenterHook: ClassHook<NSObject> {
         }
 
         if isUpsellText(title) || isUpsellText(desc) {
-            NSLog("[EeveeSpotify][UpsellBlock] Blocked popup — title=%@ desc=%@",
+            eeveeLog("[EeveeSpotify][UpsellBlock] Blocked popup — title=%@ desc=%@",
                   title ?? "(nil)", desc ?? "(nil)")
             return
         }
@@ -188,14 +188,14 @@ func activateUpsellPopupBlocker() {
     for (className, selectors, label, activate) in targets {
         guard let cls = NSClassFromString(className),
               selectors.allSatisfy({ class_getInstanceMethod(cls, $0) != nil }) else {
-            NSLog("[EeveeSpotify][UpsellBlock] %@ unavailable; skipping", label)
+            eeveeLog("[EeveeSpotify][UpsellBlock] %@ unavailable; skipping", label)
             continue
         }
         activate()
         activated += 1
-        NSLog("[EeveeSpotify][UpsellBlock] %@ activated", label)
+        eeveeLog("[EeveeSpotify][UpsellBlock] %@ activated", label)
     }
 
-    NSLog("[EeveeSpotify][UpsellBlock] activated %d/%d compatible hooks",
+    eeveeLog("[EeveeSpotify][UpsellBlock] activated %d/%d compatible hooks",
           activated, targets.count)
 }

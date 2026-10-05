@@ -10,7 +10,7 @@ For non-jailbroken devices, use the patched IPA files available in the releases.
 - **TrollStore** (recommended for iOS 14-16.6.1, 17.0)
 - **Sideloadly** (7-day signing)
 - **AltStore** (7-day signing)
-- **Signing services** with paid certificates
+- **Signing services** with paid certificates, such as [**FlareStore**](https://flarestore.app)
 
 EeveeSpotify only supports iOS and iPadOS and is not planned to be supported on other platforms. You can sideload the iPadOS version on an Apple Silicon Mac, though.
 

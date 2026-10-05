@@ -27,6 +27,12 @@ wrapper/
 # zxPluginsInject build outputs
 modules/zxPluginsInject/.theos/
 modules/zxPluginsInject/packages/
+extra_dylibs/
+
+# alt-icons.sh regenerates any icon variant missing from the repo from
+# Assets/AppIcon/sources/ on every IPA build; never commit the leftovers.
+Assets/AppIcon/*@2x~ipad.png
+Assets/AppIcon/*@3x.png
 
 # logs / editor state
 *.log

@@ -26,7 +26,7 @@ struct CommonIssuesTipView: View {
                                     .foregroundColor(.white)
                                 
                                 + Text("common_issues_tip_button".localized)
-                                    .foregroundColor(EeveeSettingsView.spotifyAccentColor)
+                                    .foregroundColor(EeveeTheme.accent)
                                 
                                 + Text(".")
                                     .foregroundColor(.white)

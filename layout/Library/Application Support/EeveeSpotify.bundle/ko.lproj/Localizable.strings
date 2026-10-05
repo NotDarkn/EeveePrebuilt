@@ -1,302 +1,482 @@
 /* MARK: Settings */
 
-patching = "패치";
+patching = "패치 중";
 lyrics = "가사";
-customization = "사용자화";
-experiments = "실험적 기능";
-sponsorblock = "SponsorBlock (BETA)";
-appIcon = "앱 아이콘";
+customization = "커스텀화";
 
-common_issues_tip_title = "문제가 발생했나요?";
+common_issues_tip_title = "문제가 있습니까?";
 
-common_issues_tip_message = "곡이 재생되지 않는 등 문제가 발생하는 경우 다음을 확인하세요:";
-common_issues_tip_button = "자주 묻는 질문";
+common_issues_tip_message = "노래를 재생할 수 없는 문제가 있다면, 확인해 보세요.";
+common_issues_tip_button = "일반적인 문제";
 
 reset_data = "데이터 초기화";
-reset_data_description = "캐시된 데이터를 삭제하고 앱을 재시작합니다.";
+reset_data_description = "캐시된 데이터를 지우고 앱을 다시 시작하세요.";
 
 checking_for_update = "업데이트 확인 중...";
 update_available = "업데이트 가능";
 
-restart_is_required_description = "변경 사항을 적용하려면 앱을 재시작해야 합니다.";
-
 // Patching
 
-do_not_patch_premium = "프리미엄 패치 안 함";
-patching_description = "EeveeSpotify는 사용자 데이터를 불러오는 요청을 가로채 역직렬화한 뒤 실시간으로 매개변수를 수정합니다.
+do_not_patch_premium = "프리미엄으로 패치 안 함";
+patching_description = "트윅은 사용자 데이터를 로드하기 위한 요청을 가로채고, 역직렬화하고, 실시간으로 매개 변수를 수정합니다.
 
-현재 활성화된 Premium 구독이 있다면 '프리미엄 패치 안 함'을 켤 수 있습니다. 트윅이 데이터를 패치하지 않으며 Premium 서버 측 기능의 사용을 제한하지 않습니다.
-
-%@";
+활성화된 프리미엄 구독이 있다면, 프리미엄으로 패치 안 함을 켤 수 있습니다. 조정은 데이터를 패치하거나 프리미엄 서버 측 기능의 사용을 제한하지 않습니다. 변경 후 앱을 다시 시작해야 합니다.";
 
 overwrite_configuration = "구성 덮어쓰기";
-overwrite_configuration_description = "원격 구성을 덤프된 Premium 구성으로 대체합니다. 이 구성은 대부분의 UI/UX 매개변수를 정의하며 도움이 될 수 있지만, 문제가 발생할 수도 있습니다.";
-
-true_shuffle = "트루 셔플";
-true_shuffle_dec = "Spotify 무료 요금제의 스마트 셔플이 추천 곡을 대기열에 섞는 것을 차단합니다. 셔플이 플레이리스트 내에서만 유지됩니다.";
+overwrite_configuration_description = "원격 구성을 덤프된 프리미엄으로 교체하세요. 광고 표시와 같은 몇 가지 문제를 해결할 수 있지만, 보장되지는 않습니다.";
 
 // Lyrics
 
-do_not_replace_lyrics = "가사 대체 안 함";
-lyrics_source = "가사 소스";
+lyrics_source = "가사 출처";
 lyrics_source_description = "선호하는 가사 소스를 선택할 수 있습니다.
 
-Genius: 최고 품질의 가사를 제공하고, 가장 많은 곡을 지원하며 가사를 가장 빠르게 업데이트합니다. 시간 동기화(싱크)는 지원하지 않으며 앞으로도 지원되지 않습니다.
+Genius: 최고 품질의 가사를 제공하고, 가장 많은 노래를 제공하며, 가사를 가장 빠르게 업데이트합니다. 시간과 동기화되지 않으며 절대 동기화되지 않을 것입니다.
 
-LRCLIB: 시간 동기화 가사를 제공하는 가장 개방적인 서비스입니다. 단, 가사가 없는 곡이 많습니다.
+LRCLIB: 시간 동기화된 가사를 제공하는 가장 개방적인 서비스입니다. 하지만, 많은 노래의 가사가 부족합니다.
 
-Musixmatch: Spotify가 사용하는 서비스입니다. 많은 곡에 시간 동기화 가사를 제공하지만, 이 소스를 사용하려면 사용자 토큰이 필요합니다.";
-lyrics_additional_info = "EeveeSpotify가 곡을 찾지 못하거나 가사를 처리할 수 없는 경우 \"이 곡의 가사를 불러올 수 없습니다\"라는 메시지가 표시됩니다. 트윅이 곡을 검색하는 방식 때문에 Genius 사용 시 일부 곡의 가사가 올바르지 않을 수 있습니다. 대부분의 경우 정상 작동하도록 조치했습니다.";
-spicylyrics_description = "SpicyLyrics는 Spotify 자체 토큰을 사용하여 단어별 노래방 가사를 제공합니다. 추가 설정이 필요하지 않습니다.";
-petitlyrics_description = "PetitLyrics: 다수의 시간 동기화된 일본 곡 및 일부 해외 곡 가사를 제공합니다.";
+Musixmatch: 스포티파이가 사용하는 서비스입니다. 많은 노래에 시간-동기화된 가사를 제공하지만, 이 소스를 사용하려면 사용자 토큰이 필요합니다.";
+lyrics_additional_info = "조정이 노래를 찾거나 가사를 처리할 수 없다면, \”이 노래의 가사를 로드할 수 없습니다\“ 메시지가 표시됩니다. 트윅이 노래를 검색하는 방식 때문에 Genius를 사용할 때 일부 노래의 가사가 틀릴 수 있습니다. 저는 대부분의 경우 작동하게 만들었습니다.";
+petitlyrics_description = "PetitLyrics: 많은 시간 동기화된 일본어와 국제적인 가사를 제공합니다.";
 
 musixmatch_user_token = "Musixmatch 사용자 토큰";
-user_token_placeholder = "사용자 토큰 입력 또는 디버그 정보 붙여넣기";
+user_token_placeholder = "사용자 토큰을 입력하거나 디버그 정보를 붙여넣으세요";
 
-enter_user_token = "사용자 토큰 입력";
-enter_user_token_message = "Musixmatch를 사용하려면 공식 앱에서 사용자 토큰을 가져와야 합니다. App Store에서 Musixmatch를 다운로드하고 가입한 다음 설정 > 도움말 > 디버그 정보 복사로 이동하여 여기에 붙여넣으세요. MITM을 사용하여 토큰을 추출할 수도 있습니다.";
+enter_user_token = "사용자 토큰을 입력하세요";
+enter_user_token_message = "Musixmatch를 사용하려면 공식 앱에서 사용자 토큰을 검색해야 합니다. App Store에서 Musixmatch를 다운로드하고 가입한 다음 설정 > 도움말 > 디버그 정보 복사로 이동하여 여기에 붙여넣으세요. MITM을 사용하여 토큰을 추출할 수도 있습니다.";
 
-genius_fallback = "Genius 대체";
-genius_fallback_description = "%@에 문제가 있는 경우 Genius에서 가사를 불러옵니다.";
+genius_fallback = "genius 폴백";
+genius_fallback_description = "%@에 문제가 있다면 Genius의 가사를 불러오세요.";
 
-show_fallback_reasons = "대체 이유 표시";
+show_fallback_reasons = "폴백 이유를 보여주기";
 
-hide_lyrics_on_error = "오류 시 숨기기";
-hide_lyrics_on_error_description = "가사를 불러오지 못하면 가사 컴포넌트를 숨깁니다.";
-
-romanized_lyrics = "로마자 발음 가사";
-romanized_lyrics_description = "일본어, 한국어, 중국어 가사를 로마자 발음으로 표시합니다.";
+romanized_lyrics = "로마자화된 가사";
+romanized_lyrics_description = "일본어, 한국어, 중국어의 로마자 가사를 표시하세요.";
 
 musixmatch_language = "Musixmatch 가사 언어";
-musixmatch_language_description = "2자리 Musixmatch 언어 코드를 입력하면 번역이 제공되는 경우 번역된 가사를 볼 수 있습니다.";
-
-karaoke_word_synced_button = "단어별 싱크";
+musixmatch_language_description = "2글자 Musixmatch 언어 코드를 입력하고 Musixmatch에서 번역된 가사를 볼 수 있습니다.";
 
 // UI
 
 lyrics_background_color_section = "가사 배경색";
-lyrics_background_color_section_description = "'원래 색상 표시'를 켜면 가사 색상이 지원되는 곡의 경우 Spotify 원래 색상으로 표시됩니다.
+lyrics_background_color_section_description = "Display Original Colors를 켜면, 가사가 있는 트랙의 원래 Spotify 색상으로 표시됩니다.
 
-고정 색상을 지정하거나 추출된 앨범 커버 색상을 기반으로 정규화 계수를 설정할 수 있습니다. 이 계수는 어두운 색을 얼마나 밝게 하고, 밝은 색을 얼마나 어둡게 할지 결정합니다. 일반적으로 정규화 계수가 높을수록 더 밝은 색상이 표시됩니다.";
+추출된 트랙 커버의 색상을 기반으로 정적 색상 또는 정규화 요소를 설정할 수 있습니다. 이 요소는 얼마나 많은 어두운 색이 밝아지고 밝은 색이 어두워지는지를 결정합니다. 일반적으로, 더 높은 정규화 계수를 가진 더 밝은 색을 보게 될 것입니다.";
 
 display_original_colors = "원래 색상 표시";
 
-use_static_color = "고정 색상 사용";
-static_color = "고정 색상";
+use_static_color = "정적 색상 사용";
+static_color = "정적 색상";
 
-color_normalization_factor = "색상 정규화 계수";
+color_normalization_factor = "색상 정규화 요소";
 dark_popups = "다크 팝업";
-
-// Experiments
-
-show_instagram_destination = "Instagram 공유 항목 표시";
-show_instagram_destination_description = "항상 Instagram 공유 대상을 표시합니다. %@";
-
-livecontainer_sharing = "LiveContainer로 공유";
-livecontainer_sharing_description = "선택한 대상을 지원하지 않는 경우 LiveContainer로 공유하고 URL을 복사합니다.";
-
-
-// Miscellaneous
-
-miscellaneous = "기타";
-
-clean_share_links = "공유 링크 정리";
-clean_share_links_description = "공유된 Spotify 링크에서 \"si\" 추적 매개변수를 제거하여 링크가 전송된 기기나 계정이 드러나지 않도록 합니다.";
 
 /* MARK: Premium PopUps */
 
-have_premium_popup = "활성화된 Premium 구독이 있는 것으로 감지되어 트윅이 데이터를 패치하지 않으며 Premium 서버 측 기능 사용을 제한하지 않습니다. EeveeSpotify 설정에서 이를 관리할 수 있습니다.";
+have_premium_popup = "활성 프리미엄 구독이 있는 것처럼 보이므로, 조정은 데이터를 패치하거나 프리미엄 서버 측 기능의 사용을 제한하지 않습니다. EeveeSpotify 설정에서 이것을 관리할 수 있습니다.";
 
-high_audio_quality_popup = "매우 높음 음질은 서버 측 기능이므로 이 트윅에서는 사용할 수 없습니다.";
-playlist_downloading_popup = "플레이리스트 자체 다운로드는 서버 측 기능이므로 이 트윅에서는 사용할 수 없습니다. 단, 팟캐스트 에피소드 및 로컬 플레이리스트는 다운로드할 수 있습니다.";
-download_local_playlist = "로컬 플레이리스트 다운로드";
-
-//
-
-could_not_share_popup = "선택한 대상 또는 LiveContainer로 공유할 수 없습니다. URL이 복사되었습니다.";
+high_audio_quality_popup = "매우 높은 오디오 품질은 서버 측이며 이 트윅으로 사용할 수 없습니다.";
+playlist_downloading_popup = "네이티브 재생 목록 다운로드는 서버 측이며 이 트윅에서는 사용할 수 없습니다. 하지만 팟캐스트 에피소드를 다운로드할 수 있습니다.";
 
 /* MARK: Lyrics */
 
-fallback_attribute = "대체";
-romanized_attribute = "로마자";
+fallback_attribute = "폴백";
+romanized_attribute = "로마자화된";
 
-musixmatch_unauthorized_popup = "인증 오류로 인해 Musixmatch에서 가사를 불러올 수 없습니다. Musixmatch 토큰을 확인하거나 업데이트하세요. iPad를 사용하는 경우 iPad용 Musixmatch 앱에서 토큰을 가져와야 합니다.";
-musixmatch_restricted_popup = "가사가 제한되어 Musixmatch에서 가사를 불러올 수 없습니다. 미국 IP 주소로 인한 저작권 문제일 가능성이 높으므로, 미국에 거주 중인 경우 IP를 변경하거나 VPN을 사용하세요.";
+musixmatch_unauthorized_popup = "무단 오류로 인해 Musixmatch의 가사를 로드할 수 없습니다. Musixmatch 토큰을 확인하거나 업데이트하세요. iPad를 사용하는 경우, iPad용 Musixmatch 앱에서 토큰을 받아야 합니다.";
+musixmatch_restricted_popup = "트윅은 제한되어 있기 때문에 Musixmatch의 가사를 로드할 수 없습니다. 미국 IP 주소로 인해 저작권 문제일 가능성이 높으므로, 미국에 있거나 VPN을 사용하는 경우 변경해야 합니다.";
 
 // Errors Titles
 
-no_such_song = "곡을 찾을 수 없음";
-musixmatch_restricted = "제한됨";
-invalid_musixmatch_token = "인증되지 않음";
+no_such_song = "노래를 찾을 수 없습니다.";
+musixmatch_restricted = "제한된";
+invalid_musixmatch_token = "허가받지 않은";
 decoding_error = "디코딩 오류";
-no_current_track = "현재 재생 중인 트랙 없음";
+no_current_track = "트랙 인스턴스 없음";
 unknown_error = "알 수 없는 오류";
 
 // Instrumental Titles
 
-song_is_instrumental = "연주곡입니다.";
-let_the_music_play = "음악 감상 중...";
+song_is_instrumental = "이 노래는 악기전용 노래입니다.";
+let_the_music_play = "음악이 재생되게 놔두세요...";
 
-// liked songs title, should match official spotify loc
+// Support the Project, links to Ko-fi in EeveeSettingsView
+support_the_project = "프로젝트 후원하기";
+support_the_project_description = "후원으로 이 tweak가 계속 업데이트되고 Hysan이 Elsa를 위한 용기 물약을 살 수 있도록 돕습니다.";
 
-liked_songs = "좋아요 표시한 곡";
+// Settings overhaul: flags, Liquid Glass, player, features, Spicy Lyrics, debug logging
+flags = "플래그";
+flags_search = "플래그 검색";
+flags_changed_only = "변경된 항목만";
+flags_auto = "자동";
+flags_on = "켬";
+flags_off = "끔";
+flags_count = "플래그 %d개 · Spotify %@";
+flags_empty = "아직 스캔된 플래그가 없습니다. Spotify를 다시 시작하고 몇 초 후에 다시 열어 주세요.";
+flags_restart = "적용하려면 다시 시작";
+flags_reset = "모든 변경 사항 초기화";
+flags_rescan = "플래그 다시 스캔";
+liquid_glass = "Liquid Glass";
+liquid_glass_footer = "iOS 26 기본 글래스입니다. 적용하려면 다시 시작하세요.";
+liquid_glass_unsupported = "iOS 26이 필요합니다.";
+glass_surfaces = "표면";
+glass_spotify = "Spotify 글래스 바 및 메뉴";
+glass_tab_bar = "탭 바";
+glass_now_playing_bar = "재생 중 바";
+tab_bar = "탭 바";
+tab_bar_hide_labels = "라벨 숨기기";
+tab_bar_empty = "글래스 탭 바로 Spotify를 한 번 열면 탭 목록이 표시됩니다.";
+new_player_design = "새 플레이어 디자인";
+new_player_design_footer = "Spotify의 미출시 시트형 플레이어, 슬라이더, 대기열입니다. 적용하려면 다시 시작하세요.";
+restart_now = "지금 다시 시작";
+tab_bar_editor_hint = "탭을 누르면 실행 시 해당 탭이 열립니다. 길게 누르고 드래그하여 순서를 바꾸고, 위로 드래그하여 숨깁니다. 숨겨진 탭을 누르면 다시 표시됩니다.";
+settings_group_listening = "듣기";
+settings_group_looks = "모양";
+settings_group_advanced = "고급";
+patching_subtitle = "Premium 패치";
+lyrics_subtitle = "소스 및 표시";
+sponsorblock_subtitle = "팟캐스트 구간 건너뛰기";
+customization_subtitle = "가사 색상 및 팝업";
+appIcon_subtitle = "홈 화면 아이콘";
+flags_subtitle = "Spotify 원격 플래그";
+experiments_subtitle = "미완성 기능";
+miscellaneous_subtitle = "기타 모든 것";
+glass_style = "스타일";
+spotify_flags = "Spotify 플래그";
+npb_subtitle = "색조, 아트워크, 기기 버튼, 플래그";
+npb_album_tint = "앨범 색상으로 색조 적용";
+npb_round_artwork = "둥근 아트워크";
+npb_hide_connect = "기기 버튼 숨기기";
+npb_flag_two_lines = "곡 정보 두 줄";
+npb_flag_add_button = "저장 버튼";
+npb_flag_queue_badge = "대기열 배지";
+npb_flag_resize = "길게 누르고 드래그하여 크기 조절";
+npb_flag_video = "미니 플레이어의 비디오";
+npb_flag_cover_morph = "바에서 커버 아트로 애니메이션";
+npb_flag_transitions = "미니 플레이어 전환";
+player = "플레이어";
+player_subtitle = "배경, 글래스 가사, 항목 숨기기, 플래그";
+player_backdrop = "아트워크 배경";
+player_backdrop_subtitle = "단색 대신 흐린 커버";
+player_glass_lyrics = "글래스 가사";
+player_flag_canvas = "Canvas";
+player_flag_sheet = "시트형 플레이어";
+player_flag_header = "새로 디자인된 헤더";
+player_flag_slider = "새 진행 슬라이더";
+player_flag_sticky = "탭하여 고정 헤더 확장";
+player_flag_queue_sheet = "시트로 대기열 표시";
+player_flag_connect_sheet = "시트로 Connect 표시";
+player_flag_queue_flip = "대기열 뒤집기 전환";
+player_flag_play_next = "메뉴의 '다음에 재생'";
+glass_search = "검색";
+player_hide_buttons = "플레이어에서 숨기기";
+player_hide_cards = "플레이어 아래 카드 숨기기";
+player_part_lyricsPreview = "가사 미리보기";
+player_part_shuffle = "셔플";
+player_part_repeat = "반복";
+player_part_addTo = "플레이리스트에 추가";
+player_part_queue = "대기열";
+player_part_share = "공유";
+player_part_connect = "기기에 연결";
+player_part_lyricsCard = "가사";
+player_part_aboutArtist = "아티스트 정보";
+player_part_relatedVideos = "관련 동영상";
+player_part_songDNA = "SongDNA";
+player_part_liveEvents = "라이브 이벤트";
+player_part_exploreArtist = "아티스트 둘러보기";
+player_part_credits = "크레딧";
+player_part_merch = "굿즈";
+player_part_recommendations = "추천";
+player_hide_parts = "항목 숨기기";
+player_hide_none = "숨긴 항목 없음";
+player_hide_count = "%d개 숨김";
+player_part_allCards = "모든 카드";
+player_part_releaseCountdown = "발매 카운트다운";
+reset_page = "초기화";
+reset_page_title = "이 페이지를 기본값으로 초기화할까요?";
+glass_home = "홈";
+rounded_artwork = "플레이리스트 표지 둥글게";
+glass_playlist = "플레이리스트 및 앨범";
+playlist_subtitle = "커버, 구분선, 헤더 항목";
+playlist_footer = "플레이리스트를 열거나 스크롤할 때 적용됩니다.";
+playlist_full_cover = "전체 너비 커버";
+playlist_dividers = "곡 구분선";
+playlist_hide_find = "찾기 바 숨기기";
+appearance = "모양";
+appearance_subtitle = "테마, 글래스, 레이아웃";
+theme = "테마";
+theme_footer = "적용하려면 다시 시작하세요.";
+amoled = "AMOLED 블랙";
+accent_color = "강조 색상";
+home = "홈";
+home_subtitle = "섹션 숨기기";
+home_hide = "숨기기";
+home_pills = "필터 알약";
+home_shortcuts = "바로가기 그리드";
+home_promos = "프로모션";
+home_previews = "미리보기";
+home_dj = "DJ";
+block_telemetry = "추적 차단";
+block_telemetry_footer = "Firebase, Facebook, Branch 및 기타 분석 SDK를 차단합니다. 재생 기록은 여전히 최근 항목에 반영됩니다. 적용하려면 다시 시작하세요.";
+troubleshooting = "문제 해결";
+reset_section = "초기화";
+reset_section_footer = "둘 다 완료되면 앱이 종료됩니다.";
+reset_data_subtitle = "캐시를 지웁니다";
+full_reset_subtitle = "모든 것을 지우고 로그아웃합니다";
+playlist_play = "재생";
+playlist_pause = "일시정지";
+spotify_features = "Spotify 기능";
+spotify_features_subtitle = "Spotify에 포함된 숨겨진 스위치";
+features_playback = "재생";
+features_trim_silence = "무음 구간 줄이기";
+features_library = "보관함";
+features_recents = "최근 항목";
+features_recents_sort = "최근 항목 정렬";
+features_sort_playlists = "최근 업데이트된 플레이리스트순으로 정렬";
+features_sort_artists = "최근 업데이트된 아티스트순으로 정렬";
+features_denser_rows = "더 촘촘한 행";
+features_library_settings = "보관함 설정";
+features_library_pro = "Library Pro";
+features_shake_random = "흔들어서 무작위 재생";
+features_lockscreen = "잠금 화면";
+features_lock_like = "좋아요 버튼";
+features_lock_podcast_skip = "팟캐스트에서 건너뛰기";
+features_lock_chapters = "챕터 건너뛰기";
+features_lock_animated = "애니메이션 아트워크";
+features_sleep_timer = "수면 타이머";
+features_sleep_fade = "페이드 아웃";
+features_sleep_one_minute = "1분 옵션";
+features_home = "홈";
+features_dj_button = "DJ 버튼";
+features_dj_badge = "DJ 베타 배지";
+features_other = "기타";
+features_local_files = "문서 내 로컬 파일";
+features_hide_jam = "Jam 숨기기";
+features_hide_jam_footer = "Jam 진입점을 제거합니다. 적용하려면 다시 시작하세요.";
+block_rating_prompts = "평가 요청 차단";
+block_rating_prompts_footer = "App Store 리뷰 팝업이 표시되지 않습니다. 적용하려면 다시 시작하세요.";
+spicylyrics_key_invalid = "Spicy Lyrics API 키가 거부되었습니다";
+spicylyrics_api_key = "Spicy Lyrics API 키";
+spicylyrics_api_key_description = "비워 두면 내장 키를 사용합니다.";
+lyrics_made_by = "제작";
+lyrics_uploaded_by = "업로드";
+player_gestures = "제스처";
+player_double_tap = "아트워크 두 번 탭";
+player_double_tap_off = "끔";
+player_double_tap_seek = "10초 이동";
+player_double_tap_skip = "곡 건너뛰기";
+player_zones = "영역";
+player_zones_two = "왼쪽 · 오른쪽";
+player_zones_three = "왼쪽 · 가운데 · 오른쪽";
+player_haptics = "컨트롤 햅틱";
+player_haptics_subtitle = "버튼 및 탐색";
+tab_liked_songs = "좋아요 표시한 곡";
+tab_downloads = "다운로드";
+tab_podcasts = "팟캐스트";
+tab_queue = "대기열";
+tab_custom = "사용자 지정 탭";
+tab_custom_footer = "탭 바에서 원하는 Spotify 페이지를 열 수 있습니다. 밀어서 삭제합니다.";
+tab_add = "탭 추가";
+tab_custom_uri = "사용자 지정 URI";
+tab_custom_title = "제목";
+tab_invalid_uri = "Spotify 링크 또는 URI가 아닙니다";
+artist = "아티스트";
+artist_subtitle = "헤더 항목";
+artist_verified = "인증 배지";
+artist_listeners = "월간 청취자";
+artist_tabs = "음악 / 이벤트 탭";
+playlist_part_description = "설명";
+playlist_part_creator = "제작자 행";
+playlist_part_metadata = "재생 시간 줄";
+playlist_part_pills = "큐레이션 알약";
+home_gradient_footer = "변경 사항이 바로 적용됩니다.";
+home_gradient_strength = "강도";
+home_gradient_height = "높이";
+home_gradient_subtle = "약하게";
+home_gradient_medium = "보통";
+home_gradient_bold = "강하게";
+home_gradient_short = "낮게";
+home_gradient_tall = "높게";
+home_gradient_full = "전체 화면";
+home_gradient_fade = "페이드";
+home_gradient_fade_top = "이르게";
+home_gradient_fade_mid = "중간";
+home_gradient_fade_low = "늦게";
+home_gradient_pages = "페이지";
+home_gradient_page_home = "홈";
+home_gradient_page_library = "보관함";
+home_gradient_page_search = "검색";
+background_color = "배경색";
+state_on = "켬";
+state_off = "끔";
+appearance_pages = "페이지";
+tab_bar_subtitle = "순서, 시작 탭, 사용자 지정 탭";
+lyrics_written_by = "작사:";
+lyrics_provided_by = "가사 제공";
+karaoke_section = "사용자 지정 가사 보기";
+karaoke_section_footer = "방향을 반전하면 줄이 아래에서 위로 흐르고, 활성 줄이 화면 아래쪽에 위치합니다. 흐림 강도는 비활성 줄이 얼마나 흐릿하게 보일지 조절합니다.";
+karaoke_alignment = "가사 정렬";
+karaoke_alignment_leading = "왼쪽";
+karaoke_alignment_center = "가운데";
+karaoke_alignment_trailing = "오른쪽";
+karaoke_reversed_direction = "방향 반전";
+episode_header = "에피소드 %@";
+home_gradient_style = "스타일";
+home_gradient_style_gradient = "그라데이션";
+home_gradient_style_solid = "단색";
+spicylyrics_description = "SpicyLyrics는 단어별 노래방 가사를 제공합니다. 기본적으로 내장 키가 사용됩니다. 직접 키를 사용하려면 Spicy ESR template으로 이동하여 \"Sign in\" 버튼을 누르세요. 로그인한 후 Spicy의 ToS에 동의하고 \"Add ESR to my account\"를 누릅니다. 추가되면 생성된 키를 복사하여 Eevee 가사 섹션에 붙여넣은 다음, Spicy로 돌아가 \"I have stored it\"을 클릭하세요. 그런 다음 앱 페이지로 이동하세요.";
+spicylyrics_template_link = "Spicy ESR template";
+karaoke_word_synced_button = "사용자 지정 가사 보기";
+no_debug_log_found = "디버그 로그를 찾을 수 없습니다. 디버그 로깅 옵션을 켜면 로그 기록이 시작됩니다.";
+debug_section_footer = "로깅을 켠 다음 로그를 내보내거나 지우세요.";
+debug_logging = "디버그 로깅";
+karaoke_enabled = "사용자 지정 가사 보기";
+karaoke_blur_intensity = "흐림 강도";
 
-contributors = "기여자";
-developer_note = "개발자 노트";
+/* MARK: Added to match en.lproj */
 
-request_anonymous_token = "익명 토큰 요청";
-request_anonymous_token_description = "“익명 토큰 요청”을 탭하여 로그인 없이 Musixmatch에서 토큰을 발급받습니다.";
+glass_lyrics_view = "사용자 지정 가사 보기";
 
-lrclib_api = "서버 주소";
+/* MARK: Not yet translated — English text shown until a translator updates these */
 
-// Snapshot of your benefits, should match official spotify loc
-
-ad_free_music_listening = "광고 없는 음악 감상";
-play_songs_in_any_order = "원하는 순서로 음악 재생";
-organize_listening_queue = "재생목록 대기열 관리";
-
-payment_notice = "EeveeSpotify는 특정 Premium 기능을 잠금 해제하기 위해 패치를 적용합니다. 무료로 제공됩니다.";
-
-// Debug
-
-debug_title = "디버그";
-export_debug_log = "디버그 로그 내보내기";
-clear_debug_log = "디버그 로그 삭제";
-debug_log_cleared = "디버그 로그가 삭제되었습니다.";
-debug_log_cleared_ok = "확인";
-no_debug_log_found = "디버그 로그를 찾을 수 없습니다. 로그는 앱이 실행될 때 기록되기 시작합니다.";
-no_debug_log_found_ok = "확인";
-debug_section_footer = "디버그 로그를 내보내거나 삭제합니다.";
-
-// Full reset
-resetButtonTitle = "전체 초기화";
-resetSubtitle = "Spotify 키체인, 샌드박스 디렉토리, 앱 그룹 컨테이너를 정리합니다. 강제로 다시 로그인해야 합니다. 완료되면 앱이 종료됩니다.";
-resetFooter = "강제로 다시 로그인합니다. Spotify 키체인 항목, 샌드박스 디렉토리, 앱 그룹 컨테이너를 정리합니다. 다른 사이드로드된 앱은 영향을 받지 않습니다. 완료되면 앱이 종료됩니다.";
-
-// Settings Bar
-eevee_inline_subtitle_text = "패치, 가사, 사용자화 및 실험적 기능";
-
-// App Icon Chooser
-appIconTitle = "아이콘 선택";
-appIconSubtitle = "iOS에서 최초 1회 확인 창이 표시됩니다. 홈 화면이 갱신되는 데 몇 초 정도 걸릴 수 있습니다.";
-iconSelected = "선택됨";
-iconTapToApply = "탭하여 적용";
-prettifyIconNames = "아이콘 이름 정리";
-prettifyIconNamesDescription = "밑줄(_), 하이픈(-), camelCase를 공백으로 변환합니다";
-
-// SponsorBlock
-categoryOneFooter = "팟캐스트 에피소드에서 커뮤니티가 표시한 구간을 건너뜁니다.";
-enableSponsorblock = "SponsorBlock 활성화";
-showColoredOverlay = "진행 표시줄에 색상 오버레이 표시";
-showToast = "건너뛸 때 토스트 알림 표시";
-skipToast = "건너뛰기 토스트 작업 버튼 (투표 / 실행 취소 / 숨기기)";
-respectManualSeek = "수동 탐색 유지 (다시 건너뛰지 않음)";
-categoriesHeader = "카테고리";
-categoriesFooter = "끄기 · 표시 · 수동 · 자동. 색상 원을 탭하여 변경하세요.";
-
-sponsor_category = "스폰서 광고";
-selfpromo_category = "무보수/자체 홍보";
-interaction_category = "상호작용 유도 (구독/좋아요 등)";
-intro_category = "막간/인트로";
-outro_category = "아웃트로/엔딩 크레딧";
-preview_category = "미리보기/요약";
-hook_category = "도입부/인사말";
-filler_category = "사담/여담 (필러)";
-exclusive_access_category = "독점 콘텐츠 안내";
-
-action_disabled = "끄기";
-action_show = "표시";
-action_manual = "수동";
-action_auto = "자동";
-
-draftsTitle = "신고 및 임시 보관함";
-errorNoPodcats = "현재 재생 중인 팟캐스트가 없습니다.";
-markSegment = "현재 에피소드의 구간 표시";
-advancedTitle = "고급 설정";
-howToUseTitle = "사용 방법";
-creditsTitle = "크레딧";
-creditsSubtitle = "구간 데이터 제공: SponsorBlock 커뮤니티 (sponsor.ajay.app). Spot-SponsorBlock의 Spot-SponsorBlock-Extension에서 포팅된 통합 기능입니다.";
-linkButtonTitle = "GitHub의 Spot-SponsorBlock-Extension";
-
-// SponsorBlock reports
-sponsorblock_reports_title = "SponsorBlock 보고서";
-sponsorblockIDTitle = "내 SponsorBlock ID";
-sponsorblockIDFooter = "제출 항목 및 투표를 식별하는 데 사용됩니다. 비공개 비밀번호처럼 취급하며 타인과 공유하지 마세요.";
-user_id_copied = "사용자 ID가 복사되었습니다";
-copyButton = "복사";
-regenerateButton = "재생성";
-draftsTitleSB = "임시 보관함";
-draftsEmpty = "임시 보관된 항목이 없습니다. 팟캐스트 진행 표시줄을 길게 눌러 구간 표시를 시작하세요.";
-draftsEpisodeLoc = "에피소드 %@";
-hidden_locally_header = "로컬에서 숨김 (%@)";
-hiddenFooter = "여기에 표시된 구간은 이 기기에서 자동으로 건너뛰지 않습니다. SponsorBlock 서버에는 계속 유지됩니다.";
-hiddenSegmentsEmpty = "숨긴 구간이 없습니다.";
-unhideButton = "숨김 해제";
-
-popUpRegenerateTitle = "사용자 ID를 재생성할까요?";
-popUpRegenerateSubtitle = "기존 제출 항목 및 투표가 더 이상 본인과 연결되지 않습니다.";
-popUpClearAllButton = "모두 지우기";
-popUpClearAllTitle = "모든 숨긴 구간을 지울까요?";
-popUpClearAllSubtitle = "카테고리 규칙에 따라 다시 건너뛰게 됩니다.";
-
-readyButton = "준비됨";
-incompleteButton = "미완료";
-editSubmit = "수정 / 제출";
-discardButton = "삭제";
-
-// SponsorBlock Advanced
-skipBehaviourTitle = "건너뛰기 동작";
-autoSkipSubmissionsTitle = "내가 제출한 구간 자동 건너뛰기";
-logOnlyToggle = "로그만 기록 (실제 탐색 안 함)";
-serverHeader = "서버";
+experiments = "Experiments";
+sponsorblock = "SponsorBlock (BETA)";
+appIcon = "App Icon";
+restart_is_required_description = "App restart is required after changing.";
+true_shuffle = "True Shuffle";
+true_shuffle_dec = "Blocks Spotify's free-tier Smart Shuffle from mixing recommended tracks into your queue. Shuffle stays inside the playlist. ";
+do_not_replace_lyrics = "Do Not Replace Lyrics";
+hide_lyrics_on_error = "Hide on Error";
+hide_lyrics_on_error_description = "Remove the lyrics component if lyrics fail to load.";
+show_instagram_destination = "Show Instagram Destination";
+show_instagram_destination_description = "Always show the Instagram share destination. %@";
+livecontainer_sharing = "Share to LiveContainer";
+livecontainer_sharing_description = "Share to LiveContainer and copy the URL if the selected destination is not supported.";
+miscellaneous = "Miscellaneous";
+clean_share_links = "Clean Share Links";
+clean_share_links_description = "Removes tracking parameters from shared links.";
+download_local_playlist = "Download local playlist";
+could_not_share_popup = "Couldn’t share to the selected destination or LiveContainer. The URL has been copied.";
+liked_songs = "Liked songs";
+contributors = "Contributors";
+developer_note = "Developer's Note";
+request_anonymous_token = "Request Anonymous Token";
+request_anonymous_token_description = "Tap “Request Anonymous Token” to request a token from Musixmatch without authorization.";
+lrclib_api = "Server Address";
+ad_free_music_listening = "Ad-free music listening";
+play_songs_in_any_order = "Play songs in any order";
+organize_listening_queue = "Organize listening queue";
+payment_notice = "EeveeSpotify applies patches to unlock certain Premium features. It's free.";
+debug_title = "Debug";
+export_debug_log = "Export Debug Log";
+clear_debug_log = "Clear Debug Log";
+debug_log_cleared = "Debug log cleared.";
+debug_log_cleared_ok = "OK";
+no_debug_log_found_ok = "OK";
+resetButtonTitle = "Full Reset";
+resetSubtitle = "Each is independent.";
+resetFooter = "Force re-login. Wipes Spotify keychain entries, sandbox dirs, and app-group containers. Other sideloaded apps untouched. App exits when done.";
+eevee_inline_subtitle_text = "Patching, lyrics, customization, and experiments";
+appIconTitle = "Choose Icon";
+appIconSubtitle = "iOS shows a confirmation the first time. The home screen may take a few seconds to refresh.";
+iconSelected = "Selected";
+iconTapToApply = "Tap to apply";
+prettifyIconNames = "Prettify Icon Names";
+prettifyIconNamesDescription = "Converts underscores, hyphens, and camelCase into spaces";
+categoryOneFooter = "Skips community-marked segments in podcast episodes.";
+enableSponsorblock = "Enable SponsorBlock";
+showColoredOverlay = "Show colored overlay on progress bar";
+showToast = "Show toast when skipping";
+skipToast = "Skip-toast action buttons (vote / undo / hide)";
+respectManualSeek = "Respect manual seek (don't re-skip)";
+categoriesHeader = "Categories";
+categoriesFooter = "Off · Show · Manual · Auto. Tap the color circle to change.";
+sponsor_category = "Sponsor";
+selfpromo_category = "Unpaid/Self Promotion";
+interaction_category = "Interaction Reminder";
+intro_category = "Intermission/Intro";
+outro_category = "Outro/Credits";
+preview_category = "Preview/Recap";
+hook_category = "Hook/Greetings";
+filler_category = "Tangent/Filler";
+exclusive_access_category = "Exclusive Access";
+action_disabled = "Off";
+action_show = "Show";
+action_manual = "Manual";
+action_auto = "Auto";
+draftsTitle = "Reporting & drafts";
+errorNoPodcats = "No podcast is currently playing.";
+markSegment = "Mark segment for current episode";
+advancedTitle = "Advanced";
+howToUseTitle = "How to use";
+creditsTitle = "Credits";
+creditsSubtitle = "Segment data from the SponsorBlock community (sponsor.ajay.app). Integration ported from Spot-SponsorBlock-Extension by Spot-SponsorBlock.";
+linkButtonTitle = "Spot-SponsorBlock-Extension on GitHub";
+sponsorblock_reports_title = "SponsorBlock Reports";
+sponsorblockIDTitle = "Your SponsorBlock ID";
+sponsorblockIDFooter = "Used to attribute your submissions and votes. Treat as a private password — don't share it.";
+user_id_copied = "User ID copied";
+copyButton = "Copy";
+regenerateButton = "Regenerate";
+draftsTitleSB = "Drafts";
+draftsEmpty = "No drafts. Long-press the podcast progress bar to start marking a segment.";
+draftsEpisodeLoc = "Episode %@";
+hidden_locally_header = "Hidden locally (%@)";
+hiddenFooter = "Segments here are never auto-skipped on this device. They still exist on the SponsorBlock server.";
+hiddenSegmentsEmpty = "No hidden segments.";
+unhideButton = "Unhide";
+popUpRegenerateTitle = "Regenerate user ID?";
+popUpRegenerateSubtitle = "Your existing submissions and votes will no longer be linked to you.";
+popUpClearAllButton = "Clear all";
+popUpClearAllTitle = "Clear all hidden segments?";
+popUpClearAllSubtitle = "They will skip again according to your category rules.";
+readyButton = "Ready";
+incompleteButton = "Incomplete";
+editSubmit = "Edit / Submit";
+discardButton = "Discard";
+skipBehaviourTitle = "Skipping behavior";
+autoSkipSubmissionsTitle = "Auto-skip my own submissions";
+logOnlyToggle = "Log only (don't actually seek)";
+serverHeader = "Server";
 urlText = "URL";
-
-tuningTitle = "세부 조정";
-minSegmentDuration = "최소 구간 길이: %.1f초";
-toastDuration = "토스트 표시 시간: %.1f초";
-
-trackLogSubtitle = "새 트랙이 시작될 때마다 팟캐스트 트랙 메타데이터(URI, isPodcast, isVideo 등)를 디버그 로그에 출력합니다. SponsorBlock이 팟캐스트를 제대로 감지하지 못할 때만 활성화하세요.";
-trackLogToggle = "진단용 트랙 로그";
-resetButtonTrackLog = "초기화…";
-
-// SponsorBlock Reset Options Advanced
-resetTitle = "무엇을 초기화할까요?";
-resetSubtitle = "각 항목은 독립적입니다.";
-allResetSB = "모두 초기화 (위 항목 전체)";
-regenerateIDSB = "사용자 ID 재생성";
-localSubmissionsSB = "내 로컬 제출 항목 (%@)";
-votedRecordsSB = "투표 기록 (%@)";
-hiddenSegmentsSB = "숨긴 구간 (%@)";
-draftsCountSB = "임시 보관 (%@)";
-settingsResetSB = "설정 (토글 + 카테고리 + 색상)";
-
-// SponsorBlock How To Use
-playerGesturesTitle = "플레이어 제스처";
-gesturesTitle1 = "진행 표시줄 길게 누르기";
-gesturesDeps1 = "구간 시작 지점을 표시합니다. 구간 종료 지점에서 다시 길게 누르면 종료 지점이 설정되고 제출 양식이 열립니다.";
-gesturesTitle2 = "표시줄의 구간 탭하기";
-gesturesDeps2 = "투표하거나 카테고리를 변경하거나 이 기기에서만 구간을 숨깁니다.";
-
-submittingTitle = "제출";
-submittingSectionTitle1 = "제출 양식";
-submittingSectionDeps1 = "슬라이더와 미세 조정 버튼으로 시작/종료 지점을 조정합니다. 카테고리를 선택하고 제출하면 sponsor.ajay.app에 등록됩니다.";
-submittingSectionTitle2 = "내 로컬 제출 항목";
-submittingSectionDeps2 = "이 기기에서는 즉시 자동으로 건너뜁니다. 서버에 게시되면 투표가 활성화됩니다. 'MINE' 배지로 표시됩니다.";
-
-skipToastTitle = "건너뛰기 토스트 알림";
-skipToastSectionTitle1 = "실행 취소";
-skipToastSectionDeps1 = "구간 시작 위치로 되돌아갑니다. 해당 구간은 한 번 그대로 재생됩니다. 앞으로/뒤로 탐색하면 리셋되어 다시 건너뜁니다.";
-skipToastSectionTitle2 = "추천 / 비추천";
-skipToastSectionDeps2 = "👍는 서버에 투표를 기록합니다. 👎는 비추천, 로컬에서 숨기기 또는 카테고리 변경 메뉴를 엽니다.";
-skipToastSectionTitle3 = "구간 전체 메뉴";
-skipToastSectionDeps3 = "진행 표시줄에서 구간을 탭했을 때와 동일한 옵션입니다.";
-
-managingSegmentsTitle = "구간 관리";
-managingSegmentsSectionTitle1 = "구간 관리…";
-managingSegmentsSectionDeps1 = "표시줄 길게 누르기 → '구간 관리'에서 현재 에피소드의 모든 구간 목록을 확인합니다. 투표, 숨기기, 카테고리 변경이 가능하며 항목을 탭하여 해당 위치로 이동할 수 있습니다.";
-managingSegmentsSectionTitle2 = "신고 및 임시 보관함";
-managingSegmentsSectionDeps2 = "설정 → '신고 및 임시 보관함'에 진행 중인 임시 보관(완료되지 않은 표시) 및 숨긴 구간이 저장됩니다. 임시 보관 항목은 앱을 다시 시작해도 유지됩니다.";
-
-categoriesTitle = "카테고리";
-categoriesSectionTitle1 = "카테고리별 동작";
-categoriesSectionDeps1 = "끄기 = 무시. 표시 = 표시줄에만 표시. 수동 = 건너뛰기 전 확인. 자동 = 알림 없이 건너뛰기.";
+tuningTitle = "Tuning";
+minSegmentDuration = "Min segment duration: %.1fs";
+toastDuration = "Toast duration: %.1fs";
+trackLogSubtitle = "Dumps podcast track metadata (URI, isPodcast, isVideo, etc.) to the debug log on each new track. Enable only when SponsorBlock isn't detecting a podcast you expect.";
+trackLogToggle = "Diagnostic track log";
+resetButtonTrackLog = "Reset…";
+resetTitle = "Reset what?";
+allResetSB = "Everything (all of the above)";
+regenerateIDSB = "Regenerate user ID";
+localSubmissionsSB = "My local submissions (%@)";
+votedRecordsSB = "Voted records (%@)";
+hiddenSegmentsSB = "Hidden segments (%@)";
+draftsCountSB = "Draft (%@)";
+settingsResetSB = "Settings (toggles + categories + colors)";
+playerGesturesTitle = "Gestures on the player";
+gesturesTitle1 = "Long-press the progress bar";
+gesturesDeps1 = "Mark a segment start. Long-press again at the end of the segment to set END and open the submission form.";
+gesturesTitle2 = "Tap a segment on the bar";
+gesturesDeps2 = "Vote, change category, or hide a segment on this device only.";
+submittingTitle = "Submitting";
+submittingSectionTitle1 = "Submission form";
+submittingSectionDeps1 = "Sliders + nudge buttons fine-tune start/end. Pick a category. Submit posts to sponsor.ajay.app.";
+submittingSectionTitle2 = "Your local submissions";
+submittingSectionDeps2 = "Auto-skipped on this device immediately. Voting unlocks once the server publishes them. The 'MINE' badge marks them.";
+skipToastTitle = "Skip toast";
+skipToastSectionTitle1 = "Undo";
+skipToastSectionDeps1 = "Seeks back to segment start. The segment plays through this once. Forward + back resets it so it re-skips.";
+skipToastSectionTitle2 = "Upvote / Downvote";
+skipToastSectionDeps2 = "👍 records your vote on the server. 👎 opens a menu to downvote, hide locally, or change category.";
+skipToastSectionTitle3 = "Full segment menu";
+skipToastSectionDeps3 = "Same options as tapping the segment on the progress bar.";
+managingSegmentsTitle = "Managing segments";
+managingSegmentsSectionTitle1 = "Manage segments…";
+managingSegmentsSectionDeps1 = "Long-press the bar → 'Manage segments' lists every segment for the current episode. Vote, hide, change category, or tap a row to jump the player.";
+managingSegmentsSectionTitle2 = "Reporting & drafts";
+managingSegmentsSectionDeps2 = "Settings → 'Reporting & drafts' holds your in-progress drafts (unfinished marks) and your hidden segments. Drafts persist across launches.";
+categoriesTitle = "Categories";
+categoriesSectionTitle1 = "Per-category actions";
+categoriesSectionDeps1 = "Off = ignore. Show = draw on the bar only. Manual = prompt before skipping. Auto = skip silently.";
+spicylyrics_api_key_placeholder = "Enter the Spicy client key";
+lyrics_source_restart_popup = "Restart Spotify so the new lyrics source is used everywhere. Songs you already played keep their old lyrics until then.";
+restart_later = "Later";

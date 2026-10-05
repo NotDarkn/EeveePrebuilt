@@ -25,6 +25,9 @@ enum LyricsSource: Int, CaseIterable, CustomStringConvertible {
 
     var isReplacingLyrics: Bool { self != .notReplaced }
 
+    /// The custom lyrics view needs time-synced lyrics; Genius only has plain text.
+    var supportsCustomLyricsView: Bool { isReplacingLyrics && self != .genius }
+
     static var defaultSource: LyricsSource {
         .spicylyrics
     }

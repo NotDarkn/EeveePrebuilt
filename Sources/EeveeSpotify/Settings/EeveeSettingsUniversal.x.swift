@@ -102,17 +102,17 @@ class UniversalProfileSettingsSectionHook: ClassHook<NSObject> {
 // MARK: - Global Helper to avoid Orion Hooking Issues with setupEeveeButton
 // This logic is moved outside the ClassHook so Orion doesn't try to find it as an Obj-C method on the target class.
 func injectEeveeButton(into target: UIViewController) {
-    NSLog("[EeveeSpotify] injectEeveeButton called for \(String(describing: type(of: target)))")
+    eeveeLog("[EeveeSpotify] injectEeveeButton called for \(String(describing: type(of: target)))")
     
     // Check if the button already exists in rightBarButtonItems
     if let rightItems = target.navigationItem.rightBarButtonItems {
         if rightItems.contains(where: { $0.tag == 1337 }) {
-             NSLog("[EeveeSpotify] Button already exists (tag 1337)")
+             eeveeLog("[EeveeSpotify] Button already exists (tag 1337)")
              return 
         }
     }
 
-    NSLog("[EeveeSpotify] Creating and injecting button...")
+    eeveeLog("[EeveeSpotify] Creating and injecting button...")
     
     let button = UIButton(type: .system)
     // Use system image to guarantee visibility and avoid crashes
@@ -122,11 +122,11 @@ func injectEeveeButton(into target: UIViewController) {
     
     let action = UIAction { [weak target] _ in
         guard let target = target, let navigationController = target.navigationController else { 
-            NSLog("[EeveeSpotify] Navigation controller not found")
+            eeveeLog("[EeveeSpotify] Navigation controller not found")
             return 
         }
         
-        NSLog("[EeveeSpotify] Opening EeveeSettings...")
+        eeveeLog("[EeveeSpotify] Opening EeveeSettings...")
         
         let eeveeSettingsController = EeveeSettingsViewController(
             target.view.bounds,
@@ -172,7 +172,7 @@ func injectEeveeButton(into target: UIViewController) {
     items.insert(item, at: 0) // Prepend instead of append to ensure visibility
     target.navigationItem.rightBarButtonItems = items
     
-    NSLog("[EeveeSpotify] Button injected. Items count: \(items.count)")
+    eeveeLog("[EeveeSpotify] Button injected. Items count: \(items.count)")
 }
 
 // MARK: - Fallback: Hook SettingsViewController directly (New UI)
@@ -240,7 +240,7 @@ func injectEeveeInlineRow(into vc: UIViewController) {
     let rootSettingsHost = stack.first { subtreeContains($0, ofClass: listClass) }
     guard let enclosing = enclosing, enclosing === rootSettingsHost else { return }
     guard let cv = findFirstCollectionView(in: vc.view) else {
-        NSLog("[EeveeSpotify] inlineRow: no UICollectionView in view tree")
+        eeveeLog("[EeveeSpotify] inlineRow: no UICollectionView in view tree")
         return
     }
     if cv.viewWithTag(eeveeInlineRowTag) != nil { return }
@@ -304,7 +304,7 @@ func injectEeveeInlineRow(into vc: UIViewController) {
     cv.verticalScrollIndicatorInsets = indicator
     cv.setContentOffset(CGPoint(x: 0, y: -inset.top), animated: false)
 
-    NSLog("[EeveeSpotify] Injected inline EeveeSpotify row into Settings list")
+    eeveeLog("[EeveeSpotify] Injected inline EeveeSpotify row into Settings list")
 }
 
 private func enclosingStackVC(of vc: UIViewController, in stack: [UIViewController]) -> UIViewController? {
@@ -458,14 +458,14 @@ class SettingsNavigationStackHook: ClassHook<UINavigationController> {
                 "Configuración", "Preferencias",
             ]
             if let title = targetVC.title, settingsTitles.contains(title) {
-                NSLog("[EeveeSpotify] Detected Settings via Title: \(className)")
+                eeveeLog("[EeveeSpotify] Detected Settings via Title: \(className)")
                 injectEeveeButton(into: targetVC)
                 return
             }
             
             // Check class name
             if className.contains("Settings") && !className.contains("Eevee") {
-                NSLog("[EeveeSpotify] Detected Settings via Class Name: \(className)")
+                eeveeLog("[EeveeSpotify] Detected Settings via Class Name: \(className)")
                 injectEeveeButton(into: targetVC)
                 return
             }

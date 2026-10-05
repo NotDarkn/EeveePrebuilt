@@ -5,6 +5,7 @@ extension UserDefaults {
     
     private static let musixmatchTokenKey = "musixmatchToken"
     private static let darkPopUpsKey = "darkPopUps"
+    private static let debugLoggingEnabledKey = "debugLoggingEnabled"
     private static let patchTypeKey = "patchType"
     private static let trueShuffleEnabledKey = "trueShuffleEnabled"
     private static let overwriteConfigurationKey = "overwriteConfiguration"
@@ -31,6 +32,15 @@ extension UserDefaults {
         }
         set (darkPopUps) {
             container.set(darkPopUps, forKey: darkPopUpsKey)
+        }
+    }
+
+    static var debugLoggingEnabled: Bool {
+        get {
+            container.object(forKey: debugLoggingEnabledKey) as? Bool ?? false
+        }
+        set (debugLoggingEnabled) {
+            container.set(debugLoggingEnabled, forKey: debugLoggingEnabledKey)
         }
     }
 
@@ -116,5 +126,10 @@ extension UserDefaults {
         set (cleanShareLinks) {
             container.set(cleanShareLinks, forKey: cleanShareLinksKey)
         }
+    }
+
+    static var roundedArtwork: Bool {
+        get { container.bool(forKey: "eeveeRoundedArtwork") }
+        set { container.set(newValue, forKey: "eeveeRoundedArtwork") }
     }
 }

@@ -36,7 +36,7 @@ struct SponsorBlockEpisodeSegmentsView: View {
                         .listRowInsets(EdgeInsets())
                 }
             }
-            .listStyle(InsetGroupedListStyle())
+            .eeveeSettingsStyle()
             .navigationBarTitle("Segments", displayMode: .inline)
             .navigationBarItems(trailing: Button("Done") {
                 presentationMode.wrappedValue.dismiss()

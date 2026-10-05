@@ -61,7 +61,7 @@ struct EeveeUISettingsView: View {
             SpacerView()
         }
         
-        .listStyle(GroupedListStyle())
+        .eeveeSettingsStyle()
         .animation(.default, value: lyricsColors)
     }
 }

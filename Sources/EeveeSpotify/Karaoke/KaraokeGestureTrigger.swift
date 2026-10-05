@@ -1,39 +1,38 @@
 import UIKit
 
-/// Attaches a long-press gesture recognizer to the app window so the user
-/// can summon the custom karaoke overlay from anywhere with a 0.5s
-/// long-press. This was originally the *only* way to trigger the karaoke
-/// view, which made it effectively undiscoverable — KaraokeButtonOverlay
-/// now provides a real, visible button on the Now Playing screen and is
-/// the primary trigger. This gesture is kept as a secondary shortcut for
-/// anyone who already relies on it.
-/// Call attachIfNeeded() whenever playback state changes — it's idempotent.
-final class KaraokeGestureTrigger {
+// Long-press on the now playing bar opens karaoke; the player footer button is the visible trigger.
+final class KaraokeGestureTrigger: NSObject {
     static let shared = KaraokeGestureTrigger()
-    private var attached = false
-
-    private init() {}
+    private static let barClass: AnyClass? = NSClassFromString("_TtC18NowPlaying_BarImpl27NowPlayingBarViewController")
+    private static var attachedKey: UInt8 = 0
+    private weak var bar: UIView?
+    private var lastSearch: CFTimeInterval = 0
+    private var logged = false
 
     func attachIfNeeded() {
-        guard !attached else { return }
-        guard KaraokeOverlayPresenter.isAvailableForCurrentTrack() else { return }
-        guard let window = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first(where: { $0.activationState == .foregroundActive })?
-            .windows.first(where: { $0.isKeyWindow }) else { return }
-
-        let recognizer = UILongPressGestureRecognizer(
-            target: self,
-            action: #selector(handleLongPress(_:))
-        )
+        if let bar, bar.window != nil { return }
+        let now = CACurrentMediaTime()
+        guard now - lastSearch >= 1 else { return }
+        lastSearch = now
+        guard let barClass = Self.barClass,
+              let window = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).flatMap(\.windows).first(where: \.isKeyWindow),
+              let view = window.eeveeFirst(UIView.self, where: { ($0.next as? UIViewController)?.isKind(of: barClass) == true })
+        else { return }
+        bar = view
+        guard objc_getAssociatedObject(view, &Self.attachedKey) == nil else { return }
+        let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
         recognizer.minimumPressDuration = 0.5
-        window.addGestureRecognizer(recognizer)
-        attached = true
-        writeDebugLog("[Karaoke] gesture trigger attached")
+        view.addGestureRecognizer(recognizer)
+        objc_setAssociatedObject(view, &Self.attachedKey, true, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        if !logged {
+            logged = true
+            eeveeLog("[EeveeSpotify][Karaoke] long-press on now playing bar")
+        }
     }
 
     @objc private func handleLongPress(_ sender: UILongPressGestureRecognizer) {
-        guard sender.state == .began else { return }
+        guard sender.state == .began, KaraokeOverlayPresenter.isAvailableForCurrentTrack() else { return }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         KaraokeOverlayPresenter.present()
     }
 }

@@ -61,7 +61,7 @@ struct EeveePatchingSettingsView: View {
 
             SpacerView()
         }
-        .listStyle(GroupedListStyle())
+        .eeveeSettingsStyle()
         .animation(.default, value: patchType)
     }
 }

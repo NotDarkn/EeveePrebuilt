@@ -18,6 +18,8 @@ final class KaraokePlaybackTracker {
     private var lastPlaybackSpeed: Double = 1.0
     private var lastIsPlaying: Bool = false
     private var lastTrackId: String?
+    // Only ever set from the player observer, unlike lastTrackId (which a lyrics fetch also sets).
+    private var observedTrackId: String?
 
     private var didDumpStateShape = false
 
@@ -77,48 +79,38 @@ final class KaraokePlaybackTracker {
         let playbackSpeed: Double = (safeValue("playbackSpeed") as? NSNumber)?.doubleValue ?? lastPlaybackSpeed
         let isPlaying: Bool = (safeValue("isPlaying") as? Bool) ?? lastIsPlaying
 
+        // A state whose item is not a music track (podcast episode, ad, local file)
+        // means the previous track's lyrics no longer apply.
+        let isNonTrackItem = trackId == nil && !uriString.isEmpty
+
         queue.async {
             self.lastPosition = positionRaw
             self.lastPositionStamp = self.uptimeSec()
             self.lastPlaybackSpeed = playbackSpeed
             self.lastIsPlaying = isPlaying
+
+            let previousTrackId = self.lastTrackId
+            let previousObservedTrackId = self.observedTrackId
             if let trackId = trackId, !trackId.isEmpty {
                 self.lastTrackId = trackId
+                self.observedTrackId = trackId
+            } else if isNonTrackItem {
+                self.lastTrackId = nil
+                self.observedTrackId = nil
+            }
+            // Button visibility follows the track, so tell it when the track changes.
+            if self.lastTrackId != previousTrackId || self.observedTrackId != previousObservedTrackId {
+                KaraokeLyricsStore.shared.notify()
             }
         }
     }
 
-    /// Track-ID-only update, independent of processStateChange above.
-    ///
-    /// Added because on the 9.1.78 IPA I was given to inspect, the
-    /// -addPlayerObserver: registration this class otherwise depends on
-    /// fails to hook at all (Spotify appears to have moved that API to a
-    /// generic SPTObserverManager<Protocol> pattern — a much deeper native
-    /// change than a simple rename, not something to guess at blind) —
-    /// meaning processStateChange above is never actually called on that
-    /// build, and currentTrackId() would stay nil forever, which is exactly
-    /// what was keeping the Word-Synced button permanently hidden even with
-    /// syllable lyrics confirmed fetched.
-    ///
-    /// CustomLyrics.x.swift's getLyricsDataForCurrentTrack already reliably
-    /// learns the current track ID a different way on this build — by
-    /// reading it straight off the path of Spotify's own native
-    /// /color-lyrics/v2/track/{trackId} request, which fires on every real
-    /// track change regardless of the observer issue above (confirmed via
-    /// the debug log: lyrics were being fetched correctly for each track in
-    /// sequence throughout). Feeding that same value in here as soon as it's
-    /// known — instead of only via the broken observer — is what should get
-    /// the button showing correctly again.
-    ///
-    /// This does NOT restore position/playbackSpeed/isPlaying tracking —
-    /// those still depend on the broken observer, so the karaoke lyrics
-    /// view's own line-by-line highlighting timing may still be affected
-    /// until that's fixed for real. This only unblocks the button's own
-    /// "is there data for this track" check, which is all it needs.
     func updateTrackIdFromLyricsFetch(_ trackId: String) {
         guard !trackId.isEmpty else { return }
         queue.async {
+            guard self.lastTrackId != trackId else { return }
             self.lastTrackId = trackId
+            KaraokeLyricsStore.shared.notify()
         }
     }
 
@@ -134,6 +126,11 @@ final class KaraokePlaybackTracker {
                 : lastPosition
             return Int(max(0, estSeconds) * 1000)
         }
+    }
+
+    /// The track the player itself reports as playing, or nil when the observer hasn't reported one.
+    func playerReportedTrackId() -> String? {
+        queue.sync { observedTrackId }
     }
 
     func currentTrackId() -> String? {

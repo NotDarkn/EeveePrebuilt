@@ -3,10 +3,7 @@ import Foundation
 extension UserDefaults {
     @UserDefault(
         key: "karaokeOptions",
-        defaultValue: KaraokeOptions(
-            textAlignment: .center,
-            reversedDirection: false
-        )
+        defaultValue: KaraokeOptions()
     )
     static var karaokeOptions
 }

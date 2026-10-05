@@ -32,7 +32,7 @@ struct EeveeExperimentsSettingsView: View {
             }
         }
         
-        .listStyle(GroupedListStyle())
+        .eeveeSettingsStyle()
         .animation(.default, value: experimentsOptions)
     }
 }

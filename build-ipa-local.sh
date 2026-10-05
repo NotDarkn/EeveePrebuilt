@@ -37,20 +37,20 @@ mkdir -p "$OUT_DIR"
 
 color() { printf '\033[1;32m==> %s\033[0m\n' "$*"; }
 
-color "1/6  EeveeSwiftProtobuf.framework"
+color "1/7  EeveeSwiftProtobuf.framework"
 chmod +x Tools/SwiftProtobufBuild/build-eeveeswiftprotobuf.sh
 Tools/SwiftProtobufBuild/build-eeveeswiftprotobuf.sh
 
-color "2/6  theos make package"
+color "2/7  theos make package"
 THEOS_PACKAGE_SCHEME=rootless make package FINALPACKAGE=1
 DEB_FILE=$(ls -t packages/com.eevee.spotify_*.deb 2>/dev/null | head -1)
 [ -n "$DEB_FILE" ] || { echo "deb not produced"; exit 1; }
 
-color "3/6  zxPluginsInject.dylib"
+color "3/7  zxPluginsInject.dylib"
 chmod +x Tools/build-zxpi.sh
 Tools/build-zxpi.sh >/dev/null
 
-color "4/6  extract deb"
+color "4/7  extract deb"
 DEB_EXTRACT="$REPO_DIR/Outputs/deb-extract"
 rm -rf "$DEB_EXTRACT"; mkdir -p "$DEB_EXTRACT"
 dpkg-deb -R "$DEB_FILE" "$DEB_EXTRACT"
@@ -59,14 +59,14 @@ BUNDLE_SRC=$(find "$DEB_EXTRACT" -type d -name 'EeveeSpotify.bundle' | head -1)
 FRAMEWORK_SRC=$(find "$DEB_EXTRACT" -type d -name 'EeveeSwiftProtobuf.framework' | head -1)
 [ -n "$DYLIB_SRC" ] || { echo "dylib not in deb"; exit 1; }
 
-color "5/6  cyan inject"
+color "5/7  cyan inject"
 INJECT=("$DYLIB_SRC")
 [ -n "$FRAMEWORK_SRC" ] && INJECT+=("$FRAMEWORK_SRC")
 [ -n "$BUNDLE_SRC" ]    && INJECT+=("$BUNDLE_SRC")
 rm -f "$OUT_IPA"
 cyan -i "$VANILLA_IPA" -o "$OUT_IPA" -f "${INJECT[@]}" -c 9 -m 15.0 -du
 
-color "6/6  ipapatch LC-inject zxPluginsInject"
+color "6/7  ipapatch LC-inject zxPluginsInject"
 ipapatch --input "$OUT_IPA" --inplace --noconfirm --dylib packages/zxPluginsInject.dylib
 
 # Belt-and-suspenders: cyan -du strips appex/Watch but verify.
@@ -79,6 +79,15 @@ if [ -d "Payload/Spotify.app/Watch" ]; then
 fi
 rm -rf Payload
 cd - >/dev/null
+
+color "7/7  stage alternate app icons"
+# Copies Assets/AppIcon/*.png into Spotify.app and registers each stem under
+# CFBundleIcons/CFBundleAlternateIcons in its Info.plist, which is what
+# EeveeAppIconPickerView enumerates at runtime. This is the same step the
+# GitHub IPA workflows run (buildpatched/buildnopatch/build-and-release-yourself),
+# so a locally built IPA ends up with the identical icon set.
+chmod +x Tools/alt-icons.sh
+Tools/alt-icons.sh "$OUT_IPA"
 
 color "Done"
 ls -lh "$OUT_IPA"

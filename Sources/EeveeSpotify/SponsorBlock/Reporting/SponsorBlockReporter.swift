@@ -97,7 +97,7 @@ enum SponsorBlockReporter {
         req.setValue("EeveeSpotify-SponsorBlock/1", forHTTPHeaderField: "X-CLIENT-NAME")
 
         let payloadStr = String(data: payload, encoding: .utf8) ?? "<binary>"
-        NSLog("[EeveeSpotify][SB][SUBMIT] POST %@ payload=%@", url.absoluteString, payloadStr)
+        eeveeLog("[EeveeSpotify][SB][SUBMIT] POST %@ payload=%@", url.absoluteString, payloadStr)
         writeDebugLog("[SB][submit] POST \(url.absoluteString) payload=\(payloadStr)")
         session.dataTask(with: req) { data, resp, err in
             if let err { completion(.failure(.transport(err))); return }
@@ -105,7 +105,7 @@ enum SponsorBlockReporter {
                 completion(.failure(.http(0, nil))); return
             }
             let bodyStr = data.flatMap { String(data: $0, encoding: .utf8) }
-            NSLog("[EeveeSpotify][SB][SUBMIT] <- %d body=%@", http.statusCode, bodyStr ?? "<nil>")
+            eeveeLog("[EeveeSpotify][SB][SUBMIT] <- %d body=%@", http.statusCode, bodyStr ?? "<nil>")
             writeDebugLog("[SB][submit] -> \(http.statusCode) body=\(bodyStr ?? "<nil>")")
             if (200..<300).contains(http.statusCode) {
                 completion(.success(()))

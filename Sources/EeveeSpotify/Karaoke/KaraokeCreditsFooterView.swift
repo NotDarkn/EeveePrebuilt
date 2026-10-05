@@ -1,37 +1,55 @@
 import SwiftUI
 
-/// "Written by: ..." and "Lyrics provided by ..." footer shown beneath the
-/// last lyrics line, matching the real extension's
-/// Credits/ApplyLyricsCredits.ts and ApplyLyricsProvider.ts.
 struct KaraokeCreditsFooterView: View {
     let lyrics: KaraokeLyricsDto
 
-    private static let providerMap: [String: String] = [
-        "spl": "Spicy Lyrics",
-    ]
-
     private var providerLabel: String? {
-        guard let code = lyrics.providerCode else { return nil }
-        if code == "ext" {
-            return lyrics.providerDisplayName ?? "External Source"
+        nonEmpty(lyrics.providerName) ?? nonEmpty(lyrics.providerCode).map { _ in SpicyLyricsRepository.providerName }
+    }
+
+    private func nonEmpty(_ value: String?) -> String? {
+        (value ?? "").isEmpty ? nil : value
+    }
+
+    private func creditLine(_ prefix: String, name: String, url: String?) -> some View {
+        HStack(spacing: 4) {
+            Text(prefix)
+                .foregroundColor(.white.opacity(0.4))
+
+            if let url = url, let destination = URL(string: url) {
+                Link(name, destination: destination)
+                    .foregroundColor(.white.opacity(0.7))
+            } else {
+                Text(name)
+                    .foregroundColor(.white.opacity(0.4))
+            }
         }
-        return Self.providerMap[code]
+        .font(.system(size: 12, weight: .regular))
     }
 
     var body: some View {
-        if !lyrics.songWriters.isEmpty || providerLabel != nil {
+        let maker = nonEmpty(lyrics.makerName)
+        let uploader = nonEmpty(lyrics.uploaderName)
+
+        if !lyrics.songWriters.isEmpty || providerLabel != nil || maker != nil || uploader != nil {
             VStack(alignment: .center, spacing: 4) {
                 if !lyrics.songWriters.isEmpty {
-                    Text("Written by: \(lyrics.songWriters.joined(separator: ", "))")
+                    Text("\("lyrics_written_by".localized) \(lyrics.songWriters.joined(separator: ", "))")
                         .font(.system(size: 13, weight: .medium))
                         .foregroundColor(.white.opacity(0.55))
                         .multilineTextAlignment(.center)
                 }
                 if let providerLabel = providerLabel {
-                    Text("Lyrics provided by \(providerLabel)")
+                    Text("\("lyrics_provided_by".localized) \(providerLabel)")
                         .font(.system(size: 12, weight: .regular))
                         .foregroundColor(.white.opacity(0.4))
                         .multilineTextAlignment(.center)
+                }
+                if let maker = maker {
+                    creditLine("lyrics_made_by".localized, name: maker, url: lyrics.makerUrl)
+                }
+                if let uploader = uploader {
+                    creditLine("lyrics_uploaded_by".localized, name: uploader, url: lyrics.uploaderUrl)
                 }
             }
             .padding(.horizontal, 24)
