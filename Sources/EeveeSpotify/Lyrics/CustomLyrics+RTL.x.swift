@@ -32,7 +32,7 @@ class LyricsCellRTLHook: ClassHook<UITableViewCell> {
             } else if let textView = current as? UITextView, let text = textView.text, !text.isEmpty {
                 if text.isRTL {
                     textView.textAlignment = .right
-                    textView.setBaseWritingDirection(.rightToLeft, for: .forward)
+                    textView.semanticContentAttribute = .forceRightToLeft
                 }
             }
 
