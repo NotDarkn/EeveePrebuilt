@@ -15,8 +15,10 @@ BRANCH_NAME_FINAL := $(if $(BRANCH_NAME),$(BRANCH_NAME),Master)
 $(shell mkdir -p Sources/EeveeSpotify/Generated)
 $(shell printf 'enum GeneratedConfig {\n    static let repoSlug = "%s"\n    static let branchName = "%s"\n}\n' "$(REPO_SLUG_FINAL)" "$(BRANCH_NAME_FINAL)" > Sources/EeveeSpotify/Generated/RepoSlug.swift)
 
+# Testing parallel threads during compilation
+# This should theoretically reduce the amount of time it takes the workflow to build.
 EeveeSpotify_FILES = $(shell find Sources/EeveeSpotify -name '*.swift') $(shell find Sources/EeveeSpotifyC -name '*.m' -o -name '*.c' -o -name '*.mm' -o -name '*.cpp')
-EeveeSpotify_SWIFTFLAGS = -ISources/EeveeSpotifyC/include -Osize
+EeveeSpotify_SWIFTFLAGS = -ISources/EeveeSpotifyC/include -Osize -num-threads 4 -j4
 EeveeSpotify_EXTRA_FRAMEWORKS = EeveeSwiftProtobuf
 EeveeSpotify_CFLAGS = -fobjc-arc -ISources/EeveeSpotifyC/include -Os
 
@@ -28,10 +30,6 @@ EeveeSpotify_LDFLAGS += -lroothide -Xlinker -rpath -Xlinker @loader_path/.jbroot
 else
 EeveeSpotify_LDFLAGS += -lroot
 endif
-
-# Testing parallel threads during compilation
-# This should theoretically reduce the amount of time it takes the workflow to build by about ~80 seconds.
-EeveeSpotify_SWIFTFLAGS += -num-threads 4 -j4
 
 # Sideload compatibility (keychain redirect, group containers, CloudKit) is
 # handled out-of-process by modules/zxPluginsInject — LC-injected via ipapatch
