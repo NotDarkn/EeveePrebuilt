@@ -47,6 +47,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ inputs.branch }}
+          fetch-depth: 0
           submodules: recursive
 
         # this grabs the latest commit ID from SideloadLabs's EeveeSpotifyReincarnated repo 
@@ -194,10 +195,25 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ inputs.branch }}
+          fetch-depth: 0
           submodules: recursive
 
-      - name: (PATCHED) Cache Theos
+      - name: (PATCHED) Grab zxPluginsInject.dylib latest commit ID
         if: matrix.variant == 'Patched'
+        run: |
+          zxPluginsInject_COMMIT=$(git log -1 --format="%h" -- Tools/build-zxpi.sh)
+          echo "zxPluginsInject_COMMIT_ID=$zxPluginsInject_COMMIT" >> $GITHUB_ENV
+
+      - name: (PATCHED) Grab zxPluginsInject.dylib from cache
+        if: matrix.variant == 'Patched'
+        id: zxPluginsInject-cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ github.workspace }}/packages/zxPluginsInject.dylib
+          key: zxPluginsInject-${{ env.zxPluginsInject_COMMIT_ID }}-cache
+
+      - name: (PATCHED) Cache Theos
+        if: matrix.variant == 'Patched' && steps.zxPluginsInject-cache.outputs.cache-hit != 'true'
         id: ipa-theos-cache
         uses: actions/cache@v5
         with:
@@ -206,32 +222,27 @@ jobs:
 
       - name: (PATCHED) Setup Theos
         uses: actions/checkout@v7
-        if: matrix.variant == 'Patched' && steps.ipa-theos-cache.outputs.cache-hit != 'true'
+        if: matrix.variant == 'Patched' && steps.zxPluginsInject-cache.outputs.cache-hit != 'true' && steps.ipa-theos-cache.outputs.cache-hit != 'true'
         with:
           repository: theos/theos
           path: ${{ github.workspace }}/theos
           submodules: recursive
 
-      - name: (UNPATCHED) Install IPA tools
-        if: matrix.variant == 'Unpatched'
+      - name: Install IPA tools
         run: |
           brew trust aws/tap azure/bicep
-          brew install dpkg
           python3 -m pip install --upgrade --break-system-packages \
               git+https://github.com/asdfzxcvbn/pyzule-rw.git
           ARCH=$(uname -m); [ "$ARCH" = "x86_64" ] && SUFFIX=macos-amd64 || SUFFIX=macos-arm64
 
-      - name: (PATCHED) Install IPA tools
-        if: matrix.variant == 'Patched'
-        run: |
-          brew trust aws/tap azure/bicep
-          brew install dpkg ldid
-          python3 -m pip install --upgrade --break-system-packages \
-              git+https://github.com/asdfzxcvbn/pyzule-rw.git
-          ARCH=$(uname -m); [ "$ARCH" = "x86_64" ] && SUFFIX=macos-amd64 || SUFFIX=macos-arm64
-          sudo curl -fsSL "https://github.com/asdfzxcvbn/ipapatch/releases/latest/download/ipapatch.${SUFFIX}" \
-              -o /usr/local/bin/ipapatch
-          sudo chmod +x /usr/local/bin/ipapatch
+          if [ "${{ matrix.variant }}" = "Patched" ]; then
+            brew install dpkg ldid
+            sudo curl -fsSL "https://github.com/asdfzxcvbn/ipapatch/releases/latest/download/ipapatch.${SUFFIX}" \
+                -o /usr/local/bin/ipapatch
+            sudo chmod +x /usr/local/bin/ipapatch
+          else
+            brew install dpkg
+          fi
 
       - name: Mask decrypted .ipa URL
         uses: levibostian/action-hide-sensitive-inputs@v1 
@@ -250,15 +261,6 @@ jobs:
             echo "::error::Not a valid IPA: $file_type"
             exit 1
           fi
-
-      - name: Download OpenSpotifySafariExtension.appex
-        run: |
-          EXT_DIR="$RUNNER_TEMP/OpenSpotifySafariExtension"
-          rm -rf "$EXT_DIR"
-          git clone --depth 1 https://github.com/BillyCurtis/OpenSpotifySafariExtension.git "$EXT_DIR"
-          EXT_SRC="$EXT_DIR/OpenSpotifySafariExtension.appex"
-          [ -e "$EXT_SRC" ] || { echo "OpenSpotifySafariExtension.appex not found in repo" >&2; exit 1; }
-          echo "OPENSPOTIFY_APPEX=$EXT_SRC" >> $GITHUB_ENV
 
       - name: Identify Spotify version from IPA
         id: SPOTIFY_VERSION
@@ -295,20 +297,6 @@ jobs:
           cyan -i ${{ github.workspace }}/spotify.ipa -o "$OUT" \
                -f "${INJECT[@]}" -c 1 -m 15.0 -du
           echo "OUT_IPA=$OUT" >> $GITHUB_ENV
-
-      - name: (PATCHED) Grab zxPluginsInject.dylib latest commit ID
-        if: matrix.variant == 'Patched'
-        run: |
-          zxPluginsInject_COMMIT=$(git log -1 --format="%h" -- Tools/build-zxpi.sh)
-          echo "zxPluginsInject_COMMIT_ID=$zxPluginsInject_COMMIT" >> $GITHUB_ENV
-
-      - name: (PATCHED) Grab zxPluginsInject.dylib from cache
-        if: matrix.variant == 'Patched'
-        id: zxPluginsInject-cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ github.workspace }}/packages/zxPluginsInject.dylib
-          key: zxPluginsInject-${{ env.zxPluginsInject_COMMIT_ID }}-cache
           
       - name: (PATCHED) Build zxPluginsInject.dylib from source
         if: matrix.variant == 'Patched' && steps.zxPluginsInject-cache.outputs.cache-hit != 'true'
@@ -332,6 +320,11 @@ jobs:
         # and when i heard "help" i interpreted it as "i'll help" and not "claude'll help", but hey it worked ig
       - name: Add Safari Extension & Strip Watch leftovers
         run: |
+          EXT_DIR="$RUNNER_TEMP/OpenSpotifySafariExtension" && rm -rf "$EXT_DIR"
+          git clone --depth 1 https://github.com/BillyCurtis/OpenSpotifySafariExtension.git "$EXT_DIR"
+          EXT_SRC="$EXT_DIR/OpenSpotifySafariExtension.appex"
+          [ -e "$EXT_SRC" ] || { echo "OpenSpotifySafariExtension.appex not found in repo" >&2; exit 1; }
+
           IPA_NAME="$(basename "$OUT_IPA")"
           cd "$(dirname "$OUT_IPA")"
           
@@ -345,7 +338,7 @@ jobs:
           
           STAGE="$RUNNER_TEMP/appex_stage"
           mkdir -p "$STAGE/Payload/Spotify.app/PlugIns"
-          cp -R "$OPENSPOTIFY_APPEX" "$STAGE/Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
+          cp -R "$EXT_SRC" "$STAGE/Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
           
           cd "$STAGE"
           zip -qry "$OLDPWD/$IPA_NAME" "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
