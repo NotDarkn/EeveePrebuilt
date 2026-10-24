@@ -33,10 +33,8 @@ jobs:
       matrix:
         include:
           - scheme: rootless
-            label: rootless
             theos_repository: theos/theos
           - scheme: roothide
-            label: roothide
             theos_repository: roothide/theos
     runs-on: macos-latest
     outputs:
@@ -49,7 +47,6 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ inputs.branch }}
-          fetch-depth: 0
           submodules: recursive
 
         # this grabs the latest commit ID from SideloadLabs's EeveeSpotifyReincarnated repo 
@@ -61,14 +58,13 @@ jobs:
           COMMIT=${COMMIT_FULL:0:7}
           echo "COMMIT_ID=$COMMIT" >> $GITHUB_OUTPUT
           echo "COMMIT_ENV=$COMMIT" >> $GITHUB_ENV
-          echo "THEOS_SCHEME=$THEOS_PACKAGE_SCHEME" >> $GITHUB_ENV
 
       - name: Cache EeveeSpotify deb
         id: deb-eevee-cache
         uses: actions/cache@v5
         with:
-          path: "packages/com.eevee.spotify_${{ env.COMMIT_ENV }}-${{ env.THEOS_SCHEME }}.deb"
-          key: deb-${{ env.COMMIT_ENV }}-${{ env.THEOS_SCHEME }}-cache
+          path: "packages/com.eevee.spotify_${{ env.COMMIT_ENV }}-${{ matrix.scheme }}.deb"
+          key: deb-${{ env.COMMIT_ENV }}-${{ matrix.scheme }}-cache
 
       - name: Setup Xcode
         if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
@@ -83,9 +79,9 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/theos
-          key: theos-cache-${{ env.XCODE_VERSION }}-${{ matrix.label }}
+          key: theos-cache-${{ env.XCODE_VERSION }}-${{ matrix.scheme }}
 
-      - name: Setup ${{ matrix.label }} Theos
+      - name: Setup ${{ matrix.scheme }} Theos
         if: steps.deb-eevee-cache.outputs.cache-hit != 'true' && steps.deb-theos-cache.outputs.cache-hit != 'true'
         uses: actions/checkout@v7
         with:
@@ -114,9 +110,9 @@ jobs:
           # /Users/runner/work/EeveePrebuilt/EeveePrebuilt/theos/lib/iphone/rootless/EeveeSwiftProtobuf.framework
           # env.THEOS is /Users/runner/work/EeveePrebuilt/EeveePrebuilt/theos
           # the rest of the path is just where EeveeSwiftProtobuf.framework is.
-          path: ${{ env.THEOS }}/lib/iphone/${{ env.THEOS_SCHEME }}/EeveeSwiftProtobuf.framework
+          path: ${{ env.THEOS }}/lib/iphone/${{ matrix.scheme }}/EeveeSwiftProtobuf.framework
           # this should end up being like "eeveeswiftprotobuf-1.29.0"
-          key: eeveeswiftprotobuf-${{ env.PROTOBUF_COMMIT_ID }}-${{ env.THEOS_SCHEME }}-cache
+          key: eeveeswiftprotobuf-${{ env.PROTOBUF_COMMIT_ID }}-${{ matrix.scheme }}-cache
 
         # hopefully, this should only run if the above step (cache) doesn't exist
         # update (10/1/2026): u/Apprehensive-Two7029 provided this fix for the EeveeSwiftProtobuf framework being
@@ -131,7 +127,7 @@ jobs:
           make build-eeveeswiftprotobuf
 
           if [ "${{ matrix.scheme }}" = "rootless" ]; then
-            F="${{ env.THEOS }}/lib/iphone/${{ env.THEOS_SCHEME }}/EeveeSwiftProtobuf.framework/EeveeSwiftProtobuf"
+            F="${{ env.THEOS }}/lib/iphone/${{ matrix.scheme }}/EeveeSwiftProtobuf.framework/EeveeSwiftProtobuf"
             lipo -thin arm64 "$F" -output thin && mv thin "$F"
             codesign -f -s - "$F"
           fi
@@ -158,25 +154,15 @@ jobs:
             ${{ env.THEOS }}/vendor/orion/.build
           key: orion_build-cache-${{ env.XCODE_VERSION }}
 
-      # - name: Mask decrypted .ipa URL
-      #   uses: levibostian/action-hide-sensitive-inputs@v1 
-
-      # as much as i don't want it to download the IPA here, it just is what it is
-      # - name: Grab spoti.pw flag table
-      #   if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
-      #   run: |
-      #     wget "${{ inputs.ipa_url }}" --no-verbose -O "$RUNNER_TEMP/flags-ipa"
-      #     python3 Sources/EeveeSpotifyC/SubRepos/spoti.pw/scripts/extract-flags.py "$RUNNER_TEMP/flags-ipa"
-
-      - name: Build .deb (${{ matrix.label }})
+      - name: Build .deb (${{ matrix.scheme }})
         if: steps.deb-eevee-cache.outputs.cache-hit != 'true'
-        run: THEOS_PACKAGE_SCHEME=${{ matrix.scheme }} make package FINALPACKAGE=1
+        run: make package FINALPACKAGE=1
       
       - name: Find .deb artifact
         run: |
           DEB_PATH=$(find packages -name "com.eevee.spotify_*.deb" | head -1)
           [ -n "$DEB_PATH" ] || { echo "deb not produced" >&2; exit 1; }
-          DEB_RENAME="packages/com.eevee.spotify_${COMMIT_ENV}-${THEOS_SCHEME}.deb"
+          DEB_RENAME="packages/com.eevee.spotify_${COMMIT_ENV}-${THEOS_PACKAGE_SCHEME}.deb"
           mv "$DEB_PATH" "$DEB_RENAME"
           echo "DEB_PATH=$DEB_RENAME" >> $GITHUB_ENV
           echo "DEB_NAME=$(basename "$DEB_RENAME")" >> $GITHUB_ENV
@@ -184,7 +170,7 @@ jobs:
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v7
         with:
-          name: com.eevee.spotify_${{ env.COMMIT_ENV }}-${{ env.THEOS_SCHEME }}
+          name: com.eevee.spotify_${{ env.COMMIT_ENV }}-${{ matrix.scheme }}
           path: ${{ env.DEB_PATH }}
           if-no-files-found: error
 
@@ -208,7 +194,6 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ inputs.branch }}
-          fetch-depth: 0
           submodules: recursive
 
       - name: (PATCHED) Cache Theos
@@ -387,55 +372,27 @@ jobs:
       SPOT_VERSION_FULL: ${{ needs.build-ipa.outputs.SPOTIFY_VERSION_FULL }}
       UPDATE_SPOTIFY: ${{ inputs.update_spotify }}
       COMMIT_ID: ${{ needs.build-deb.outputs.COMMIT_ID }}
+    if: ${{ inputs.github_release == true }}
     steps:
       - name: Checkout (for tags)
-        if: ${{ inputs.github_release == true }}
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Download rootless .deb
-        if: ${{ inputs.github_release == true }}
+      - name: Download Workflow Artifacts
         uses: actions/download-artifact@v8
         with:
-          name: com.eevee.spotify_${{ env.COMMIT_ID }}-rootless
-          path: release_files/deb
+          path: release_files
 
-      - name: Download roothide .deb
-        if: ${{ inputs.github_release == true }}
-        uses: actions/download-artifact@v8
-        with:
-          name: com.eevee.spotify_${{ env.COMMIT_ID }}-roothide
-          path: release_files/deb
-
-      - name: Download unpatched IPA
-        if: ${{ inputs.github_release == true }}
-        uses: actions/download-artifact@v8
-        with:
-          name: EeveePrebuilt-Unpatched
-          path: release_files/unpatched
-
-      - name: Download patched IPA
-        if: ${{ inputs.github_release == true }}
-        uses: actions/download-artifact@v8
-        with:
-          name: EeveePrebuilt-Patched
-          path: release_files/patched
-
-      - name: Get previous tag (for description)
-        if: ${{ inputs.github_release == true }}
+      - name: Create Release Changelog
         run: |
-          git fetch --tags
-          PREV_TAG=$(git tag --sort=-creatordate | head -n 1)
-          echo "PREV_TAG=$PREV_TAG" >> $GITHUB_ENV
+          echo "PREV_TAG=$(git tag --sort=-creatordate | head -n 1)" >> $GITHUB_ENV
 
-      - name: Create Spotify version changelog
-        if: ${{ inputs.github_release == true && inputs.update_spotify == true }}
-        run: |
-          echo "SPOTIFY_CHANGELOG=- Updated Spotify to version \`$SPOT_VERSION_FULL\` (*v$SPOT_VERSION*)" >> "$GITHUB_ENV"
+          if [ "$UPDATE_SPOTIFY" = "true" ]; then
+            echo "SPOTIFY_CHANGELOG=- Updated Spotify to version \`$SPOT_VERSION_FULL\` (*v$SPOT_VERSION*)" >> "$GITHUB_ENV"
+          fi
 
       - name: Create GitHub Release
-        if: ${{ inputs.github_release == true }}
         uses: softprops/action-gh-release@v3
         with:
           tag_name: "${{ env.SPOT_VERSION }}-${{ env.COMMIT_ID }}"
@@ -458,7 +415,7 @@ jobs:
             release_files/**/*.ipa
             release_files/**/*.deb
 
-      - name: Cleanup GitHub Artifacts
+      - name: Cleanup Workflow Artifacts
         uses: geekyeggo/delete-artifact@v6
         with:
           name: |
@@ -466,7 +423,6 @@ jobs:
               com.eevee.spotify_*
     
       - name: Update README header information
-        if: ${{ inputs.github_release == true }}
         run: |
           DATE=$(date -u +%m/%d/%y)
           sed -i -E 's|(\*\*Last Update:\*\* `)[^`]*(`)|\1'"$DATE"'\2|' README.md
@@ -475,7 +431,6 @@ jobs:
           fi
 
       - name: Commit changes to README
-        if: ${{ inputs.github_release == true }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
