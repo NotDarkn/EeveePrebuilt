@@ -18,7 +18,7 @@ on:
         required: true
         type: boolean
       update_spotify:
-        description: "Update the Spotify version?"
+        description: "Update the Spotify Version?"
         default: false
         required: true
         type: boolean
