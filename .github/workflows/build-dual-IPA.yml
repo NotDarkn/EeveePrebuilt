@@ -458,14 +458,14 @@ jobs:
             release_files/**/*.ipa
             release_files/**/*.deb
 
-      - name: Cleanup Artifacts
+      - name: Cleanup GitHub Artifacts
         uses: geekyeggo/delete-artifact@v6
         with:
           name: |
               EeveePrebuilt-*
               com.eevee.spotify_*
     
-      - name: Update README date & version
+      - name: Update README header information
         if: ${{ inputs.github_release == true }}
         run: |
           DATE=$(date -u +%m/%d/%y)
@@ -482,7 +482,7 @@ jobs:
           git add README.md
 
           if [ "$UPDATE_SPOTIFY" = "true" ]; then
-            git diff --cached --quiet || git commit -m "chore: update Spotify and last update date"
+            git diff --cached --quiet || git commit -m "chore: update spotify to v${{ env.SPOT_VERSION }}"
           else
             git diff --cached --quiet || git commit -m "chore: update last update date"
           fi
