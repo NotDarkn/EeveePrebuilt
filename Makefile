@@ -18,7 +18,7 @@ $(shell printf 'enum GeneratedConfig {\n    static let repoSlug = "%s"\n    stat
 # Testing parallel threads during compilation
 # This should theoretically reduce the amount of time it takes the workflow to build.
 EeveeSpotify_FILES = $(shell find Sources/EeveeSpotify -name '*.swift') $(shell find Sources/EeveeSpotifyC -name '*.m' -o -name '*.c' -o -name '*.mm' -o -name '*.cpp')
-EeveeSpotify_SWIFTFLAGS = -ISources/EeveeSpotifyC/include -Osize -j4 -enable-batch-mode -num-threads 4
+EeveeSpotify_SWIFTFLAGS = -ISources/EeveeSpotifyC/include -Osize -j4 -num-threads 4
 EeveeSpotify_EXTRA_FRAMEWORKS = EeveeSwiftProtobuf
 EeveeSpotify_CFLAGS = -fobjc-arc -ISources/EeveeSpotifyC/include -Os
 
