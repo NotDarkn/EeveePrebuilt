@@ -29,6 +29,10 @@ else
 EeveeSpotify_LDFLAGS += -lroot
 endif
 
+# Testing parallel threads during compilation
+# This should theoretically reduce the amount of time it takes the workflow to build by about ~80 seconds.
+EeveeSpotify_SWIFTFLAGS += -num-threads 4
+
 # Sideload compatibility (keychain redirect, group containers, CloudKit) is
 # handled out-of-process by modules/zxPluginsInject — LC-injected via ipapatch
 # in build-ipa-local.sh and the GitHub workflow. No flags needed here.
