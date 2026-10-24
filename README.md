@@ -15,7 +15,7 @@ The latest prebuilt binaries can be found [here](https://github.com/NotDarkn/Eev
 
 ## How I Build
 1. Obtain the latest Spotify IPA URL from the [Decrypt IPA Store](https://decrypt.day/home).
-2. Go into "[Actions](https://github.com/NotDarkn/EeveePrebuilt/actions)" → "Create IPA" → Insert the URL<sup>1</sup> → Run the workflow.
+2. Go into [Actions](https://github.com/NotDarkn/EeveePrebuilt/actions) → "Create IPA" → Insert the URL<sup>1</sup> → Run the workflow.
 3. After it finishes, test<sup>2</sup> the IPAs, write changelogs, and publish the GitHub release.
 
 <sup>1. If EeveeSpotifyReincarnated updates but Spotify hasn't, then I **reuse** the Spotify IPA URL from before to build IPAs again.</sup><br />
