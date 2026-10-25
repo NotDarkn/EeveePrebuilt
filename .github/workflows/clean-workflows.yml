@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       runs_older_than:
-        description: "Amount of days old should runs be?"
+        description: "Amount of days old runs can't be?"
         default: "0"
         required: true
       runs_to_keep:
