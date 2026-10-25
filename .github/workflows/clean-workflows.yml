@@ -3,6 +3,20 @@ name: Clean Workflows (SCHEDULED)
 on:
   schedule:
     - cron: "0 12 */3 * *" # Runs every 3 days
+  workflow_dispatch:
+    inputs:
+      runs_older_than:
+        description: "Amount of days old should runs be?"
+        default: "0"
+        required: true
+      runs_to_keep:
+        description: "Amount of recent runs to be kept?"
+        default: "0"
+        required: true
+
+env:
+  SCHEDULED_RUNS_OLDER_THAN: "0"
+  SCHEDULED_RUNS_TO_KEEP: "0"       
 
 permissions:
   actions: write    
@@ -13,5 +27,5 @@ jobs:
     steps:
       - uses: igorjs/gh-actions-clean-workflow@v8
         with:
-          runs_older_than: 0
-          runs_to_keep: 0
+          runs_older_than: ${{ github.event.inputs.runs_older_than || env.SCHEDULED_RUNS_OLDER_THAN }}
+          runs_to_keep: ${{ github.event.inputs.runs_to_keep || env.SCHEDULED_RUNS_TO_KEEP }}
