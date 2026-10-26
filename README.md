@@ -22,24 +22,36 @@ The latest prebuilt binaries can be found [here](https://github.com/NotDarkn/Eev
 <sup>2. These prebuilt binaries are tested using an **iPhone 13 mini** (`27.0.1`) with [**Sideloadly**](https://sideloadly.io) and an **iPad Pro (10.5-inch)** (`17.7.11`) with [**TrollStore Lite**](https://havoc.app/package/trollstorelite).
 
 ## Credits
-**EeveePrebuilt**:
-  - [NotDarkn](https://github.com/NotDarkn) - EeveePrebuilt (_me_)
-  - [estrogencat](https://github.com/estrogencat) - EeveeIPA (_motivator for EeveePrebuilt_)
+<details>
+  <summary>
+    <b>EeveePrebuilt</b>
+  </summary>
 
-**EeveeSpotifyReincarnated**:
-  - [SideloadLabs](https://github.com/SideloadLabs) - EeveeSpotifyReincarnated
-  - [Ryuk](https://github.com/faroukbmiled) - True Shuffle, App Icon, Spotify v9.1.46+ Support
-  - [Mod4](https://github.com/M0d-4) - Custom Lyrics, iPadUI fix
+- [NotDarkn](https://github.com/NotDarkn) - EeveePrebuilt (_me_)
+- [estrogencat](https://github.com/estrogencat) - EeveeIPA (_motivator for EeveePrebuilt_)
+    
+</details>
 
-**EeveeSpotify**:
-  - [whoeevee](https://github.com/whoeevee) - EeveeSpotify & EeveeSpotifyReborn, where all this started
-  - [Skye](https://github.com/Meeep1) - EeveeSpotifyRevivedPublic (_the back bone of EeveeSpotifyReincarnated_)
+<details>
+  <summary>
+    <b>EeveeSpotifyReincarnated</b>
+  </summary>
 
+- [SideloadLabs](https://github.com/SideloadLabs) - EeveeSpotifyReincarnated
+- [Ryuk](https://github.com/faroukbmiled) - True Shuffle, App Icon, Spotify v9.1.46+ Support
+- [Mod4](https://github.com/M0d-4) - Custom Lyrics, iPadUI fix
+    
+</details>
 
+<details>
+  <summary>
+    <b>EeveeSpotify</b>
+  </summary>
 
-
-
-
+- [whoeevee](https://github.com/whoeevee) - EeveeSpotify & EeveeSpotifyReborn, where all this started
+- [Skye](https://github.com/Meeep1) - EeveeSpotifyRevivedPublic (_the back bone of EeveeSpotifyReincarnated_)
+    
+</details>
 
 
 
