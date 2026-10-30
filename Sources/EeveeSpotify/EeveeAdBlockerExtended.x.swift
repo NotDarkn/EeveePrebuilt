@@ -25,6 +25,7 @@ struct SponsoredCtxAttachmentGroup: HookGroup {}
 struct ScrollFeedAdViewGroup: HookGroup {}
 struct ScrollFeedAdServiceGroup: HookGroup {}
 struct ScrollFeedAdControllerGroup: HookGroup {}
+struct CoreURLSessionAdsGroup: HookGroup {}
 
 private let killAdsServiceImpl         = true
 private let killInStreamAdsService     = true
@@ -332,6 +333,39 @@ class DSAMainViewKill: ClassHook<NSObject> {
     }
 }
 
+// In-stream audio ads (#198, #212). The player core does its HTTP through its
+// own URLSession delegate, SPTCoreURLSessionDataDelegate, not through
+// SPTDataLoaderService or HttpClientURLSession, so the /ads/ and /ad-logic/
+// blocks in SpotifyResponsePatcher never see the core's ad-break requests
+// (ads/v3/ads, ad-logic/prefetch, ad-logic/v3/config, ...). Cancelling at the
+// response makes the core treat the ad fetch as failed and skip the break.
+// Matched narrowly on purpose: everything else the core fetches stays intact.
+private func isCoreAdRequest(_ url: URL) -> Bool {
+    let host = (url.host ?? "").lowercased()
+    guard host.contains("spotify") || host.contains("spclient") else { return false }
+    let path = url.path.lowercased()
+    return path.contains("/ads/") || path.hasSuffix("/ads") || path.contains("/ad-logic/")
+}
+
+class CoreURLSessionAdsKill: ClassHook<NSObject> {
+    typealias Group = CoreURLSessionAdsGroup
+    static let targetName = "SPTCoreURLSessionDataDelegate"
+
+    func URLSession(
+        _ session: URLSession,
+        dataTask task: URLSessionDataTask,
+        didReceiveResponse response: URLResponse,
+        completionHandler handler: @escaping (URLSession.ResponseDisposition) -> Void
+    ) {
+        if let url = task.currentRequest?.url ?? task.originalRequest?.url, isCoreAdRequest(url) {
+            adlog("core request \(url.host ?? "?")\(url.path)")
+            handler(.cancel)
+            return
+        }
+        orig.URLSession(session, dataTask: task, didReceiveResponse: response, completionHandler: handler)
+    }
+}
+
 func activateEeveeAdBlockerExtended() {
     let loadSelector = Selector(("load"))
     let initSelector = Selector(("init"))
@@ -435,5 +469,15 @@ func activateEeveeAdBlockerExtended() {
         ablog("DSAMainView unavailable; skipping")
     }
 
-    ablog("activated \(activated)/\(loadTargets.count + 7) compatible extended hooks")
+    let responseSelector = Selector(("URLSession:dataTask:didReceiveResponse:completionHandler:"))
+    if let cls = findTweakClass(CoreURLSessionAdsKill.targetName),
+       class_getInstanceMethod(cls, responseSelector) != nil {
+        CoreURLSessionAdsGroup().activate()
+        activated += 1
+        ablog("SPTCoreURLSessionDataDelegate ad-request block activated")
+    } else {
+        ablog("SPTCoreURLSessionDataDelegate unavailable; skipping")
+    }
+
+    ablog("activated \(activated)/\(loadTargets.count + 8) compatible extended hooks")
 }
