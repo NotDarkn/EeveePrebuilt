@@ -4,7 +4,7 @@
 
 ---
 **Developer:** [**@SideloadLabs**](https://github.com/SideloadLabs) - **Uploader:** [**NotDarkn**](https://github.com/notdarkn) <br />
-**Last Update:** `11/11/26` (MM/DD/YY) - **Spotify Version:** `9.1.94.1928`
+**Last Update:** `11/14/26` (MM/DD/YY) - **Spotify Version:** `9.2.0.2054`
 
 This repository serves to provide prebuilt IPAs of [EeveeSpotifyReincarnated](https://github.com/SideloadLabs/EeveeSpotifyReincarnated) while staying as updated as possible with both the tweak and Spotify. Originally made for myself, but now for everyone else too.
 
