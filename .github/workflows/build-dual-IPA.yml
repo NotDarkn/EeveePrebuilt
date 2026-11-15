@@ -297,6 +297,7 @@ jobs:
           cyan -i ${{ github.workspace }}/spotify.ipa -o "$OUT" \
                -f "${INJECT[@]}" -c 1 -m 15.0 -du
           echo "OUT_IPA=$OUT" >> $GITHUB_ENV
+          echo "DYLIB_SRC=$DYLIB_SRC" >> $GITHUB_ENV
           
       - name: (PATCHED) Build zxPluginsInject.dylib from source
         if: matrix.variant == 'Patched' && steps.zxPluginsInject-cache.outputs.cache-hit != 'true'
@@ -309,6 +310,23 @@ jobs:
         run: |
           ipapatch --input "$OUT_IPA" --inplace --noconfirm \
                    --dylib packages/zxPluginsInject.dylib
+
+      - name: Add Pixie download manager (Spotify 9.2.0+)
+        run: |
+          if [ "$SPOT_VERSION_SHORT" != "9.2.0" ]; then
+            echo "::warning::Pixie download manager supports Spotify 9.2.0 only (this IPA is $SPOT_VERSION_SHORT); skipping."
+            exit 0
+          fi
+          python3 NativeDownloads/tools/validate_eevee_9192.py
+          EEVEE_DYLIB=$DYLIB_SRC
+          PIXIE_OUT="$RUNNER_TEMP/pixie/$(basename "$OUT_IPA")"
+          mkdir -p "$(dirname "$PIXIE_OUT")"
+          python3 NativeDownloads/tools/build_eevee_9192.py "$OUT_IPA" \
+              --eevee-dylib "$EEVEE_DYLIB" --output "$PIXIE_OUT" > "$RUNNER_TEMP/pixie-report.json"
+          mv -f "$PIXIE_OUT" "$OUT_IPA"
+          unzip -l "$OUT_IPA" | grep SpotifyAudioProbe.dylib \
+              || { echo "::error::SpotifyAudioProbe.dylib missing from IPA"; exit 1; }
+          echo "Pixie companion bundled: Payload/Spotify.app/Frameworks/SpotifyAudioProbe.dylib"
 
       - name: (UNPATCHED) Strip incompatible bundles
         if: matrix.variant == 'Unpatched'
