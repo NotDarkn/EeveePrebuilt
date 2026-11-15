@@ -3,6 +3,8 @@
   <img src="https://github.com/NotDarkn/EeveePrebuilt/blob/Master/Images/banner2.png" alt="EeveePrebuilt Banner" width="auto" height="auto">
 </a>
 
+---
+
 ![Banner](Images/banner.png?)
 
 # EeveeSpotifyReincarnated
