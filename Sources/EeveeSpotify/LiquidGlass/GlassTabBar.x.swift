@@ -1,3 +1,4 @@
+import Darwin
 import EeveeSpotifyC
 import Orion
 import UIKit
@@ -43,6 +44,9 @@ enum GlassTabBar {
     private static weak var row: UIStackView?
     private static weak var platterView: UIView?
     private static var retries = 0
+    private static var waitRetries = 0
+    private static var waitScheduled = false
+    private static var revealedWhileInactive = false
     private static var launchTabApplied = false
     private static var filmKey: UInt8 = 0
     private static var platterLogged = false
@@ -61,17 +65,42 @@ enum GlassTabBar {
         activateGlassCustomTabs()
         if let stock { sync(stock) }
     }
+    // A cold launch can lay the stock bar out before its tabs exist, and sometimes nothing lays it out
+    // again until the app is backgrounded and reopened. Becoming active is what used to rescue the bar,
+    // so sync here as well and rebuild once if the first reveal happened before the scene was active.
+    private static let activationObserver = NotificationCenter.default.addObserver(
+        forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main
+    ) { _ in
+        guard let stock else { return }
+        waitRetries = 0
+        waitScheduled = false
+        if revealedWhileInactive,
+           let bar = objc_getAssociatedObject(stock, &barKey) as? GlassSystemTabBar, !bar.isHidden {
+            revealedWhileInactive = false
+            rebuild(bar)
+            eeveeLog("[EeveeSpotify][Glass] Tab bar rebuilt after activation")
+        }
+        sync(stock)
+    }
 
     static func sync(_ stock: UIView) {
         _ = observer
         _ = tintObserver
+        _ = activationObserver
         self.stock = stock
         let bar = systemBar(on: stock)
-        guard let row = tabRow(in: stock) else { return }
+        guard let row = tabRow(in: stock) else {
+            waitForTabs(stock)
+            return
+        }
         row.superview?.layoutIfNeeded()
 
         let tabs = row.arrangedSubviews.filter { !$0.isHidden && $0.bounds.width >= 20 }
-        guard !tabs.isEmpty else { return }
+        guard !tabs.isEmpty else {
+            waitForTabs(stock)
+            return
+        }
+        waitRetries = 0
         let labels = Dictionary(tabs.map { (ObjectIdentifier($0), label(in: $0)) }) { first, _ in first }
         func labelOf(_ tab: UIView) -> UILabel? { labels[ObjectIdentifier(tab)] ?? nil }
         func title(_ tab: UIView) -> String? { labelOf(tab)?.text }
@@ -143,21 +172,48 @@ enum GlassTabBar {
     // Spotify's own bar stays up until ours has every icon, so launch never shows an empty glass bar.
     private static func reveal(_ bar: GlassSystemTabBar, over stock: UIView, ready: Bool) {
         guard ready else { return }
-        for sub in stock.subviews where sub !== bar && sub.alpha != 0 {
-            sub.alpha = 0
-            sub.isUserInteractionEnabled = false
+        if bar.isHidden {
+            for sub in stock.subviews where sub !== bar && sub.alpha != 0 {
+                sub.alpha = 0
+                sub.isUserInteractionEnabled = false
+            }
+            bar.alpha = 0
+            bar.isHidden = false
+            rebuild(bar)
+            UIView.animate(withDuration: 0.2) { bar.alpha = 1 }
+            eeveeLog("[EeveeSpotify][Glass] Tab bar revealed after %d retries", retries)
         }
-        guard bar.isHidden else { return }
-        bar.alpha = 0
-        bar.isHidden = false
-        // Items laid out while hidden keep squashed labels, so they're rebuilt once visible.
+        // Revealing before the scene is active can leave the glass platter blank until another layout
+        // pass, which is why switching apps used to bring the bar back.
+        if stock.window?.windowScene?.activationState != .foregroundActive {
+            revealedWhileInactive = true
+        }
+    }
+
+    // Items laid out while hidden (or before the scene is active) keep squashed or blank labels, so
+    // they are rebuilt once the bar is on screen.
+    private static func rebuild(_ bar: GlassSystemTabBar) {
         let selected = bar.selectedItem.flatMap { bar.items?.firstIndex(of: $0) }
         let fresh = (bar.items ?? []).map { UITabBarItem(title: $0.title, image: $0.image, selectedImage: $0.selectedImage) }
         bar.setItems(fresh, animated: false)
         if let selected, selected < fresh.count { bar.selectedItem = fresh[selected] }
+        bar.setNeedsLayout()
         bar.layoutIfNeeded()
-        UIView.animate(withDuration: 0.2) { bar.alpha = 1 }
-        eeveeLog("[EeveeSpotify][Glass] Tab bar revealed after %d retries", retries)
+    }
+
+    // A cold launch can run layout before Spotify adds or unhides its tab items, and no later layout
+    // pass is guaranteed. Poll briefly while the glass bar is still hidden; once it is revealed the
+    // normal layout/tap/foreground paths keep it in sync.
+    private static func waitForTabs(_ stock: UIView) {
+        guard !waitScheduled, waitRetries < 60,
+              let bar = objc_getAssociatedObject(stock, &barKey) as? GlassSystemTabBar, bar.isHidden else { return }
+        waitScheduled = true
+        waitRetries += 1
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak stock] in
+            waitScheduled = false
+            guard let stock else { return }
+            sync(stock)
+        }
     }
 
     private static func applyTint(_ bar: GlassSystemTabBar) {
@@ -218,12 +274,24 @@ enum GlassTabBar {
     // Spotify lays its iPad tab bar out as a short full-width strip, well under the height a tab bar
     // needs for an icon plus a label. Inheriting that height squashes the items, so the glass bar gets
     // a floor of its own and is centred on Spotify's strip to keep the row where it was.
-    private static let minimumBarHeight: CGFloat = 50
+    // A bare 49pt strip is not enough on iOS 26: the glass platter is 62pt and squeezes its
+    // labels into whatever height it is given. Grow upward instead of centring so banners that
+    // shrink the strip (offline/data-saver) cannot cover the labels.
+    private static let minimumBarHeight: CGFloat = 62
+
+    // How much taller the glass bar had to grow than Spotify's current strip, so the now-playing
+    // bar can move up by the same amount and keep its usual gap above the tab bar.
+    static var extraHeight: CGFloat {
+        guard let stock else { return 0 }
+        let bounds = stock.bounds
+        guard bounds.height > 0, bounds.height < minimumBarHeight else { return 0 }
+        return minimumBarHeight - bounds.height
+    }
 
     private static func barFrame(in stock: UIView) -> CGRect {
         let bounds = stock.bounds
         guard bounds.height > 0, bounds.height < minimumBarHeight else { return bounds }
-        return CGRect(x: bounds.minX, y: bounds.midY - minimumBarHeight / 2,
+        return CGRect(x: bounds.minX, y: bounds.maxY - minimumBarHeight,
                       width: bounds.width, height: minimumBarHeight)
     }
 
@@ -238,6 +306,9 @@ enum GlassTabBar {
         // The bar is a touch taller than Spotify's strip on iPad, so it must not be clipped away.
         stock.clipsToBounds = false
         retries = 0
+        waitRetries = 0
+        waitScheduled = false
+        revealedWhileInactive = false
         objc_setAssociatedObject(stock, &barKey, bar, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         stock.addSubview(bar)
         return bar
@@ -329,7 +400,8 @@ enum CustomTabs {
     private(set) static var selectedKey: String?
     private static weak var page: UIViewController?
     private static var watch: Timer?
-    private static let navigate = NSSelectorFromString("navigateToURI:options:interactionID:")
+    private static let navigateShort = NSSelectorFromString("navigateToURI:options:interactionID:")
+    private static let navigateFull = NSSelectorFromString("navigateToURI:options:reason:completionHandler:resultHandler:")
 
     // Spotify's own link dispatcher keeps the URI in-app; the system route would ask to open the other Spotify install.
     static func open(_ tab: CustomTab) {
@@ -337,12 +409,41 @@ enum CustomTabs {
             eeveeLog("[EeveeSpotify][CustomTabs] '%@' has an invalid URI %@", tab.title, tab.uri)
             return
         }
-        guard let dispatcher, dispatcher.responds(to: navigate) else {
+        guard let dispatcher else {
             eeveeLog("[EeveeSpotify][CustomTabs] '%@' not opened: link dispatcher not captured yet", tab.title)
             return
         }
-        typealias Navigate = @convention(c) (NSObject, Selector, NSURL, Int64, AnyObject?) -> Void
-        unsafeBitCast(dispatcher.method(for: navigate), to: Navigate.self)(dispatcher, navigate, url as NSURL, 0, nil)
+        if dispatcher.responds(to: navigateShort) {
+            typealias Navigate = @convention(c) (NSObject, Selector, NSURL, Int64, AnyObject?) -> Void
+            unsafeBitCast(dispatcher.method(for: navigateShort), to: Navigate.self)(dispatcher, navigateShort, url as NSURL, 0, nil)
+        } else if dispatcher.responds(to: navigateFull) {
+            let reason: AnyObject? = {
+                guard let reasonClass = NSClassFromString("SPTUBINavigationReason") else { return nil }
+                let allocSel = NSSelectorFromString("alloc")
+                let initSel = NSSelectorFromString("initWithSourceApplication:interactionID:")
+                guard reasonClass.responds(to: allocSel), reasonClass.instancesRespond(to: initSel) else { return nil }
+                guard let msgSend = dlsym(dlopen(nil, RTLD_LAZY), "objc_msgSend") else { return nil }
+                typealias AllocFn = @convention(c) (AnyClass, Selector) -> Unmanaged<AnyObject>
+                let allocFn = unsafeBitCast(msgSend, to: AllocFn.self)
+                let raw = allocFn(reasonClass, allocSel)
+                typealias InitFn = @convention(c) (Unmanaged<AnyObject>, Selector, AnyObject?, AnyObject?) -> Unmanaged<AnyObject>?
+                let initFn = unsafeBitCast(msgSend, to: InitFn.self)
+                guard let result = initFn(raw, initSel, nil, nil) else {
+                    raw.release()
+                    return nil
+                }
+                return result.takeRetainedValue()
+            }()
+            guard let reason else {
+                eeveeLog("[EeveeSpotify][CustomTabs] '%@' not opened: navigation reason could not be created", tab.title)
+                return
+            }
+            typealias Navigate = @convention(c) (NSObject, Selector, NSURL, Int64, AnyObject?, AnyObject?, AnyObject?) -> Void
+            unsafeBitCast(dispatcher.method(for: navigateFull), to: Navigate.self)(dispatcher, navigateFull, url as NSURL, 0, reason, nil, nil)
+        } else {
+            eeveeLog("[EeveeSpotify][CustomTabs] '%@' not opened: link dispatcher has no known navigation method", tab.title)
+            return
+        }
         select(tab)
     }
 
@@ -409,6 +510,11 @@ class LinkDispatcherHook: ClassHook<NSObject> {
     func navigateToURI(_ uri: NSURL, options: Int64, interactionID: AnyObject?) {
         CustomTabs.capture(target, "navigation")
         orig.navigateToURI(uri, options: options, interactionID: interactionID)
+    }
+
+    func navigateToURI(_ uri: NSURL, options: Int64, reason: AnyObject?, completionHandler: AnyObject?, resultHandler: AnyObject?) {
+        CustomTabs.capture(target, "navigation")
+        orig.navigateToURI(uri, options: options, reason: reason, completionHandler: completionHandler, resultHandler: resultHandler)
     }
 }
 
