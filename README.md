@@ -38,8 +38,12 @@ The latest prebuilt binaries can be found [here](https://github.com/NotDarkn/Eev
   </summary>
 
 - [SideloadLabs](https://github.com/SideloadLabs) - EeveeSpotifyReincarnated
-- [Ryuk](https://github.com/faroukbmiled) - True Shuffle, App Icon, Spotify v9.1.46+ Support
-- [Mod4](https://github.com/M0d-4) - Custom Lyrics, iPadUI fix
+  - [jaydenjcpy](https://github.com/jaydenjcpy) - Creator of EeveeSpotifyReincarnated
+  - [Ryuk](https://github.com/faroukbmiled) - True Shuffle, App Icon, Spotify v9.1.46+ Support
+  - [Mod4](https://github.com/M0d-4) - Custom Lyrics, iPadUI fix
+- [estrogencat](https://github.com/estrogencat) - Icon Fixes
+- [Spikerko](https://github.com/Spikerko) - SpicyLyrics
+- [Glongq](https://github.com/Glongq) - Pixie Download Manager
     
 </details>
 
