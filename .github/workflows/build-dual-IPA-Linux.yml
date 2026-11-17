@@ -7,19 +7,6 @@ on:
         description: "Branch to build from"
         default: "Master"
         required: true
-        type: string 
-      runner:
-        description: "Runner to use (macos or linux)"
-        default: macos
-        required: true
-        type: choice
-        options:
-          - macos
-          - linux
-      source_repository:
-        description: "Source repo (blank = this repo); set to NotDarkn/EeveePrebuilt when testing a fork"
-        default: ""
-        required: false
         type: string
       ipa_url:
         description: "URL to a decrypted Spotify IPA"
@@ -35,15 +22,8 @@ on:
         default: false
         required: true
         type: boolean
-      pixie:
-        description: "Add Pixie companion (9.2.0 IPA, both runners)"
-        default: true
-        required: true
-        type: boolean
 
 env:
-  SWIFTPROTOBUF_VERSION: "1.29.0"
-  XCODE_VERSION: "latest-stable"
   THEOS_SWIFT_TOOLCHAIN_VERSION: "6.3.2"
   IOS_SDK_VERSION: "26.5"
   PROTOBUF_RELEASE_TAG: "9.2.0-871a70e"
@@ -58,7 +38,7 @@ jobs:
             theos_repository: theos/theos
           - scheme: roothide
             theos_repository: roothide/theos
-    runs-on: ${{ inputs.runner == 'linux' && 'ubuntu-24.04' || 'macos-latest' }}
+    runs-on: ubuntu-24.04
     outputs:
       COMMIT_ID: ${{ steps.SETUP_COMMIT_ID.outputs.COMMIT_ID }}
     env:
@@ -68,22 +48,18 @@ jobs:
       - name: Checkout EeveePrebuilt
         uses: actions/checkout@v7
         with:
-          repository: ${{ inputs.source_repository || github.repository }}
           ref: ${{ inputs.branch }}
           fetch-depth: 0
           submodules: recursive
 
-        # this grabs the latest commit ID from SideloadLabs's EeveeSpotifyReincarnated repo 
-        # then it's cut down to the first 7 characters for the shortened commit ID that is used for naming files
+        # The checked-out source commit is used for Linux artifact naming.
 
-      - name: (LINUX) Compute deb cache key
-        if: inputs.runner == 'linux'
+      - name: Compute deb cache key
         run: |
           # make writes a generated file into Sources/, so hash before the build
           echo "DEB_CACHE_KEY=deb-${{ hashFiles('Makefile') }}-${{ hashFiles('Sources/**') }}-swift${{ env.THEOS_SWIFT_TOOLCHAIN_VERSION }}-ios${{ env.IOS_SDK_VERSION }}-${{ matrix.scheme }}" >> "$GITHUB_ENV"
 
-      - name: (LINUX) Cache EeveeSpotify deb
-        if: inputs.runner == 'linux'
+      - name: Cache EeveeSpotify deb
         id: deb-eevee-cache-linux
         uses: actions/cache/restore@v5
         with:
@@ -95,27 +71,13 @@ jobs:
       - name: Setup Commit ID
         id: SETUP_COMMIT_ID
         run: |
-          # on Linux the checkout itself is the source tree; on macOS the
-          # version comes from the upstream repo for release naming
-          if [ "${{ inputs.runner }}" = "linux" ]; then
-            COMMIT_FULL=$(git rev-parse HEAD)
-          else
-            COMMIT_FULL=$(git ls-remote https://github.com/SideloadLabs/EeveeSpotifyReincarnated.git ${{ inputs.branch }} | cut -f1)
-          fi
+          COMMIT_FULL=$(git rev-parse HEAD)
           COMMIT=${COMMIT_FULL:0:7}
-          echo "COMMIT_ID=$COMMIT" >> $GITHUB_OUTPUT
-          echo "COMMIT_ENV=$COMMIT" >> $GITHUB_ENV
+          echo "COMMIT_ID=$COMMIT" >> "$GITHUB_OUTPUT"
+          echo "COMMIT_ENV=$COMMIT" >> "$GITHUB_ENV"
 
-      - name: Cache EeveeSpotify deb
-        if: inputs.runner == 'macos'
-        id: deb-eevee-cache
-        uses: actions/cache@v5
-        with:
-          path: "packages/com.eevee.spotify_${{ env.COMMIT_ENV }}-${{ matrix.scheme }}.deb"
-          key: deb-${{ env.COMMIT_ENV }}-${{ matrix.scheme }}-cache
-
-      - name: (LINUX) Free disk space if low
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Free disk space if low
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         run: |
           df -h /
           avail=$(df -Pk / | awk 'NR==2 {print $4}')
@@ -134,22 +96,22 @@ jobs:
             echo "plenty of space, skipping cleanup"
           fi
 
-      - name: (LINUX) Setup ${{ matrix.scheme }} Theos
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Setup ${{ matrix.scheme }} Theos
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         uses: actions/checkout@v7
         with:
           repository: ${{ matrix.theos_repository }}
           path: ${{ github.workspace }}/theos
           submodules: recursive
 
-      - name: (LINUX) Install Linux build tools
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Install Linux build tools
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential dpkg-dev fakeroot llvm make rsync zip
 
-      - name: (LINUX) Install Linux Theos toolchain
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Install Linux Theos toolchain
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         env:
           # keeps the SDK installer off the anonymous API rate limit
           GITHUB_TOKEN: ${{ github.token }}
@@ -158,16 +120,16 @@ jobs:
           # skip Theos's Swift 5.8; we build 6.3.2 below
           printf 'n\n' | env -u CI bash "$RUNNER_TEMP/install-theos"
 
-      - name: (LINUX) Restore iOS SDK cache
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Restore iOS SDK cache
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         id: ios-sdk-cache
         uses: actions/cache/restore@v5
         with:
           path: ${{ env.THEOS }}/sdks/iPhoneOS${{ env.IOS_SDK_VERSION }}.sdk
           key: ios-sdk-${{ env.IOS_SDK_VERSION }}-source-1b92ff4
 
-      - name: (LINUX) Download iOS SDK source
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true' && steps.ios-sdk-cache.outputs.cache-hit != 'true')
+      - name: Download iOS SDK source
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true' && steps.ios-sdk-cache.outputs.cache-hit != 'true'
         uses: actions/checkout@v7
         with:
           repository: xybp888/iOS-SDKs
@@ -175,37 +137,36 @@ jobs:
           path: ios-sdk-source
           sparse-checkout: iPhoneOS26.5.sdk
 
-      - name: (LINUX) Install iOS 26.5 SDK
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true' && steps.ios-sdk-cache.outputs.cache-hit != 'true')
+      - name: Install iOS 26.5 SDK
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true' && steps.ios-sdk-cache.outputs.cache-hit != 'true'
         run: |
           cp -a ios-sdk-source/iPhoneOS26.5.sdk "$THEOS/sdks/"
           test -f "$THEOS/sdks/iPhoneOS26.5.sdk/SDKSettings.json"
 
-      - name: (LINUX) Save iOS SDK cache
-        if: inputs.runner == 'linux' && (steps.ios-sdk-cache.outputs.cache-hit != 'true' && steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Save iOS SDK cache
+        if: steps.ios-sdk-cache.outputs.cache-hit != 'true' && steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ${{ env.THEOS }}/sdks/iPhoneOS${{ env.IOS_SDK_VERSION }}.sdk
           key: ios-sdk-${{ env.IOS_SDK_VERSION }}-source-1b92ff4
 
-      - name: (LINUX) Restore Swift toolchain downloads
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Restore Swift toolchain downloads
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         id: swift-downloads-cache
         uses: actions/cache/restore@v5
         with:
-          # macOS pkg isn't cached (deleted on extraction). Keep the archives
-          # out of the checkout, since the builder gets cloned into it.
+          # Cache toolchain archives outside the checkout: the builder is cloned there.
           path: |
             ${{ runner.temp }}/swift-toolchain-archives/*.tar.gz
           key: swift-toolchain-downloads-${{ env.THEOS_SWIFT_TOOLCHAIN_VERSION }}-ubuntu24.04
 
-      - name: (LINUX) Checkout Swift toolchain builder
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Checkout Swift toolchain builder
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         run: git clone --depth 1 https://github.com/kabiroberai/swift-toolchain-linux.git "$RUNNER_TEMP/swift-toolchain-linux"
 
-      - name: (LINUX) Build matching Linux Swift toolchain
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Build matching Linux Swift toolchain
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         id: swift-toolchain-build
         run: |
           sudo apt-get install -y libarchive-tools libtinfo6 xz-utils
@@ -263,8 +224,8 @@ jobs:
           ln -sfn linux/iphone "$THEOS/toolchain/swift"
           df -h /
 
-      - name: (LINUX) Save Swift toolchain downloads
-        if: inputs.runner == 'linux' && (steps.swift-downloads-cache.outputs.cache-hit != 'true')
+      - name: Save Swift toolchain downloads
+        if: steps.swift-downloads-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v5
         continue-on-error: true
         with:
@@ -272,24 +233,24 @@ jobs:
             ${{ runner.temp }}/swift-toolchain-archives/*.tar.gz
           key: swift-toolchain-downloads-${{ env.THEOS_SWIFT_TOOLCHAIN_VERSION }}-ubuntu24.04
 
-      - name: (LINUX) Free the toolchain archives
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Free the toolchain archives
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         run: |
           rm -f "$RUNNER_TEMP"/swift-toolchain-archives/*.tar.gz \
                 "$RUNNER_TEMP"/swift-toolchain-linux/toolchains/*.tar.gz \
                 "$RUNNER_TEMP"/swift-toolchain-linux/toolchains/*.pkg
           df -h /
 
-      - name: (LINUX) Save cross toolchain for the IPA job
-        if: inputs.runner == 'linux' && (inputs.pixie == true && matrix.scheme == 'rootless' && steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Save cross toolchain for the IPA job
+        if: matrix.scheme == 'rootless' && steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ${{ env.THEOS }}/toolchain/linux
           key: cross-toolchain-linux-${{ env.THEOS_SWIFT_TOOLCHAIN_VERSION }}-${{ env.IOS_SDK_VERSION }}
 
-      - name: (LINUX) Configure Linux tool paths
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Configure Linux tool paths
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         run: |
           echo "$THEOS/toolchain/swift/bin" >> "$GITHUB_PATH"
           echo "$THEOS/toolchain/linux/iphone/bin" >> "$GITHUB_PATH"
@@ -315,8 +276,8 @@ jobs:
           echo "--- SDK swift stub dir"
           ls "$SDK/usr/lib/swift" | head -5 || true
 
-      - name: (LINUX) Use on-device Metal shader
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Use on-device Metal shader
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         run: |
           # append the embedded shader source, then patch only the metallib-loading
           # block in the upstream renderer. keep the rest of the file untouched.
@@ -372,8 +333,8 @@ jobs:
           PY
           grep -n 'makeLibrary(source: KaraokeBackgroundShader.source' Sources/EeveeSpotify/Karaoke/KaraokeMetalBackgroundView.swift
 
-      - name: (LINUX) Skip Xcode-only Metal build step
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Skip unavailable Metal compiler step
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         run: |
           # current upstream's Makefile compiles the karaoke shader with
           # Xcode's metal/metallib during the build. Linux has neither. the
@@ -399,8 +360,8 @@ jobs:
           PY
           grep -n 'xcrun -sdk iphoneos metal' Makefile || true
 
-      - name: (LINUX) Add macOS tool shims
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Provide xcrun compatibility shim
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         run: |
           SDK="$THEOS/sdks/iPhoneOS${IOS_SDK_VERSION}.sdk"
           mkdir -p "$RUNNER_TEMP/shims"
@@ -421,50 +382,14 @@ jobs:
           PATH="$RUNNER_TEMP/shims:$PATH"
           xcrun --sdk iphoneos --show-sdk-path
 
-      - name: (LINUX) Verify Theos toolchain
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Verify Theos toolchain
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         run: |
           test -x "$THEOS/toolchain/linux/iphone/bin/swiftc"
           test -f "$THEOS/sdks/iPhoneOS${IOS_SDK_VERSION}.sdk/SDKSettings.json"
 
-      - name: (LINUX) Setup Xcode
-        if: inputs.runner == 'macos' && (steps.deb-eevee-cache.outputs.cache-hit != 'true')
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: ${{ env.XCODE_VERSION }}
-
-        # saves roughly 5 to 8 seconds when caching theos :)
-      - name: Cache Theos
-        if: inputs.runner == 'macos' && (steps.deb-eevee-cache.outputs.cache-hit != 'true')
-        id: deb-theos-cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ github.workspace }}/theos
-          key: theos-cache-${{ env.XCODE_VERSION }}-${{ matrix.scheme }}
-
-      - name: Setup ${{ matrix.scheme }} Theos
-        if: inputs.runner == 'macos' && (steps.deb-eevee-cache.outputs.cache-hit != 'true' && steps.deb-theos-cache.outputs.cache-hit != 'true')
-        uses: actions/checkout@v7
-        with:
-          repository: ${{ matrix.theos_repository }}
-          path: ${{ github.workspace }}/theos
-          submodules: recursive
-
-      - name: Install deb build tools
-        if: inputs.runner == 'macos' && (steps.deb-eevee-cache.outputs.cache-hit != 'true')
-        run: |
-          brew trust aws/tap azure/bicep
-          brew install make dpkg ldid
-          echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
-
-      - name: Grab EeveeSwiftProtobuf.framework latest commit ID
-        if: inputs.runner == 'macos' && (steps.deb-eevee-cache.outputs.cache-hit != 'true')
-        run: |
-          PROTOBUF_COMMIT=$(git log -1 --format="%h" -- Tools/SwiftProtobufBuild/build-eeveeswiftprotobuf.sh)
-          echo "PROTOBUF_COMMIT_ID=$PROTOBUF_COMMIT" >> $GITHUB_ENV
-
-      - name: (LINUX) Use latest macOS-built release for the framework
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Find published EeveeSwiftProtobuf framework
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -496,14 +421,11 @@ jobs:
               out.write("PROTOBUF_RELEASE_COMMIT=%s\n" % commit)
           PY
 
-      - name: (LINUX) Grab EeveeSwiftProtobuf.framework from cache (Linux)
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+      - name: Grab EeveeSwiftProtobuf.framework from cache
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         id: protobuf-cache-linux
         uses: actions/cache/restore@v5
         with:
-          # /Users/runner/work/EeveePrebuilt/EeveePrebuilt/theos/lib/iphone/rootless/EeveeSwiftProtobuf.framework
-          # env.THEOS is /Users/runner/work/EeveePrebuilt/EeveePrebuilt/theos
-          # the rest of the path is just where EeveeSwiftProtobuf.framework is.
           path: ${{ env.THEOS }}/lib/iphone/${{ matrix.scheme }}/EeveeSwiftProtobuf.framework
           # this should end up being like "eeveeswiftprotobuf-1.29.0"
           key: eeveeswiftprotobuf-${{ env.PROTOBUF_RELEASE_COMMIT }}-swift${{ env.THEOS_SWIFT_TOOLCHAIN_VERSION }}-ios${{ env.IOS_SDK_VERSION }}-${{ matrix.scheme }}-cache
@@ -513,9 +435,9 @@ jobs:
         # broken when sideloading with Sideloadly. even though this became an issue with v0.70.0, there is still
         # a fix that can be made with the way this framework is built to resolve that Sideloadly issue.
         # source: https://www.reddit.com/r/sideloadly/comments/1wupno3/comment/pd5xvn9
-      - name: (LINUX) Get EeveeSwiftProtobuf.framework from a published .deb
+      - name: Get EeveeSwiftProtobuf.framework from a published .deb
         id: build-protobuf
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true' && steps.protobuf-cache-linux.outputs.cache-hit != 'true')
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true' && steps.protobuf-cache-linux.outputs.cache-hit != 'true'
         run: |
           # building this framework from source needs Xcode's Swift. use the
           # one from the project's own published .deb instead - same binary
@@ -543,7 +465,7 @@ jobs:
           rm -rf "$DEB" "$OUT"
 
       - name: Save completed SwiftProtobuf cache
-        if: inputs.runner == 'linux' && (steps.build-protobuf.outcome == 'success' && steps.protobuf-cache-linux.outputs.cache-hit != 'true')
+        if: steps.build-protobuf.outcome == 'success' && steps.protobuf-cache-linux.outputs.cache-hit != 'true'
         uses: actions/cache/save@v5
         continue-on-error: true
         with:
@@ -551,20 +473,20 @@ jobs:
           key: eeveeswiftprotobuf-${{ env.PROTOBUF_RELEASE_COMMIT }}-swift${{ env.THEOS_SWIFT_TOOLCHAIN_VERSION }}-ios${{ env.IOS_SDK_VERSION }}-${{ matrix.scheme }}-cache
 
         # this should save another like 10 to 15s as it'll already have Swift Support Tools built
-      - name: Grab Swift Support Tools from cache (Linux)
+      - name: Grab Swift Support Tools from cache
         id: swift-cache-linux
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         uses: actions/cache/restore@v5
         with:
           path: |
             ${{ env.THEOS }}/vendor/swift-support/.theos_build
             ${{ env.THEOS }}/vendor/swift-support/.build
           key: swift_tools-linux-${{ env.THEOS_SWIFT_TOOLCHAIN_VERSION }}-${{ matrix.scheme }}
-        
+
         # if this works, it should save roughly 3 to 4 minutes for future workflow runs
-      - name: Grab Orion Preprocessor from cache (Linux)
+      - name: Grab Orion Preprocessor from cache
         id: orion-cache-linux
-        if: inputs.runner == 'linux' && (steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         uses: actions/cache/restore@v5
         with:
           path: |
@@ -573,7 +495,7 @@ jobs:
           key: orion_build-linux-cache-${{ env.THEOS_SWIFT_TOOLCHAIN_VERSION }}-${{ matrix.scheme }}
 
       - name: Save completed Swift support cache
-        if: inputs.runner == 'linux' && (always() && steps.swift-cache-linux.outputs.cache-hit != 'true' && hashFiles('theos/vendor/swift-support/.theos_build/**', 'theos/vendor/swift-support/.build/**') != '')
+        if: always() && steps.swift-cache-linux.outputs.cache-hit != 'true' && hashFiles('theos/vendor/swift-support/.theos_build/**', 'theos/vendor/swift-support/.build/**') != ''
         uses: actions/cache/save@v5
         continue-on-error: true
         with:
@@ -583,7 +505,7 @@ jobs:
           key: swift_tools-linux-${{ env.THEOS_SWIFT_TOOLCHAIN_VERSION }}-${{ matrix.scheme }}
 
       - name: Save completed Orion cache
-        if: inputs.runner == 'linux' && (always() && steps.orion-cache-linux.outputs.cache-hit != 'true' && hashFiles('theos/vendor/orion/.theos_build/**', 'theos/vendor/orion/.build/**') != '')
+        if: always() && steps.orion-cache-linux.outputs.cache-hit != 'true' && hashFiles('theos/vendor/orion/.theos_build/**', 'theos/vendor/orion/.build/**') != ''
         uses: actions/cache/save@v5
         continue-on-error: true
         with:
@@ -592,65 +514,13 @@ jobs:
             ${{ env.THEOS }}/vendor/orion/.build
           key: orion_build-linux-cache-${{ env.THEOS_SWIFT_TOOLCHAIN_VERSION }}-${{ matrix.scheme }}
 
-      - name: Grab EeveeSwiftProtobuf.framework from cache
-        if: inputs.runner == 'macos' && (steps.deb-eevee-cache.outputs.cache-hit != 'true')
-        id: protobuf-cache
-        uses: actions/cache@v5
-        with:
-          # /Users/runner/work/EeveePrebuilt/EeveePrebuilt/theos/lib/iphone/rootless/EeveeSwiftProtobuf.framework
-          # env.THEOS is /Users/runner/work/EeveePrebuilt/EeveePrebuilt/theos
-          # the rest of the path is just where EeveeSwiftProtobuf.framework is.
-          path: ${{ env.THEOS }}/lib/iphone/${{ matrix.scheme }}/EeveeSwiftProtobuf.framework
-          # this should end up being like "eeveeswiftprotobuf-1.29.0"
-          key: eeveeswiftprotobuf-${{ env.PROTOBUF_COMMIT_ID }}-${{ matrix.scheme }}-cache
-
-        # hopefully, this should only run if the above step (cache) doesn't exist
-        # update (10/1/2026): u/Apprehensive-Two7029 provided this fix for the EeveeSwiftProtobuf framework being
-        # broken when sideloading with Sideloadly. even though this became an issue with v0.70.0, there is still
-        # a fix that can be made with the way this framework is built to resolve that Sideloadly issue.
-        # source: https://www.reddit.com/r/sideloadly/comments/1wupno3/comment/pd5xvn9
-      - name: Build EeveeSwiftProtobuf.framework from source
-        if: inputs.runner == 'macos' && (steps.deb-eevee-cache.outputs.cache-hit != 'true' && steps.protobuf-cache.outputs.cache-hit != 'true')
-        env:
-          SWIFTPROTOBUF_VERSION: ${{ env.SWIFTPROTOBUF_VERSION }}
-        run: |
-          make build-eeveeswiftprotobuf
-
-          if [ "${{ matrix.scheme }}" = "rootless" ]; then
-            F="${{ env.THEOS }}/lib/iphone/${{ matrix.scheme }}/EeveeSwiftProtobuf.framework/EeveeSwiftProtobuf"
-            lipo -thin arm64 "$F" -output thin && mv thin "$F"
-            codesign -f -s - "$F"
-          fi
-
-        # this should save another like 10 to 15s as it'll already have Swift Support Tools built
-      - name: Grab Swift Support Tools from cache
-        id: swift-cache
-        if: inputs.runner == 'macos' && (steps.deb-eevee-cache.outputs.cache-hit != 'true')
-        uses: actions/cache@v5
-        with:
-          path: |
-            ${{ env.THEOS }}/vendor/swift-support/.theos_build
-            ${{ env.THEOS }}/vendor/swift-support/.build
-          key: swift_tools-cache-${{ env.XCODE_VERSION }}-${{ matrix.scheme }}
-        
-        # if this works, it should save roughly 3 to 4 minutes for future workflow runs
-      - name: Grab Orion Preprocessor from cache
-        id: orion-cache
-        if: inputs.runner == 'macos' && (steps.deb-eevee-cache.outputs.cache-hit != 'true')
-        uses: actions/cache@v5
-        with:
-          path: |
-            ${{ env.THEOS }}/vendor/orion/.theos_build
-            ${{ env.THEOS }}/vendor/orion/.build
-          key: orion_build-cache-${{ env.XCODE_VERSION }}-${{ matrix.scheme }}
-
       - name: Build .deb (${{ matrix.scheme }})
         id: build-deb-package
-        if: ((inputs.runner == 'macos' && steps.deb-eevee-cache.outputs.cache-hit != 'true') || (inputs.runner == 'linux' && steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'))
+        if: steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         run: make package FINALPACKAGE=1
-      
+
       - name: Save completed .deb cache
-        if: inputs.runner == 'linux' && (steps.build-deb-package.outcome == 'success' && steps.deb-eevee-cache-linux.outputs.cache-hit != 'true')
+        if: steps.build-deb-package.outcome == 'success' && steps.deb-eevee-cache-linux.outputs.cache-hit != 'true'
         uses: actions/cache/save@v5
         continue-on-error: true
         with:
@@ -675,15 +545,15 @@ jobs:
 
   build-ipa:
     needs: build-deb
-    runs-on: ${{ inputs.runner == 'linux' && 'ubuntu-24.04' || 'macos-latest' }}
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         variant:
           - Unpatched
           - Patched
     outputs:
-      SPOTIFY_VERSION: ${{ steps.SPOTIFY_VERSION.outputs.SPOT_VERSION_SHORT || steps.SPOTIFY_VERSION_LINUX.outputs.SPOT_VERSION_SHORT }}
-      SPOTIFY_VERSION_FULL: ${{ steps.SPOTIFY_VERSION.outputs.SPOT_VERSION_FULL || steps.SPOTIFY_VERSION_LINUX.outputs.SPOT_VERSION_FULL }}
+      SPOTIFY_VERSION: ${{ steps.SPOTIFY_VERSION_LINUX.outputs.SPOT_VERSION_SHORT }}
+      SPOTIFY_VERSION_FULL: ${{ steps.SPOTIFY_VERSION_LINUX.outputs.SPOT_VERSION_FULL }}
     env:
       COMMIT_ID: ${{ needs.build-deb.outputs.commit_id }}
       THEOS: ${{ github.workspace }}/theos
@@ -692,7 +562,6 @@ jobs:
       - name: Checkout EeveePrebuilt
         uses: actions/checkout@v7
         with:
-          repository: ${{ inputs.source_repository || github.repository }}
           ref: ${{ inputs.branch }}
           fetch-depth: 0
           submodules: recursive
@@ -704,7 +573,7 @@ jobs:
           echo "zxPluginsInject_COMMIT_ID=$zxPluginsInject_COMMIT" >> $GITHUB_ENV
 
       - name: (PATCHED) Grab zxPluginsInject.dylib from cache
-        if: inputs.runner == 'linux' && (matrix.variant == 'Patched')
+        if: matrix.variant == 'Patched'
         id: zxPluginsInject-cache-linux
         uses: actions/cache/restore@v5
         with:
@@ -712,40 +581,15 @@ jobs:
           key: zxPluginsInject-${{ env.zxPluginsInject_COMMIT_ID }}-cache
 
         # Theos is not cached here: the whole $THEOS tree is multi-gigabyte.
-      - name: (PATCHED) Grab zxPluginsInject.dylib from cache
-        if: inputs.runner == 'macos' && (matrix.variant == 'Patched')
-        id: zxPluginsInject-cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ github.workspace }}/packages/zxPluginsInject.dylib
-          key: zxPluginsInject-${{ env.zxPluginsInject_COMMIT_ID }}-cache
-
-      - name: (PATCHED) Cache Theos
-        if: inputs.runner == 'macos' && (matrix.variant == 'Patched' && steps.zxPluginsInject-cache.outputs.cache-hit != 'true')
-        id: ipa-theos-cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ github.workspace }}/theos
-          key: theos-cache-${{ env.XCODE_VERSION }}-rootless
-
-      - name: (PATCHED) Setup Theos
-        uses: actions/checkout@v7
-        if: inputs.runner == 'macos' && (matrix.variant == 'Patched' && steps.zxPluginsInject-cache.outputs.cache-hit != 'true' && steps.ipa-theos-cache.outputs.cache-hit != 'true')
-        with:
-          repository: theos/theos
-          path: ${{ github.workspace }}/theos
-          submodules: recursive
-
       - name: (PATCHED) Install Linux Theos toolchain
-        if: inputs.runner == 'linux' && (matrix.variant == 'Patched' && steps.zxPluginsInject-cache-linux.outputs.cache-hit != 'true')
+        if: matrix.variant == 'Patched' && steps.zxPluginsInject-cache-linux.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential dpkg-dev fakeroot llvm make rsync
           curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos -o "$RUNNER_TEMP/install-theos"
           printf 'y\n' | env -u CI bash "$RUNNER_TEMP/install-theos"
 
-      - name: Install IPA tools (Linux)
-        if: inputs.runner == 'linux'
+      - name: Install IPA tools
         run: |
           sudo apt-get update
           sudo apt-get install -y dpkg-dev file python3-pil python3-pip python3-venv unzip wget zip
@@ -784,32 +628,15 @@ jobs:
             ipapatch --help >/dev/null
           fi
 
-      - name: Install IPA tools
-        if: inputs.runner == 'macos'
-        run: |
-          brew trust aws/tap azure/bicep
-          python3 -m pip install --upgrade --break-system-packages \
-              git+https://github.com/asdfzxcvbn/pyzule-rw.git
-          ARCH=$(uname -m); [ "$ARCH" = "x86_64" ] && SUFFIX=macos-amd64 || SUFFIX=macos-arm64
-
-          if [ "${{ matrix.variant }}" = "Patched" ]; then
-            brew install dpkg ldid
-            sudo curl -fsSL "https://github.com/asdfzxcvbn/ipapatch/releases/latest/download/ipapatch.${SUFFIX}" \
-                -o /usr/local/bin/ipapatch
-            sudo chmod +x /usr/local/bin/ipapatch
-          else
-            brew install dpkg
-          fi
-
       - name: Mask decrypted .ipa URL
-        uses: levibostian/action-hide-sensitive-inputs@v1 
-        
+        uses: levibostian/action-hide-sensitive-inputs@v1
+
       - name: Download .deb artifact
         uses: actions/download-artifact@v8
         with:
           name: com.eevee.spotify_${{ env.COMMIT_ID }}-rootless
           path: deb
-      
+
       - name: Download decrypted .ipa
         run: |
           wget "${{ inputs.ipa_url }}" --no-verbose -O ${{ github.workspace }}/spotify.ipa
@@ -819,8 +646,8 @@ jobs:
             exit 1
           fi
 
-      - name: Configure Linux tool paths (Linux)
-        if: inputs.runner == 'linux' && (matrix.variant == 'Patched' && steps.zxPluginsInject-cache-linux.outputs.cache-hit != 'true')
+      - name: Configure Linux tool paths
+        if: matrix.variant == 'Patched' && steps.zxPluginsInject-cache-linux.outputs.cache-hit != 'true'
         run: |
           echo "$THEOS/toolchain/swift/bin" >> "$GITHUB_PATH"
           echo "$THEOS/toolchain/linux/iphone/bin" >> "$GITHUB_PATH"
@@ -832,7 +659,6 @@ jobs:
           if [ -n "$LIPO" ]; then echo "LIPO=$LIPO" >> "$GITHUB_ENV"; fi
 
       - name: Identify Spotify version from IPA
-        if: inputs.runner == 'linux'
         id: SPOTIFY_VERSION_LINUX
         run: |
           VERSION_FULL=$(unzip -p ${{ github.workspace }}/spotify.ipa 'Payload/Spotify.app/Info.plist' \
@@ -853,18 +679,6 @@ jobs:
             unzip -p ${{ github.workspace }}/spotify.ipa 'Payload/Spotify.app/Info.plist' \
               | python3 -c 'import plistlib,sys; print(sorted(plistlib.loads(sys.stdin.buffer.read())))' || true
           fi
-          echo "SPOT_VERSION_FULL=$VERSION_FULL" >> $GITHUB_OUTPUT
-
-          VERSION_SHORT=$(echo "$VERSION_FULL" | cut -d. -f1-3)
-          echo "SPOT_VERSION_SHORT=$VERSION_SHORT" >> $GITHUB_OUTPUT
-          echo "SPOT_VERSION_SHORT=$VERSION_SHORT" >> $GITHUB_ENV
-
-      - name: Identify Spotify version from IPA
-        if: inputs.runner == 'macos'
-        id: SPOTIFY_VERSION
-        run: |
-          VERSION_FULL=$(unzip -p ${{ github.workspace }}/spotify.ipa 'Payload/Spotify.app/Info.plist' \
-            | plutil -extract SpotifyVersionMedium raw - 2>/dev/null || echo "unknown")
           echo "SPOT_VERSION_FULL=$VERSION_FULL" >> $GITHUB_OUTPUT
 
           VERSION_SHORT=$(echo "$VERSION_FULL" | cut -d. -f1-3)
@@ -896,9 +710,9 @@ jobs:
                -f "${INJECT[@]}" -c 1 -m 15.0 -du
           echo "OUT_IPA=$OUT" >> $GITHUB_ENV
           echo "DYLIB_SRC=$DYLIB_SRC" >> $GITHUB_ENV
-          
+
       - name: (PATCHED) Build zxPluginsInject.dylib from source
-        if: matrix.variant == 'Patched' && ((inputs.runner == 'macos' && steps.zxPluginsInject-cache.outputs.cache-hit != 'true') || (inputs.runner == 'linux' && steps.zxPluginsInject-cache-linux.outputs.cache-hit != 'true'))
+        if: matrix.variant == 'Patched' && steps.zxPluginsInject-cache-linux.outputs.cache-hit != 'true'
         run: |
           chmod +x Tools/build-zxpi.sh
           Tools/build-zxpi.sh
@@ -910,21 +724,21 @@ jobs:
                    --dylib packages/zxPluginsInject.dylib
 
       - name: Restore cross toolchain for Pixie
-        if: inputs.runner == 'linux' && (inputs.pixie == true && inputs.ipa_url != '')
+        if: inputs.ipa_url != ''
         uses: actions/cache/restore@v5
         with:
           path: ${{ env.THEOS }}/toolchain/linux
           key: cross-toolchain-linux-${{ env.THEOS_SWIFT_TOOLCHAIN_VERSION }}-${{ env.IOS_SDK_VERSION }}
 
       - name: Restore iOS SDK for Pixie
-        if: inputs.runner == 'linux' && (inputs.pixie == true && inputs.ipa_url != '')
+        if: inputs.ipa_url != ''
         uses: actions/cache/restore@v5
         with:
           path: ${{ env.THEOS }}/sdks/iPhoneOS${{ env.IOS_SDK_VERSION }}.sdk
           key: ios-sdk-${{ env.IOS_SDK_VERSION }}-source-1b92ff4
 
-      - name: Add Pixie download manager (Linux)
-        if: inputs.runner == 'linux' && (inputs.pixie == true && inputs.ipa_url != '')
+      - name: Add Pixie download manager
+        if: inputs.ipa_url != ''
         env:
           PIXIE_SRC: ${{ runner.temp }}/pixie-src
           PIXIE_SHIMS: ${{ runner.temp }}/pixie-shims
@@ -1130,37 +944,11 @@ jobs:
           unzip -l "$OUT_ABS" | grep SpotifyAudioProbe.dylib \
             || { echo "::error::SpotifyAudioProbe.dylib missing from IPA"; exit 1; }
 
-      - name: Add Pixie download manager (Spotify 9.2.0+)
-        if: inputs.runner == 'macos' && inputs.pixie == true
-        run: |
-          if [ "$SPOT_VERSION_SHORT" != "9.2.0" ]; then
-            echo "::warning::Pixie download manager supports Spotify 9.2.0 only (this IPA is $SPOT_VERSION_SHORT); skipping."
-            exit 0
-          fi
-          python3 NativeDownloads/tools/validate_eevee_9192.py
-          EEVEE_DYLIB=$DYLIB_SRC
-          PIXIE_OUT="$RUNNER_TEMP/pixie/$(basename "$OUT_IPA")"
-          mkdir -p "$(dirname "$PIXIE_OUT")"
-          python3 NativeDownloads/tools/build_eevee_9192.py "$OUT_IPA" \
-              --eevee-dylib "$EEVEE_DYLIB" --output "$PIXIE_OUT" > "$RUNNER_TEMP/pixie-report.json"
-          mv -f "$PIXIE_OUT" "$OUT_IPA"
-          unzip -l "$OUT_IPA" | grep SpotifyAudioProbe.dylib \
-              || { echo "::error::SpotifyAudioProbe.dylib missing from IPA"; exit 1; }
-          echo "Pixie companion bundled: Payload/Spotify.app/Frameworks/SpotifyAudioProbe.dylib"
-
-      - name: (UNPATCHED) Strip incompatible bundles (Linux)
-        if: inputs.runner == 'linux' && (matrix.variant == 'Unpatched')
+      - name: (UNPATCHED) Strip incompatible bundles
+        if: matrix.variant == 'Unpatched'
         run: |
           chmod +x Tools/strip-ipa.sh
           Tools/strip-ipa.sh "$OUT_IPA"
-
-        # a friend on mine Discord offered to improve these two steps significantly
-        # and when i heard "help" i interpreted it as "i'll help" and not "claude'll help", but hey it worked ig
-      - name: (UNPATCHED) Strip incompatible bundles
-        if: inputs.runner == 'macos' && (matrix.variant == 'Unpatched')
-        run: |
-          chmod +x Tools/strip-ipa-modified.sh
-          Tools/strip-ipa-modified.sh "$OUT_IPA"
 
         # a friend on mine Discord offered to improve these two steps significantly
         # and when i heard "help" i interpreted it as "i'll help" and not "claude'll help", but hey it worked ig
@@ -1173,7 +961,7 @@ jobs:
 
           IPA_NAME="$(basename "$OUT_IPA")"
           cd "$(dirname "$OUT_IPA")"
-          
+
           zip -d "$IPA_NAME" \
             "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex/*" \
             "Payload/Spotify.app/Watch/*" \
@@ -1181,19 +969,18 @@ jobs:
             "Payload/Spotify.app/WatchKit*" \
             "Payload/WatchKitSupport/*" \
             >/dev/null 2>&1 || true
-          
+
           STAGE="$RUNNER_TEMP/appex_stage"
           mkdir -p "$STAGE/Payload/Spotify.app/PlugIns"
           cp -R "$EXT_SRC" "$STAGE/Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
-          
+
           cd "$STAGE"
           zip -qry "$OLDPWD/$IPA_NAME" "Payload/Spotify.app/PlugIns/OpenSpotifySafariExtension.appex"
-          
-      - name: Install Linux-compatible alt icons
-        if: inputs.runner == 'linux' && (inputs.ipa_url != '')
+
+      - name: Install alternate icon tool for Linux
+        if: inputs.ipa_url != ''
         run: |
-          # current upstream's Tools/alt-icons.sh calls macOS-only sips
-          # and PlistBuddy. use the Python/PIL versions from the tested setup.
+          # Replace upstream's Apple-specific icon tools with Python/Pillow.
           cat > Tools/alt-icons.py <<'EOF'
           #!/usr/bin/env python3
           """Cross-platform icon resizing and Info.plist patching for alt-icons.sh."""
@@ -1295,11 +1082,7 @@ jobs:
                   for spec in "@2x:120" "@3x:180" "@2x~ipad:152" "~ipad:76"; do
                       local out="$ICON_DIR/${name}${spec%:*}.png"
                       [ -f "$out" ] && [ "$out" -nt "$src" ] && continue
-                      if command -v sips >/dev/null 2>&1; then
-                          sips -s format png -z "${spec#*:}" "${spec#*:}" "$src" --out "$out" >/dev/null
-                      else
-                          python3 "$PY_HELPER" resize "$src" "$out" "${spec#*:}"
-                      fi
+                      python3 "$PY_HELPER" resize "$src" "$out" "${spec#*:}"
                   done
                   echo "[alt-icons] built $name"
               done
@@ -1347,14 +1130,13 @@ jobs:
           EOF
           chmod +x Tools/alt-icons.sh
           python3 -c "import PIL; print('PIL', PIL.__version__)"
-      - name: Stage alternate app icons (Linux)
-        if: inputs.runner == 'linux'
+      - name: Stage alternate app icons
         run: |
           chmod +x Tools/alt-icons.sh
           Tools/alt-icons.sh "$OUT_IPA"
 
       - name: Mark build platform
-        if: inputs.runner == 'linux' && (inputs.ipa_url != '')
+        if: inputs.ipa_url != ''
         run: |
           # a tiny root-level marker so a built IPA can be identified later
           marker="$RUNNER_TEMP/EeveePrebuilt-build-platform.txt"
@@ -1363,18 +1145,12 @@ jobs:
           (cd "$RUNNER_TEMP" && zip -q "$out_abs" "$(basename "$marker")")
           echo "Built on: ubuntu-24.04 (Linux)" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Stage alternate app icons
-        if: inputs.runner == 'macos'
-        run: |
-          chmod +x Tools/alt-icons-modified.sh
-          Tools/alt-icons-modified.sh "$OUT_IPA"
-
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v7
         with:
           name: EeveePrebuilt-${{ matrix.variant }}
           path: ${{ env.OUT_IPA }}
-          if-no-files-found: error     
+          if-no-files-found: error
 
   github-release:
     needs: [build-ipa, build-deb]
@@ -1433,9 +1209,9 @@ jobs:
         uses: geekyeggo/delete-artifact@v6
         with:
           name: |
-              EeveePrebuilt-*
-              com.eevee.spotify_*
-    
+            EeveePrebuilt-*
+            com.eevee.spotify_*
+
       - name: Update README header information
         run: |
           DATE=$(date -u +%m/%d/%y)
