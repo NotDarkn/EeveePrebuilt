@@ -56,6 +56,3 @@ The latest prebuilt binaries can be found [here](https://github.com/NotDarkn/Eev
 - [Skye](https://github.com/Meeep1) - EeveeSpotifyRevivedPublic (_the back bone of EeveeSpotifyReincarnated_)
     
 </details>
-
-
-
