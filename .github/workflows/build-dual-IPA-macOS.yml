@@ -313,10 +313,10 @@ jobs:
                    
       - name: Add Pixie download manager (Spotify 9.2.0+)
         run: |
-          # if [ "$SPOT_VERSION_SHORT" != "9.2.0" ]; then
-          #   echo "::warning::Pixie download manager supports Spotify 9.2.0 only (this IPA is $SPOT_VERSION_SHORT); skipping."
-          #   exit 0
-          # fi
+          if [ "$SPOT_VERSION_SHORT" != "9.2.0" ]; then
+            echo "::warning::Pixie download manager supports Spotify 9.2.0 only (this IPA is $SPOT_VERSION_SHORT); skipping."
+            exit 0
+          fi
           python3 NativeDownloads/tools/validate_eevee_9192.py
           EEVEE_DYLIB=$DYLIB_SRC
           PIXIE_OUT="$RUNNER_TEMP/pixie/$(basename "$OUT_IPA")"
