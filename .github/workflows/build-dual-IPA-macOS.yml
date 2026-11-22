@@ -317,7 +317,7 @@ jobs:
             echo "::warning::Pixie download manager supports Spotify 9.2.0 and Spotify 9.2.2 only (this IPA is $SPOT_VERSION_SHORT); skipping."
             exit 0
           fi
-          export PIXIE_TARGET="targets/spotify-$SPOT_VERSION.json"
+          export PIXIE_TARGET="targets/spotify-$SPOT_VERSION_SHORT.json"
           python3 NativeDownloads/tools/port/regenerate_headers.py
           python3 NativeDownloads/tools/validate_eevee_9192.py
           EEVEE_DYLIB=$DYLIB_SRC
