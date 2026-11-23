@@ -743,10 +743,6 @@ jobs:
           PIXIE_SRC: ${{ runner.temp }}/pixie-src
           PIXIE_SHIMS: ${{ runner.temp }}/pixie-shims
         run: |
-          if [ "$SPOT_VERSION_SHORT" != "9.2.0" ]; then
-            echo "::warning::Pixie only supports 9.2.0 (IPA is $SPOT_VERSION_SHORT); skipping"
-            exit 0
-          fi
           SDK="$THEOS/sdks/iPhoneOS${IOS_SDK_VERSION}.sdk"
           CLANG="$THEOS/toolchain/linux/iphone/bin/clang"
           SWIFTC="$THEOS/toolchain/linux/iphone/bin/swiftc"
