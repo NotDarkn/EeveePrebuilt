@@ -52,8 +52,6 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-        # The checked-out source commit is used for Linux artifact naming.
-
       - name: Compute deb cache key
         run: |
           # make writes a generated file into Sources/, so hash before the build
@@ -71,7 +69,11 @@ jobs:
       - name: Setup Commit ID
         id: SETUP_COMMIT_ID
         run: |
-          COMMIT_FULL=$(git rev-parse HEAD)
+          # artifact/release naming follows the tweak repo, not this wrapper repo;
+          # otherwise a CI-only commit here mints a new "version" whose commit link
+          # points at a SHA that does not exist in EeveeSpotifyReincarnated.
+          COMMIT_FULL=$(git ls-remote https://github.com/SideloadLabs/EeveeSpotifyReincarnated.git ${{ inputs.branch }} | cut -f1)
+          [ -n "$COMMIT_FULL" ] || { echo "::error::could not resolve branch '${{ inputs.branch }}' in EeveeSpotifyReincarnated" >&2; exit 1; }
           COMMIT=${COMMIT_FULL:0:7}
           echo "COMMIT_ID=$COMMIT" >> "$GITHUB_OUTPUT"
           echo "COMMIT_ENV=$COMMIT" >> "$GITHUB_ENV"
