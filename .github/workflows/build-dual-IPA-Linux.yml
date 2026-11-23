@@ -931,6 +931,10 @@ jobs:
           export PATH="$PIXIE_SHIMS:$THEOS/toolchain/linux/iphone/bin:$THEOS/toolchain/swift/bin:$THEOS/bin:$PATH"
 
           cd "$PIXIE_SRC"
+          # Point Pixie at the profile for the Spotify version we just detected,
+          # then regenerate the target-dependent headers so validate/build see it.
+          export PIXIE_TARGET="targets/spotify-$SPOT_VERSION_SHORT.json"
+          python3 NativeDownloads/tools/port/regenerate_headers.py
           python3 NativeDownloads/tools/validate_eevee_9192.py
           PIXIE_OUT="$RUNNER_TEMP/pixie/$(basename "$OUT_ABS")"
           mkdir -p "$(dirname "$PIXIE_OUT")"
