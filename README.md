@@ -29,6 +29,7 @@ The latest prebuilt binaries can be found [here](https://github.com/NotDarkn/Eev
 
 - [NotDarkn](https://github.com/NotDarkn) - EeveePrebuilt (_me_)
 - [estrogencat](https://github.com/estrogencat) - EeveeIPA (_motivator for EeveePrebuilt_)
+- [uhhwave](https://github.com/uhhwave) - Creating the Linux workflow
     
 </details>
 
