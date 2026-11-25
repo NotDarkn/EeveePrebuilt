@@ -313,8 +313,8 @@ jobs:
                    
       - name: Add Pixie download manager (Spotify 9.2.0+)
         run: |
-          if [ "$SPOT_VERSION" != "9.2.2" ]; then
-            echo "::warning::Pixie download manager supports Spotify 9.2.2 or lower only (this IPA is $SPOT_VERSION); skipping."
+          if [ "$SPOT_VERSION_SHORT" != "9.2.2" ]; then
+            echo "::warning::Pixie download manager supports Spotify 9.2.2 or lower only (this IPA is $SPOT_VERSION_SHORT); skipping."
             LYRICS_IPA="$RUNNER_TEMP/$(basename "$OUT_IPA")"
             python3 NativeDownloads/tools/package_lyrics_viewer.py "$OUT_IPA" --output "$LYRICS_IPA"
             mv -f "$LYRICS_IPA" "$OUT_IPA"
